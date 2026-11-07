@@ -96,7 +96,7 @@ tr:hover{background:#fff7fa}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA", // <-- SUA CHAVE AQUI
+  apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA",
   authDomain: "projeto-link-ddbf0.firebaseapp.com",
   databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
   projectId: "projeto-link-ddbf0",
@@ -116,19 +116,28 @@ function carregarConfig() {
       document.getElementById("cfg-desconto").value = c.descontoGlobal || "";
       document.getElementById("cfg-chave-pix").value = c.chavePixSecreta || "";
     }
-  });
+  }).catch(e => console.warn("Erro ao ler config:", e));
 }
 carregarConfig();
 
 document.getElementById("btn-salvar").onclick = () => {
   const descontoGlobal = parseFloat(document.getElementById("cfg-desconto").value) || 0;
   const chavePixSecreta = document.getElementById("cfg-chave-pix").value.trim();
+  
+  document.getElementById("msg").textContent = "Salvando...";
+  document.getElementById("msg").style.color = "#666";
+
   fs.collection("config").doc("global").set({ descontoGlobal, chavePixSecreta }, { merge: true })
     .then(() => {
+      document.getElementById("msg").style.color = "#155724";
       document.getElementById("msg").textContent = "✅ Salvo! O site já está aplicando o desconto.";
       setTimeout(() => document.getElementById("msg").textContent = "", 4000);
     })
-    .catch(e => alert("Erro: " + e.message));
+    .catch(e => {
+      document.getElementById("msg").style.color = "#d81b60";
+      document.getElementById("msg").textContent = "❌ Erro: " + e.message;
+      alert("Erro ao salvar!\n\nO Firestore está ativado no seu Firebase? Verifique no console.\n\nDetalhe: " + e.message);
+    });
 };
 
 /* ===== VIAGENS PESQUISADAS ===== */

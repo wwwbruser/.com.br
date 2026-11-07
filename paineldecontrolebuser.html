@@ -14,6 +14,7 @@
   button { width: 100%; padding: 14px; background: #f11075; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: 'Poppins'; font-size: 16px; margin-top: 24px;}
   button:hover { background: #e70869; }
   .msg { text-align: center; font-size: 14px; margin-top: 12px; color: #40b552; display: none; }
+  .msg-erro { color: #d81b60; }
 </style>
 </head>
 <body>
@@ -35,22 +36,26 @@
   <label>Chave Secreta BlackCat (API Key)</label>
   <input type="password" id="inputBlackcatKey" placeholder="Cole sua chave aqui">
   
-  <button onclick="salvarConfig()">Salvar Configurações</button>
-  <p class="msg" id="msgSucesso">Salvo com sucesso!</p>
+  <button onclick="salvarConfig()" id="btn-salvar">Salvar Configurações</button>
+  <p class="msg" id="msgStatus"></p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
+  // Configuração do SEU projeto Firebase novo
   const firebaseConfig = {
     apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA",
-    authDomain: "projeto-link-ddbf0.firebaseapp.com",
-    projectId: "projeto-link-ddbf0",
+    authDomain: "buser202872a.firebaseapp.com",
+    projectId: "buser202872a",
+    storageBucket: "buser202872a.appspot.com",
+    messagingSenderId: "560317126646",
+    appId: "1:560317126646:web:be9cad9c9ed350940399d7"
   };
+  
   firebase.initializeApp(firebaseConfig);
   const fs = firebase.firestore();
-
-  const SENHA_MESTRA = "buser2026"; // 👉 TROQUE AQUI PARA A SUA SENHA
+  const SENHA_MESTRA = "buser2026";
 
   function fazerLogin() {
     const senha = document.getElementById('senhaAdmin').value;
@@ -64,24 +69,45 @@
   }
 
   async function carregarDados() {
-    const doc = await fs.collection("config").doc("global").get();
-    if (doc.exists) {
-      document.getElementById('inputDesconto').value = doc.data().descontoGlobal || 0;
-      document.getElementById('inputBlackcatKey').value = doc.data().blackcatKey || '';
+    try {
+      const doc = await fs.collection("config").doc("global").get();
+      if (doc.exists) {
+        document.getElementById('inputDesconto').value = doc.data().descontoGlobal || 0;
+        document.getElementById('inputBlackcatKey').value = doc.data().blackcatKey || '';
+      }
+    } catch (e) {
+      console.log("Sem dados ainda, mas pode digitar.");
     }
   }
 
   async function salvarConfig() {
+    const btn = document.getElementById('btn-salvar');
+    const msg = document.getElementById('msgStatus');
+    
+    btn.textContent = "Salvando...";
+    msg.style.display = 'none';
+
     const desconto = parseFloat(document.getElementById('inputDesconto').value) || 0;
     const blackcatKey = document.getElementById('inputBlackcatKey').value;
     
-    await fs.collection("config").doc("global").set({
-      descontoGlobal: desconto,
-      blackcatKey: blackcatKey
-    }, { merge: true });
-    
-    document.getElementById('msgSucesso').style.display = 'block';
-    setTimeout(() => document.getElementById('msgSucesso').style.display = 'none', 3000);
+    try {
+      await fs.collection("config").doc("global").set({
+        descontoGlobal: desconto,
+        blackcatKey: blackcatKey
+      }, { merge: true });
+      
+      msg.textContent = "Salvo com sucesso!";
+      msg.className = "msg";
+      msg.style.display = 'block';
+    } catch (error) {
+      msg.textContent = "Erro ao salvar. Verifique o console.";
+      msg.className = "msg msg-erro";
+      msg.style.display = 'block';
+      console.error("Erro ao salvar:", error);
+    } finally {
+      btn.textContent = "Salvar Configurações";
+      setTimeout(() => msg.style.display = 'none', 4000);
+    }
   }
 </script>
 </body>

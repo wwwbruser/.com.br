@@ -1,189 +1,88 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Painel de Controle | Buser</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin - Buser</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --brand:#f11075; --grey-dark:#454545; --grey-light:#e0e0e0; --green:#40b552; }
-  * { box-sizing: border-box; }
-  body { font-family: 'Poppins', sans-serif; background: #f4f5f7; color: var(--grey-dark); margin: 0; padding: 24px; }
-  .container { max-width: 1000px; margin: 0 auto; }
-  h1 { color: var(--brand); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
-  .status { font-size: 12px; font-weight: 600; color: var(--green); display: flex; align-items: center; gap: 4px; }
-  .status::before { content: ''; width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
-  .card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--grey-light); }
-  .card h3 { margin: 0 0 8px; font-size: 14px; color: #757575; text-transform: uppercase; letter-spacing: 0.5px; }
-  .card .number { font-size: 36px; font-weight: 700; color: var(--brand); }
-  .card .sub { font-size: 12px; color: #999; }
-  .section { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--grey-light); }
-  .section h2 { margin-top: 0; color: var(--brand); border-bottom: 2px solid var(--brand); padding-bottom: 8px; display: inline-block; }
-  .input-group { margin-bottom: 16px; }
-  .input-group label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 14px; }
-  .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins'; font-size: 14px; }
-  .input-group .sub { font-size: 12px; color: #999; margin-top: 4px; }
-  .btn { background: var(--brand); color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: 'Poppins'; }
-  .btn:hover { opacity: 0.8; }
-  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-  th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-  th { color: #757575; font-weight: 600; font-size: 12px; text-transform: uppercase; }
-  tr:last-child td { border-bottom: none; }
+  body { font-family: 'Poppins', sans-serif; background: #f4f5f7; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+  .login-box, .painel-box { background: #fff; padding: 32px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; display: none; }
+  h2 { color: #f11075; margin-top: 0; text-align: center; }
+  label { font-size: 12px; font-weight: 600; color: #666; display: block; margin-bottom: 4px; margin-top: 16px;}
+  input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins'; box-sizing: border-box; }
+  button { width: 100%; padding: 14px; background: #f11075; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: 'Poppins'; font-size: 16px; margin-top: 24px;}
+  button:hover { background: #e70869; }
+  .msg { text-align: center; font-size: 14px; margin-top: 12px; color: #40b552; display: none; }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>📊 Painel de Controle <span class="status">Online</span></h1>
 
-  <div class="grid">
-    <div class="card">
-      <h3>Pesquisas</h3>
-      <div class="number" id="pesquisas">0</div>
-      <div class="sub">Total de buscas realizadas</div>
-    </div>
-    <div class="card">
-      <h3>PIX Gerados</h3>
-      <div class="number" id="pix-gerados">0</div>
-      <div class="sub">Total de PIX criados</div>
-    </div>
-    <div class="card">
-      <h3>PIX Copiados</h3>
-      <div class="number" id="pix-copiados">0</div>
-      <div class="sub">Total de códigos copiados</div>
-    </div>
-  </div>
+<!-- Tela de Login -->
+<div class="login-box" id="loginBox" style="display: block;">
+  <h2>Acesso Restrito</h2>
+  <input type="password" id="senhaAdmin" placeholder="Digite a senha de admin">
+  <button onclick="fazerLogin()">Entrar</button>
+</div>
 
-  <div class="section">
-    <h2>⚙️ Configurações do Site</h2>
-    
-    <div class="input-group">
-      <label>API Key do Blackcat (para gerar PIX)</label>
-      <input type="text" id="blackcat-key" placeholder="Cole aqui a API Key do Blackcat">
-      <div class="sub">A chave fornecida pelo Blackcat para gerar PIX.</div>
-    </div>
-
-    <div class="input-group">
-      <label>Desconto Global (%)</label>
-      <input type="number" id="desconto" placeholder="Ex: 10" min="0" max="100">
-      <div class="sub">Desconto aplicado em todas as viagens do site.</div>
-    </div>
-
-    <div class="input-group">
-      <label>Chave PIX Secreta</label>
-      <input type="text" id="chave-pix" placeholder="Cole aqui a chave PIX secreta">
-      <div class="sub">Chave PIX que será exibida no checkout.</div>
-    </div>
-
-    <button class="btn" onclick="salvarConfig()">Salvar Configurações</button>
-    <p id="msg-config" style="color: var(--green); font-weight: 600; display: none; margin-top: 12px;">✅ Configurações salvas com sucesso!</p>
-  </div>
-
-  <div class="section">
-    <h2>📋 Últimas Pesquisas</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Data/Hora</th>
-          <th>Origem</th>
-          <th>Destino</th>
-        </tr>
-      </thead>
-      <tbody id="tabela-pesquisas">
-        <tr><td colspan="3" style="text-align: center; color: #999;">Carregando...</td></tr>
-      </tbody>
-    </table>
-  </div>
+<!-- Painel de Controle -->
+<div class="painel-box" id="painelBox">
+  <h2>Configurações</h2>
+  
+  <label>Desconto Global (%)</label>
+  <input type="number" id="inputDesconto" placeholder="Ex: 10" min="0" max="100">
+  
+  <label>Chave Secreta BlackCat (API Key)</label>
+  <input type="password" id="inputBlackcatKey" placeholder="Cole sua chave aqui">
+  
+  <button onclick="salvarConfig()">Salvar Configurações</button>
+  <p class="msg" id="msgSucesso">Salvo com sucesso!</p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA",
-  authDomain: "projeto-link-ddbf0.firebaseapp.com",
-  databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
-  projectId: "projeto-link-ddbf0",
-  storageBucket: "projeto-link-ddbf0.firebasestorage.app",
-  messagingSenderId: "560317126646",
-  appId: "1:560317126646:web:be9cad9c9ed350940399d7"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const fs = firebase.firestore();
+  const firebaseConfig = {
+    apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA",
+    authDomain: "projeto-link-ddbf0.firebaseapp.com",
+    projectId: "projeto-link-ddbf0",
+  };
+  firebase.initializeApp(firebaseConfig);
+  const fs = firebase.firestore();
 
-// ===== SALVAR CONFIGURAÇÕES =====
-function salvarConfig() {
-  const blackcatKey = document.getElementById('blackcat-key').value;
-  const desconto = parseFloat(document.getElementById('desconto').value) || 0;
-  const chavePix = document.getElementById('chave-pix').value;
+  const SENHA_MESTRA = "buser2026"; // 👉 TROQUE AQUI PARA A SUA SENHA
 
-  fs.collection("config").doc("global").set({
-    blackcatKey: blackcatKey,
-    descontoGlobal: desconto,
-    chavePixSecreta: chavePix,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
-    const msg = document.getElementById('msg-config');
-    msg.style.display = 'block';
-    setTimeout(() => { msg.style.display = 'none'; }, 3000);
-  }).catch(err => {
-    console.error(err);
-    alert('Erro ao salvar: ' + err.message);
-  });
-}
-
-// ===== CARREGAR CONFIGURAÇÕES =====
-fs.collection("config").doc("global").onSnapshot(snap => {
-  if (snap.exists) {
-    const data = snap.data();
-    document.getElementById('blackcat-key').value = data.blackcatKey || '';
-    document.getElementById('desconto').value = data.descontoGlobal || 0;
-    document.getElementById('chave-pix').value = data.chavePixSecreta || '';
+  function fazerLogin() {
+    const senha = document.getElementById('senhaAdmin').value;
+    if (senha === SENHA_MESTRA) {
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('painelBox').style.display = 'block';
+      carregarDados();
+    } else {
+      alert("Senha incorreta!");
+    }
   }
-});
 
-// ===== ESTATÍSTICAS EM TEMPO REAL =====
-fs.collection("pesquisas").onSnapshot(snap => {
-  document.getElementById('pesquisas').textContent = snap.size;
-  
-  const tabela = document.getElementById('tabela-pesquisas');
-  if (snap.size === 0) {
-    tabela.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999;">Nenhuma pesquisa registrada ainda.</td></tr>';
-    return;
+  async function carregarDados() {
+    const doc = await fs.collection("config").doc("global").get();
+    if (doc.exists) {
+      document.getElementById('inputDesconto').value = doc.data().descontoGlobal || 0;
+      document.getElementById('inputBlackcatKey').value = doc.data().blackcatKey || '';
+    }
   }
-  
-  const pesquisas = [];
-  snap.forEach(doc => {
-    const d = doc.data();
-    pesquisas.push({
-      data: d.timestamp ? d.timestamp.toDate().toLocaleString('pt-BR') : '--',
-      origem: d.origem,
-      destino: d.destino
-    });
-  });
-  
-  pesquisas.sort((a, b) => new Date(b.data) - new Date(a.data));
-  
-  tabela.innerHTML = pesquisas.slice(0, 10).map(p => `
-    <tr>
-      <td>${p.data}</td>
-      <td>${p.origem}</td>
-      <td>${p.destino}</td>
-    </tr>
-  `).join('');
-});
 
-fs.collection("pix_gerados").onSnapshot(snap => {
-  document.getElementById('pix-gerados').textContent = snap.size;
-});
-
-fs.collection("pix_copiados").onSnapshot(snap => {
-  document.getElementById('pix-copiados').textContent = snap.size;
-});
+  async function salvarConfig() {
+    const desconto = parseFloat(document.getElementById('inputDesconto').value) || 0;
+    const blackcatKey = document.getElementById('inputBlackcatKey').value;
+    
+    await fs.collection("config").doc("global").set({
+      descontoGlobal: desconto,
+      blackcatKey: blackcatKey
+    }, { merge: true });
+    
+    document.getElementById('msgSucesso').style.display = 'block';
+    setTimeout(() => document.getElementById('msgSucesso').style.display = 'none', 3000);
+  }
 </script>
 </body>
 </html>

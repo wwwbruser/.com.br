@@ -6,35 +6,55 @@
 <title>Painel de Controle | Buser</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --brand: #f11075; --bg: #f4f5f7; --text: #454545; }
+  :root { --brand: #f11075; --bg: #f4f5f7; --text: #454545; --green: #40b552; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
-  .container { width: 100%; max-width: 500px; }
+  .container { width: 100%; max-width: 700px; }
+  
+  /* Tela de Login */
   .login-box { background: #fff; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; margin-top: 10vh; display: block; }
   .login-box h1 { color: var(--brand); margin-top: 0; font-size: 24px; }
   .login-box input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins'; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; text-align: center; outline: none; transition: 0.2s; }
   .login-box button { width: 100%; padding: 15px; background: var(--brand); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-  .painel-box { display: none; animation: fadeIn 0.4s ease; }
+  
+  /* Painel */
+  .painel-box { display: none; animation: fadeIn 0.4s ease; width: 100%; }
   .header-painel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
   .header-painel h2 { margin: 0; font-size: 22px; color: var(--brand); }
   .btn-sair { background: transparent; border: 1px solid #ddd; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-family: 'Poppins'; font-size: 12px; font-weight: 600; color: #666; }
+  
+  /* Dashboard (Cards de Status) */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 8px; }
+  .stat-card h4 { margin: 0; font-size: 13px; color: #666; font-weight: 500; }
+  .stat-card .number { font-size: 32px; font-weight: 700; color: var(--brand); }
+  .stat-card .number.green { color: var(--green); }
+
+  /* Cards de Configuração */
   .card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #f0f0f0; }
   .card h3 { margin-top: 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; font-size: 13px; font-weight: 600; color: #666; margin-bottom: 6px; }
   .form-group input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins'; font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s; }
   .btn-salvar { width: 100%; padding: 16px; background: var(--brand); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-  .msg { text-align: center; font-size: 14px; margin-top: 16px; font-weight: 600; display: none; }
-  .msg.sucesso { color: #40b552; }
-  .msg.erro { color: #d81b60; }
-  .teste-box { background: #fdf6ec; border: 1px dashed var(--brand); border-radius: 16px; padding: 20px; text-align: center; margin-top: 20px;}
-  .teste-box p { font-size: 13px; color: #666; margin-top: 0; }
-  .btn-teste { background: #333; color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; font-family: 'Poppins'; width: 100%; transition: 0.2s;}
+  .btn-limpar { width: 100%; padding: 12px; background: transparent; color: #d81b60; border: 1px solid #d81b60; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+  .btn-limpar:hover { background: #fff0f5; }
+
+  /* Tabela de Histórico */
+  .table-container { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+  th { background: #f9f9f9; color: #666; font-weight: 600; }
+  tr:hover { background: #fafafa; }
+
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
 <div class="container">
+  
+  <!-- LOGIN -->
   <div class="login-box" id="loginBox">
     <h1>Acesso Restrito</h1>
     <p style="font-size: 14px; color: #666; margin-bottom: 24px;">Digite a senha para acessar o painel.</p>
@@ -42,41 +62,65 @@
     <button onclick="fazerLogin()">Entrar no Painel</button>
   </div>
 
+  <!-- PAINEL -->
   <div class="painel-box" id="painelBox">
     <div class="header-painel">
-      <h2>Painel de Controle</h2>
+      <h2>Dashboard Buser</h2>
       <button class="btn-sair" onclick="sair()">Sair</button>
     </div>
 
+    <!-- Estatísticas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h4>👥 Acessos (Pesquisas)</h4>
+        <div class="number" id="stat-pesquisas">0</div>
+      </div>
+      <div class="stat-card">
+        <h4>💸 PIX Gerados</h4>
+        <div class="number green" id="stat-pix">0</div>
+      </div>
+    </div>
+
+    <!-- Configurações -->
     <div class="card">
-      <h3>⚙️ Configurações Gerais</h3>
+      <h3>⚙️ Configurações</h3>
+      <div class="form-group">
+        <label>Chave PIX (CPF, Celular, E-mail ou Aleatória)</label>
+        <input type="text" id="inputChavePix" placeholder="Ex: 11999999999">
+        <p style="font-size: 11px; color: #999; margin: 4px 0 0 0;">O QR Code será gerado automaticamente com esta chave.</p>
+      </div>
       <div class="form-group">
         <label>Desconto Global (%)</label>
         <input type="number" id="inputDesconto" placeholder="Ex: 10" min="0" max="100">
       </div>
-      <div class="form-group">
-        <label>Chave Secreta BlackCat (API Key)</label>
-        <input type="password" id="inputBlackcatKey" placeholder="Cole sua chave da BlackCat aqui">
-      </div>
       <button class="btn-salvar" onclick="salvarConfig()">Salvar Configurações</button>
-      <p class="msg" id="msgStatus"></p>
+      <p class="msg" id="msgStatus" style="text-align:center; font-size:14px; margin-top:10px; display:none;"></p>
     </div>
 
-    <div class="card" style="padding-bottom: 24px;">
-      <h3>🧪 Testar Pagamento</h3>
-      <div class="teste-box">
-        <p>Clique no botão abaixo para simular uma compra de R$ 100,00 e gerar um PIX na BlackCat.</p>
-        <button class="btn-teste" onclick="testarPixNoPainel()">Gerar PIX de Teste</button>
+    <!-- Histórico de PIX -->
+    <div class="card">
+      <h3>📋 Histórico de PIX</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Cliente</th>
+              <th>Valor</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-pix">
+            <tr><td colspan="4" style="text-align:center; color:#999;">Nenhum PIX gerado ainda.</td></tr>
+          </tbody>
+        </table>
       </div>
-      <div id="resultado-pix-painel" style="display: none; text-align: center; margin-top: 16px;">
-        <img id="pix-qrcode-painel" src="" style="max-width: 200px; margin-bottom: 8px; border-radius: 10px;">
-        <textarea id="pix-copia-cola-painel" readonly style="width: 100%; height: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 12px; margin-bottom: 8px; font-family: monospace;"></textarea>
-        <button onclick="copiarPixPainel()" style="width: 100%; padding: 12px; background: #40b552; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Copiar Código PIX</button>
-      </div>
+      <button class="btn-limpar" onclick="limparHistorico()">Limpar Histórico de Testes</button>
     </div>
   </div>
 </div>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
@@ -97,61 +141,95 @@
       document.getElementById('loginBox').style.display = 'none';
       document.getElementById('painelBox').style.display = 'block';
       carregarDados();
+      carregarEstatisticas();
     } else { alert("Senha incorreta!"); }
   }
   function sair() { location.reload(); }
 
+  // 1. Carrega as Configurações
   async function carregarDados() {
     try {
       const doc = await fs.collection("config").doc("global").get();
       if (doc.exists) {
         document.getElementById('inputDesconto').value = doc.data().descontoGlobal || 0;
-        document.getElementById('inputBlackcatKey').value = doc.data().blackcatKey || '';
+        document.getElementById('inputChavePix').value = doc.data().chavePix || '';
       }
-    } catch (e) {}
+    } catch (e) { console.log("Erro ao carregar configs."); }
   }
 
+  // 2. Salva as Configurações
   async function salvarConfig() {
     const btn = document.querySelector('.btn-salvar');
     const msg = document.getElementById('msgStatus');
     btn.textContent = "Salvando...";
     msg.style.display = 'none';
+    
     const desconto = parseFloat(document.getElementById('inputDesconto').value) || 0;
-    const blackcatKey = document.getElementById('inputBlackcatKey').value;
+    const chavePix = document.getElementById('inputChavePix').value;
+    
     try {
-      await fs.collection("config").doc("global").set({ descontoGlobal: desconto, blackcatKey: blackcatKey }, { merge: true });
-      msg.textContent = "Salvo com sucesso!"; msg.className = "msg sucesso"; msg.style.display = 'block';
+      await fs.collection("config").doc("global").set({ 
+        descontoGlobal: desconto, 
+        chavePix: chavePix 
+      }, { merge: true });
+      
+      msg.textContent = "Salvo com sucesso!"; 
+      msg.style.color = "#40b552";
+      msg.style.display = 'block';
     } catch (error) {
-      msg.textContent = "Erro ao salvar."; msg.className = "msg erro"; msg.style.display = 'block';
-    } finally { btn.textContent = "Salvar Configurações"; setTimeout(() => msg.style.display = 'none', 4000); }
+      msg.textContent = "Erro ao salvar.";
+      msg.style.color = "#d81b60";
+      msg.style.display = 'block';
+    } finally { 
+      btn.textContent = "Salvar Configurações"; 
+      setTimeout(() => msg.style.display = 'none', 3000); 
+    }
   }
 
-  async function testarPixNoPainel() {
-    const btn = document.querySelector('.btn-teste');
-    btn.textContent = "Gerando..."; btn.disabled = true;
-    document.getElementById('resultado-pix-painel').style.display = 'none';
-    try {
-      const response = await fetch('https://buser-online.onrender.com/api/pix', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: 10000,
-          customer: { name: "Cliente Teste Da Silva", document: "12345678909" }
-        })
-      });
-      const data = await response.json();
-      if (data.pix && data.pix.qrCode) {
-        document.getElementById('pix-qrcode-painel').src = `data:image/png;base64,${data.pix.qrCodeBase64}`;
-        document.getElementById('pix-copia-cola-painel').value = data.pix.qrCode;
-        document.getElementById('resultado-pix-painel').style.display = 'block';
-      } else { alert('Erro: ' + JSON.stringify(data)); }
-    } catch (error) { alert('Erro de conexão.'); } 
-    finally { btn.textContent = "Gerar PIX de Teste"; btn.disabled = false; }
+  // 3. Carrega as Estatísticas e a Tabela
+  function carregarEstatisticas() {
+    // Contador de Pesquisas
+    fs.collection("pesquisas").onSnapshot(snap => {
+      document.getElementById('stat-pesquisas').textContent = snap.size;
+    });
+
+    // Contador e Tabela de PIX
+    fs.collection("pix_gerados").orderBy("timestamp", "desc").onSnapshot(snap => {
+      document.getElementById('stat-pix').textContent = snap.size;
+      const tbody = document.getElementById('tabela-pix');
+      
+      if (snap.empty) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">Nenhum PIX gerado ainda.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = snap.docs.map(doc => {
+        const pix = doc.data();
+        let dataStr = "Agora";
+        if (pix.timestamp) {
+          const d = pix.timestamp.toDate();
+          dataStr = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+        }
+        return `
+          <tr>
+            <td>${dataStr}</td>
+            <td>${pix.cliente}</td>
+            <td style="color:var(--brand); font-weight:600;">R$ ${pix.valor.toFixed(2).replace('.', ',')}</td>
+            <td style="color:#40b552; font-weight:600;">Gerado</td>
+          </tr>
+        `;
+      }).join('');
+    });
   }
 
-  function copiarPixPainel() {
-    const codigo = document.getElementById('pix-copia-cola-painel').value;
-    navigator.clipboard.writeText(codigo).then(() => { alert('PIX copiado!'); });
+  // 4. Limpa o Histórico
+  async function limparHistorico() {
+    if (!confirm("Tem certeza que deseja limpar todo o histórico de PIX?")) return;
+    const snap = await fs.collection("pix_gerados").get();
+    const batch = fs.batch();
+    snap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    alert("Histórico limpo!");
   }
 </script>
 </body>

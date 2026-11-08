@@ -543,7 +543,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-  // CONFIGURAÇÃO DO SEU PROJETO NOVO
   const firebaseConfig = {
     apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA",
     authDomain: "buser202872a.firebaseapp.com",
@@ -553,10 +552,8 @@
     appId: "1:560317126646:web:be9cad9c9ed350940399d7"
   };
   firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
   const fs = firebase.firestore();
 
-  // Variável global que recebe o desconto e a chave PIX do painel
   window.CONFIG = { descontoGlobal: 0, chavePix: "" };
   fs.collection("config").doc("global").onSnapshot(snap => {
     if (snap.exists) {
@@ -627,7 +624,7 @@
   function mascaraData(v) { v = v.replace(/\D/g, ''); if (v.length > 8) v = v.slice(0, 8); v = v.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})(\d)/, '$1/$2'); return v; }
   function mascaraTelefone(v) { v = v.replace(/\D/g, ''); if (v.length > 11) v = v.slice(0, 11); v = v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2'); return v; }
 
-    document.getElementById('btn-pesquisar').addEventListener('click', async function() {
+  document.getElementById('btn-pesquisar').addEventListener('click', async function() {
     const origemTexto = document.getElementById('input-origem').value;
     const destinoTexto = document.getElementById('input-destino').value;
     const dataIda = document.getElementById('input-ida').value;
@@ -649,13 +646,10 @@
     containerResultados.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     try {
-      // ⚠️ AQUI ESTÁ A MÁGICA: BUSCANDO DIRETO DA VERCEL
       const response = await fetch(`https://combr-nine.vercel.app/api/viagens?origem=${encodeURIComponent(origemTexto)}&destino=${encodeURIComponent(destinoTexto)}&data=${dataIda}`);
-      
       if (!response.ok) throw new Error('Erro na resposta da Vercel');
+      
       const dados = await response.json();
-
-      // A API da ClickBus devolve os dados em formatos diferentes, vamos tentar ler
       let viagens = [];
       if (Array.isArray(dados)) viagens = dados;
       else if (dados && dados.trips) viagens = dados.trips;
@@ -678,6 +672,7 @@
   });
 
   let viagensOriginais = [];
+  
   function renderizarViagens(viagens) {
     const listaViagens = document.getElementById('lista-viagens');
     if (viagens.length === 0) {
@@ -685,20 +680,21 @@
       return;
     }
     listaViagens.innerHTML = viagens.map(viagem => {
-      const empresa = viagem.company.name;
-      const partida = viagem.departure.time;
-      const terminalPartida = viagem.departure.terminal;
-      const chegada = viagem.arrival.time;
-      const terminalChegada = viagem.arrival.terminal;
+      const empresa = viagem.companyName || (viagem.company && viagem.company.name) || "Viação";
+      const partida = viagem.departureTime || (viagem.departure && viagem.departure.time) || "--:--";
+      const chegada = viagem.arrivalTime || (viagem.arrival && viagem.arrival.time) || "--:--";
+      const terminalPartida = viagem.departureTerminal || (viagem.departure && viagem.departure.terminal) || "Terminal";
+      const terminalChegada = viagem.arrivalTerminal || (viagem.arrival && viagem.arrival.terminal) || "Terminal";
+      const tipo = viagem.busType || viagem.bus_type || "Executivo";
       
-      const precoOriginal = viagem.price;
+      const precoOriginal = parseFloat(viagem.price) || 0;
       const desconto = window.CONFIG.descontoGlobal || 0;
       const precoFinal = precoOriginal * (1 - desconto / 100);
       
       return `
       <div class="trip-card">
         <div class="trip-info" style="flex: 1;">
-          <h4>${empresa} <span style="font-size:12px; color:#fff; background:var(--brand); padding:2px 6px; border-radius:4px;">${viagem.bus_type}</span></h4>
+          <h4>${empresa} <span style="font-size:12px; color:#fff; background:var(--brand); padding:2px 6px; border-radius:4px;">${tipo}</span></h4>
           <p>Saída: <strong>${partida}</strong> (${terminalPartida}) | Chegada: <strong>${chegada}</strong> (${terminalChegada})</p>
         </div>
         <div class="trip-price">
@@ -714,8 +710,8 @@
   }
 
   function gerarFiltros(viagens) {
-    const empresas = [...new Set(viagens.map(v => v.company.name))].sort();
-    const tipos = [...new Set(viagens.map(v => v.bus_type))].sort();
+    const empresas = [...new Set(viagens.map(v => v.companyName || v.company?.name || "Viação"))].sort();
+    const tipos = [...new Set(viagens.map(v => v.busType || v.bus_type || "Executivo"))].sort();
     document.getElementById('filtro-empresas').innerHTML = empresas.map(emp => `<label class="filtro-item"><input type="checkbox" value="${emp}" onchange="aplicarFiltros()"> ${emp}</label>`).join('');
     document.getElementById('filtro-tipos').innerHTML = tipos.map(tipo => `<label class="filtro-item"><input type="checkbox" value="${tipo}" onchange="aplicarFiltros()"> ${tipo}</label>`).join('');
   }
@@ -724,8 +720,10 @@
     const empresasMarcadas = Array.from(document.querySelectorAll('#filtro-empresas input:checked')).map(cb => cb.value);
     const tiposMarcados = Array.from(document.querySelectorAll('#filtro-tipos input:checked')).map(cb => cb.value);
     const filtradas = viagensOriginais.filter(viagem => {
-      const passaEmpresa = empresasMarcadas.length === 0 || empresasMarcadas.includes(viagem.company.name);
-      const passoTipo = tiposMarcados.length === 0 || tiposMarcados.includes(viagem.bus_type);
+      const emp = viagem.companyName || viagem.company?.name || "Viação";
+      const tp = viagem.busType || viagem.bus_type || "Executivo";
+      const passaEmpresa = empresasMarcadas.length === 0 || empresasMarcadas.includes(emp);
+      const passoTipo = tiposMarcados.length === 0 || tiposMarcados.includes(tp);
       return passaEmpresa && passoTipo;
     });
     renderizarViagens(filtradas);
@@ -843,9 +841,9 @@
     const totalFinal = (viagem.price || 0) * listaPassageiros.length;
     let passageirosHTML = listaPassageiros.map(p => `<li>${p.nome} (CPF: ${p.cpf})</li>`).join('');
     info.innerHTML = `
-      <strong>Empresa:</strong> ${viagem.company.name} <br>
-      <strong>Saída:</strong> ${viagem.departure.time} <br>
-      <strong>Chegada:</strong> ${viagem.arrival.time} <br>
+      <strong>Empresa:</strong> ${viagem.companyName || (viagem.company && viagem.company.name) || "Viação"} <br>
+      <strong>Saída:</strong> ${viagem.departureTime || (viagem.departure && viagem.departure.time) || "--:--"} <br>
+      <strong>Chegada:</strong> ${viagem.arrivalTime || (viagem.arrival && viagem.arrival.time) || "--:--"} <br>
       <strong>Poltrona:</strong> ${poltrona} <br>
       <strong>Passageiros:</strong> <ul>${passageirosHTML}</ul>
       <strong>Total:</strong> <span style="color:var(--brand); font-weight:bold; font-size:18px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</span>
@@ -873,7 +871,6 @@
     }
 
     try {
-      // Gera o QR Code usando um serviço público de imagens com a CHAVE PIX
       document.getElementById('pix-copia-cola').value = chavePix;
       document.getElementById('pix-qrcode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(chavePix)}`;
       
@@ -882,7 +879,6 @@
       
       btn.style.display = 'none';
 
-      // SALVA NO HISTÓRICO DO PAINEL
       fs.collection("pix_gerados").add({
         cliente: passageiros[0].nome,
         valor: total,

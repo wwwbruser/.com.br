@@ -646,10 +646,11 @@
     containerResultados.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     try {
+      // ⚠️ AQUI ESTÁ A MÁGICA: BUSCANDO DIRETO DA VERCEL
       const response = await fetch(`https://combr-nine.vercel.app/api/viagens?origem=${encodeURIComponent(origemTexto)}&destino=${encodeURIComponent(destinoTexto)}&data=${dataIda}`);
       if (!response.ok) throw new Error('Erro na resposta da Vercel');
-      
       const dados = await response.json();
+
       let viagens = [];
       if (Array.isArray(dados)) viagens = dados;
       else if (dados && dados.trips) viagens = dados.trips;
@@ -672,7 +673,6 @@
   });
 
   let viagensOriginais = [];
-  
   function renderizarViagens(viagens) {
     const listaViagens = document.getElementById('lista-viagens');
     if (viagens.length === 0) {

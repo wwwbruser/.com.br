@@ -627,7 +627,7 @@
   function mascaraData(v) { v = v.replace(/\D/g, ''); if (v.length > 8) v = v.slice(0, 8); v = v.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})(\d)/, '$1/$2'); return v; }
   function mascaraTelefone(v) { v = v.replace(/\D/g, ''); if (v.length > 11) v = v.slice(0, 11); v = v.replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d)(\d{4})$/, '$1-$2'); return v; }
 
-  document.getElementById('btn-pesquisar').addEventListener('click', async function() {
+    document.getElementById('btn-pesquisar').addEventListener('click', async function() {
     const origemTexto = document.getElementById('input-origem').value;
     const destinoTexto = document.getElementById('input-destino').value;
     const dataIda = document.getElementById('input-ida').value;
@@ -649,11 +649,18 @@
     containerResultados.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     try {
-      // CHAMA O SEU SERVIDOR NO RENDER
-      const response = await fetch(`https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origemTexto)}&destino=${encodeURIComponent(destinoTexto)}&data=${dataIda}`);
+      // ⚠️ AQUI ESTÁ A MÁGICA: BUSCANDO DIRETO DA VERCEL
+      const response = await fetch(`https://combr-nine.vercel.app/api/viagens?origem=${encodeURIComponent(origemTexto)}&destino=${encodeURIComponent(destinoTexto)}&data=${dataIda}`);
       
-      if (!response.ok) throw new Error('Erro na resposta do servidor');
-      const viagens = await response.json();
+      if (!response.ok) throw new Error('Erro na resposta da Vercel');
+      const dados = await response.json();
+
+      // A API da ClickBus devolve os dados em formatos diferentes, vamos tentar ler
+      let viagens = [];
+      if (Array.isArray(dados)) viagens = dados;
+      else if (dados && dados.trips) viagens = dados.trips;
+      else if (dados && dados.data) viagens = dados.data;
+      else if (dados && dados.results) viagens = dados.results;
 
       if (!viagens || viagens.length === 0) {
         listaViagens.innerHTML = `<div style="text-align: center; padding: 40px 20px; background:#fff; border-radius:16px; border:1px solid #e0e0e0;"><span style="font-size: 40px;">🚌</span><h3 style="margin-top: 10px; color: #454545;">Nenhuma viagem encontrada</h3><p style="color: #757575;">Não achamos ônibus para essa rota nessa data. Tente mudar o dia ou escolher outra cidade.</p></div>`;

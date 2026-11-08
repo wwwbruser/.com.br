@@ -557,11 +557,11 @@
   const fs = firebase.firestore();
 
   // Variável global que recebe o desconto do painel
-  window.CONFIG = { descontoGlobal: 0 };
+  window.CONFIG = { descontoGlobal: 0, chavePix: "" };
   fs.collection("config").doc("global").onSnapshot(snap => {
     if (snap.exists) {
       window.CONFIG = { ...window.CONFIG, ...snap.data() };
-      console.log("Desconto carregado do painel:", window.CONFIG.descontoGlobal + "%");
+      console.log("Configurações carregadas:", window.CONFIG);
     }
   });
 
@@ -705,7 +705,7 @@
       const terminalChegada = viagem.arrival.terminal;
       
       const precoOriginal = viagem.price;
-      const desconto = window.CONFIG.descontoGlobal || 0; // Pega o desconto do painel
+      const desconto = window.CONFIG.descontoGlobal || 0;
       const precoFinal = precoOriginal * (1 - desconto / 100);
       
       return `
@@ -875,39 +875,28 @@
     btn.textContent = 'Gerando PIX...';
     btn.disabled = true;
 
+    const chavePix = window.CONFIG.chavePix;
     const total = (viagemAtualPoltrona.price || 0) * passageiros.length;
-    const valorCentavos = Math.round(total * 100);
+
+    if (!chavePix) {
+      alert("Chave PIX não configurada no painel de administração.");
+      btn.textContent = 'Gerar PIX';
+      btn.disabled = false;
+      return;
+    }
 
     try {
-      // Chama o SEU backend no Render
-      const response = await fetch('https://buser-online.onrender.com/api/pix', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: valorCentavos,
-          customer: {
-            name: passageiros[0].nome,
-            document: passageiros[0].cpf.replace(/\D/g, '')
-          }
-        })
-      });
-
-      const data = await response.json();
-
-      // A BlackCat retorna o PIX dentro de data.pix
-      if (data.pix && data.pix.qrCode) {
-        document.getElementById('pix-qrcode').src = `data:image/png;base64,${data.pix.qrCodeBase64}`;
-        document.getElementById('pix-copia-cola').value = data.pix.qrCode;
-        document.getElementById('pix-resultado').style.display = 'block';
-        btn.style.display = 'none';
-      } else {
-        alert('Erro ao gerar PIX: ' + JSON.stringify(data));
-      }
+      // Gera o QR Code usando um serviço público de imagens
+      document.getElementById('pix-copia-cola').value = chavePix;
+      document.getElementById('pix-qrcode').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(chavePix)}`;
+      
+      document.getElementById('pix-resultado').style.display = 'block';
+      document.getElementById('checkout-info').innerHTML += `<br><br><strong>Pague R$ ${total.toFixed(2).replace('.', ',')} na chave PIX acima.</strong>`;
+      
+      btn.style.display = 'none';
     } catch (error) {
-      console.error(error);
-      alert('Erro ao gerar PIX. Verifique o console.');
+      alert('Erro ao gerar PIX.');
     } finally {
-      btn.textContent = 'Gerar PIX';
       btn.disabled = false;
     }
   }

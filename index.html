@@ -646,16 +646,33 @@
     containerResultados.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     try {
-      // ⚠️ AQUI ESTÁ A MÁGICA: BUSCANDO DIRETO DA VERCEL
-      const response = await fetch(`https://combr-nine.vercel.app/api/viagens?origem=${encodeURIComponent(origemTexto)}&destino=${encodeURIComponent(destinoTexto)}&data=${dataIda}`);
-      if (!response.ok) throw new Error('Erro na resposta da Vercel');
-      const dados = await response.json();
+      // ⚠️ COLE SUA CHAVE AQUI ⚠️
+      const GECKO_KEY = 'pk_live_-N166qQYpBhtxDPPlLz8Uqd6zvlRKh7T'; 
+      
+      const payload = {
+        target: 'clickbus.com.br',
+        type: 'plp',
+        page: 1,
+        originCity: origemTexto.split(',')[0].trim(),
+        originState: origemTexto.split(',')[1].trim(),
+        destinationCity: destinoTexto.split(',')[0].trim(),
+        destinationState: destinoTexto.split(',')[1].trim(),
+        departureDate: dataIda
+      };
 
+      const response = await fetch('https://api.geckoapi.com.br/v1/extract', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${GECKO_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const dados = await response.json();
       let viagens = [];
-      if (Array.isArray(dados)) viagens = dados;
-      else if (dados && dados.trips) viagens = dados.trips;
-      else if (dados && dados.data) viagens = dados.data;
-      else if (dados && dados.results) viagens = dados.results;
+      if (dados && dados.results) viagens = dados.results;
+      else if (dados && dados.data && dados.data.results) viagens = dados.data.results;
 
       if (!viagens || viagens.length === 0) {
         listaViagens.innerHTML = `<div style="text-align: center; padding: 40px 20px; background:#fff; border-radius:16px; border:1px solid #e0e0e0;"><span style="font-size: 40px;">🚌</span><h3 style="margin-top: 10px; color: #454545;">Nenhuma viagem encontrada</h3><p style="color: #757575;">Não achamos ônibus para essa rota nessa data. Tente mudar o dia ou escolher outra cidade.</p></div>`;
@@ -668,7 +685,7 @@
       filtrosSidebar.style.display = 'block';
     } catch (error) {
       console.error(error);
-      listaViagens.innerHTML = `<div style="text-align: center; padding: 40px 20px; background:#fff; border-radius:16px; border:1px solid #e0e0e0;"><span style="font-size: 40px;">🚌</span><h3 style="margin-top: 10px; color: #454545;">Erro na busca</h3><p style="color: #757575;">Houve um problema ao buscar. Tente novamente em alguns instantes.</p></div>`;
+      listaViagens.innerHTML = `<div style="text-align: center; padding: 40px 20px; background:#fff; border-radius:16px; border:1px solid #e0e0e0;"><span style="font-size: 40px;">🚌</span><h3 style="margin-top: 10px; color: #454545;">Erro na busca</h3><p style="color: #757575;">Houve um problema ao buscar.</p></div>`;
     }
   });
 

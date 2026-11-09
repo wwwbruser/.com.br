@@ -86,11 +86,12 @@
   .passageiro-box { background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #eee; }
   .passageiro-box input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; }
   .passageiro-box input:last-child { margin-bottom: 0; }
+
   .poltrona-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #333; font-weight: 600; cursor: pointer; transition: 0.15s; }
   .poltrona-btn:hover:not(:disabled) { border-color: var(--brand); }
   .poltrona-btn.selecionada { background: var(--brand); color: #fff; border-color: var(--brand); transform: scale(1.05); }
   .poltrona-btn:disabled { background: #454545; color: #fff; border-color: #454545; cursor: not-allowed; opacity: 1; }
-  .poltrona-legenda { display: flex; gap: 16px; font-size: 11px; justify-content: center; margin-bottom: 16px; color: var(--grey-med); flex-wrap: wrap; }
+  .poltrona-legenda { display: flex; gap: 16px; font-size: 11px; justify-content: center; margin-bottom: 12px; color: var(--grey-med); flex-wrap: wrap; }
   .poltrona-legenda span { display: inline-flex; align-items: center; gap: 5px; }
   .poltrona-legenda .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid #ddd; }
 
@@ -388,7 +389,7 @@
 <div id="modal-poltrona" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1001; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:24px; border-radius:16px; max-width:500px; width:100%; margin:16px; max-height:90vh; overflow-y:auto;">
     <h2 style="color:var(--brand); margin-top:0;">Escolha sua Poltrona</h2>
-    <p id="poltrona-fonte" style="font-size:11px; color:var(--grey-med); margin:0 0 12px;"></p>
+    <div id="poltrona-fonte" style="font-size:11px; color:var(--grey-med); margin:0 0 12px;"></div>
     <div id="mapa-onibus" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:20px;"></div>
     <div style="display:flex; gap:8px;">
       <button onclick="fecharModalPoltrona()" style="flex:1; padding:12px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer;">Cancelar</button>
@@ -499,7 +500,7 @@
   }
 
   // ============================================================
-  // 3. BUSCA
+  // 3. BUSCA COM CACHE + TIMEOUT
   // ============================================================
   let viagensOriginais = [];
   document.getElementById('btn-pesquisar').addEventListener('click', async function() {
@@ -521,6 +522,22 @@
     titulo.innerHTML = `Resultados de ${origem} para ${destino} em ${dataFormatada}`;
     filtros.style.display = 'none';
     container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // CACHE de 5min
+    const cacheKey = `busca_${origem}_${destino}_${dataIda}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const { dados, ts } = JSON.parse(cached);
+        if (Date.now() - ts < 5 * 60 * 1000) {
+          viagensOriginais = dados;
+          gerarFiltros(dados);
+          renderizarViagens(dados);
+          filtros.style.display = 'block';
+          return;
+        }
+      }
+    } catch {}
 
     let elapsed = 0;
     lista.innerHTML = `
@@ -567,6 +584,8 @@
       gerarFiltros(dados);
       renderizarViagens(dados);
       filtros.style.display = 'block';
+      // Salva no cache
+      try { localStorage.setItem(cacheKey, JSON.stringify({ dados, ts: Date.now() })); } catch {}
       return;
     }
 
@@ -716,14 +735,14 @@
   }
 
   // ============================================================
-  // 6. MODAIS COM DESCONTO + WHATSAPP + POLTRONAS + LOG PIX
+  // 6. MODAIS COM DESCONTO + WHATSAPP + POLTRONAS MÚLTIPLAS + LOG PIX
   // ============================================================
   const DESCONTO = 0.5;
 
   let viagemSel = null;
   let passageiros = [];
   let precoUnit = 0;
-  let assento = null;
+  let assentosSelecionados = [];
   let checkoutState = { total: 0, totalOriginal: 0, payload: '', txid: '', empresa: '', poltrona: '', route: '' };
 
   function logPix(type, extra) {
@@ -749,6 +768,7 @@
     viagemSel = viagensOriginais[index];
     if (!viagemSel) return;
     passageiros = [];
+    assentosSelecionados = [];
     precoUnit = (parseFloat(viagemSel.price) || 0) * (1 - DESCONTO);
     document.getElementById('lista-passageiros').innerHTML = '';
     adicionarPassageiro();
@@ -757,6 +777,7 @@
   }
 
   function adicionarPassageiro() {
+    if (passageiros.length >= 5) { alert('Máximo de 5 passageiros por compra.'); return; }
     const container = document.getElementById('lista-passageiros');
     const index = passageiros.length;
     passageiros.push({ nome: '', cpf: '', whatsapp: '' });
@@ -797,23 +818,16 @@
     abrirModalPoltrona(viagemSel);
   }
 
+  // ---- POLTRONAS ----
   function abrirModalPoltrona(viagem) {
-    assento = null;
+    assentosSelecionados = [];
     const mapa = document.getElementById('mapa-onibus');
-    const fonte = document.getElementById('poltrona-fonte');
     mapa.innerHTML = '';
 
     const seatsArray = viagem.seats || viagem.seat_map || viagem.poltronas || null;
     const occupiedArr = viagem.occupied_seats || viagem.seats_occupied || viagem.poltronas_ocupadas || null;
     const totalApi = viagem.total_seats || viagem.capacity || viagem.capacidade || null;
     const total = seatsArray ? seatsArray.length : (totalApi || 46);
-
-    fonte.innerHTML = `
-      <div class="poltrona-legenda">
-        <span><span class="sw" style="background:#fff;"></span> Disponível</span>
-        <span><span class="sw" style="background:#454545; border-color:#454545;"></span> Ocupada</span>
-        <span><span class="sw" style="background:var(--brand); border-color:var(--brand);"></span> Selecionada</span>
-      </div>`;
 
     if (seatsArray && Array.isArray(seatsArray) && seatsArray.length > 0) {
       seatsArray.forEach((s, idx) => {
@@ -826,7 +840,7 @@
         else btn.onclick = () => selecionarAssento(btn, num);
         mapa.appendChild(btn);
       });
-    } else if (occupiedArr && Array.isArray(occupiedArr)) {
+    } else if (occupiedArr && Array.isArray(occupiedArr) && occupiedArr.length > 0) {
       const ocupadas = new Set(occupiedArr.map(n => String(n)));
       for (let i = 1; i <= total; i++) {
         const btn = document.createElement('button');
@@ -837,29 +851,67 @@
         mapa.appendChild(btn);
       }
     } else {
+      const qtdOcupadas = 7 + Math.floor(Math.random() * 3);
+      const ocupadasSet = new Set();
+      while (ocupadasSet.size < qtdOcupadas) {
+        ocupadasSet.add(1 + Math.floor(Math.random() * total));
+      }
       for (let i = 1; i <= total; i++) {
         const btn = document.createElement('button');
         btn.textContent = i;
         btn.className = 'poltrona-btn';
-        btn.onclick = () => selecionarAssento(btn, i);
+        if (ocupadasSet.has(i)) btn.disabled = true;
+        else btn.onclick = () => selecionarAssento(btn, i);
         mapa.appendChild(btn);
       }
     }
+
+    atualizarInfoPoltronas();
     document.getElementById('modal-poltrona').style.display = 'flex';
   }
 
   function selecionarAssento(btn, num) {
-    document.querySelectorAll('.poltrona-btn').forEach(b => b.classList.remove('selecionada'));
-    btn.classList.add('selecionada');
-    assento = num;
+    const idx = assentosSelecionados.indexOf(num);
+    if (idx >= 0) {
+      assentosSelecionados.splice(idx, 1);
+      btn.classList.remove('selecionada');
+    } else {
+      if (assentosSelecionados.length >= passageiros.length) {
+        alert(`Você só pode selecionar ${passageiros.length} poltrona(s) — uma para cada passageiro.\n\nPara trocar, clique numa poltrona já selecionada para liberá-la.`);
+        return;
+      }
+      assentosSelecionados.push(num);
+      btn.classList.add('selecionada');
+    }
+    atualizarInfoPoltronas();
+  }
+
+  function atualizarInfoPoltronas() {
+    const fonte = document.getElementById('poltrona-fonte');
+    const completo = assentosSelecionados.length === passageiros.length;
+    const cor = completo ? '#40b552' : 'var(--brand)';
+
+    fonte.innerHTML = `
+      <div class="poltrona-legenda">
+        <span><span class="sw" style="background:#fff;"></span> Disponível</span>
+        <span><span class="sw" style="background:#454545; border-color:#454545;"></span> Ocupada</span>
+        <span><span class="sw" style="background:var(--brand); border-color:var(--brand);"></span> Selecionada</span>
+      </div>
+      <div style="text-align:center; font-size:13px; font-weight:600; margin-bottom:14px; color:${cor};">
+        ${completo ? '✅' : '👉'} ${assentosSelecionados.length} de ${passageiros.length} poltrona(s) selecionada(s)
+        ${completo ? '' : `<br><span style="font-size:11px; font-weight:400; color:#757575;">Selecione ${passageiros.length} poltrona(s) — uma por passageiro</span>`}
+      </div>`;
   }
 
   function fecharModalPoltrona() { document.getElementById('modal-poltrona').style.display = 'none'; }
 
   function confirmarPoltrona() {
-    if (!assento) { alert('Selecione uma poltrona.'); return; }
+    if (assentosSelecionados.length !== passageiros.length) {
+      alert(`Você precisa selecionar ${passageiros.length} poltrona(s) — uma para cada passageiro.\n\nSelecionadas até agora: ${assentosSelecionados.length}`);
+      return;
+    }
     fecharModalPoltrona();
-    abrirCheckout(viagemSel, assento, passageiros);
+    abrirCheckout(viagemSel, assentosSelecionados, passageiros);
   }
 
   // ============================================================
@@ -916,7 +968,7 @@
   // ============================================================
   // 8. CHECKOUT
   // ============================================================
-  function abrirCheckout(viagem, poltrona, lista) {
+  function abrirCheckout(viagem, poltronas, lista) {
     const info = document.getElementById('checkout-info');
     const precoOriginal = parseFloat(viagem.price) || 0;
     const precoFinal = precoOriginal * (1 - DESCONTO);
@@ -925,7 +977,7 @@
 
     checkoutState.total = totalFinal;
     checkoutState.totalOriginal = totalOriginal;
-    checkoutState.poltrona = poltrona;
+    checkoutState.poltrona = poltronas.join(', ');
     checkoutState.empresa = viagem.company.name;
     checkoutState.route = `${document.getElementById('input-origem').value} → ${document.getElementById('input-destino').value}`;
 
@@ -934,11 +986,17 @@
     const htmlEmbarque = tP.endereco ? `<br><span style="font-size:11px; color:#757575;">📍 ${tP.endereco}</span>` : '';
     const htmlDesembarque = tC.endereco ? `<br><span style="font-size:11px; color:#757575;">📍 ${tC.endereco}</span>` : '';
 
-    const htmlPass = lista.map(p => `<li>${p.nome} — CPF ${p.cpf} — 📱 ${p.whatsapp}</li>`).join('');
+    const htmlPass = lista.map((p, i) => {
+      const pol = poltronas[i] || '—';
+      return `<li style="margin-bottom:6px;">
+        <strong>${p.nome}</strong> — CPF ${p.cpf} — 📱 ${p.whatsapp}
+        <span style="background:var(--brand); color:#fff; padding:1px 8px; border-radius:4px; font-size:11px; margin-left:4px; font-weight:600;">Poltrona ${pol}</span>
+      </li>`;
+    }).join('');
 
     info.innerHTML = `
       <strong>Empresa:</strong> ${viagem.company.name}<br>
-      <strong>Poltrona:</strong> ${poltrona}<br>
+      <strong>Poltrona(s):</strong> ${poltronas.join(', ')}<br>
       <strong>Embarque:</strong> ${tP.nome}${htmlEmbarque}<br>
       <strong>Desembarque:</strong> ${tC.nome}${htmlDesembarque}<br>
       <strong>Passageiros:</strong>
@@ -979,7 +1037,12 @@
       key: cfg.key,
       receiverName: cfg.name || '',
       payload,
-      passengers: passageiros.map(p => ({ nome: p.nome, cpf: p.cpf, whatsapp: p.whatsapp })),
+      passengers: passageiros.map((p, i) => ({
+        nome: p.nome,
+        cpf: p.cpf,
+        whatsapp: p.whatsapp,
+        poltrona: assentosSelecionados[i] || null
+      })),
       poltrona: checkoutState.poltrona,
       empresa: checkoutState.empresa,
       route: checkoutState.route

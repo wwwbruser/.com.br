@@ -255,14 +255,14 @@
         <div class="searchbox-field">
           <label for="input-origem">Origem</label>
           <input type="text" id="input-origem" placeholder="Cidade de origem" autocomplete="off">
-          <div class="spinner spinner-dark" id="spin-origem"></div> <!-- BOLINHA AQUI -->
+          <div class="spinner spinner-dark" id="spin-origem"></div>
           <ul id="lista-origem" class="autocomplete-dropdown"></ul>
         </div>
         <button class="swap-btn" onclick="swapCidades()" title="Trocar origem e destino">⇅</button>
         <div class="searchbox-field">
           <label for="input-destino">Destino</label>
           <input type="text" id="input-destino" placeholder="Cidade de destino" autocomplete="off">
-          <div class="spinner spinner-dark" id="spin-destino"></div> <!-- BOLINHA AQUI -->
+          <div class="spinner spinner-dark" id="spin-destino"></div>
           <ul id="lista-destino" class="autocomplete-dropdown"></ul>
         </div>
         <div class="searchbox-field">
@@ -275,7 +275,7 @@
         </div>
         <button class="searchbox-btn" id="btn-pesquisar" aria-label="Pesquisar">
           <span id="icon-lupa">🔍</span>
-          <div class="spinner" id="spin-btn" style="display:none;"></div> <!-- BOLINHA AQUI -->
+          <div class="spinner" id="spin-btn" style="display:none;"></div>
         </button>
       </div>
     </div>
@@ -481,7 +481,6 @@
   let cidadesBrasil = [...cidadesFallback];
 
   async function carregarCidades() {
-    // Mostra a bolinha enquanto baixa do IBGE
     document.getElementById('spin-origem').style.display = 'block';
     document.getElementById('spin-destino').style.display = 'block';
     
@@ -493,7 +492,6 @@
     } catch (e) {
       console.log("Usando fallback de cidades");
     } finally {
-      // Esconde a bolinha quando terminar (ou se der erro)
       document.getElementById('spin-origem').style.display = 'none';
       document.getElementById('spin-destino').style.display = 'none';
     }
@@ -510,7 +508,6 @@
       lista.innerHTML = '';
       if (termo.length < 2) { lista.style.display = 'none'; return; }
       
-      // Busca cidades que contém o texto digitado (ex: "cas" acha "Cascavel, PR")
       const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 8);
       
       if (filtradas.length > 0) {
@@ -539,20 +536,18 @@
   }
 
   // ==========================================
-  // BUSCA COM BOLINHA E PROXY (Anti-CORS)
+  // BUSCA COM BOLINHA E PROXY (Anti-CORS) + TRATAMENTO 502
   // ==========================================
   let viagensOriginais = [];
   document.getElementById('btn-pesquisar').addEventListener('click', async function() {
-    // Ativa a bolinha no botão
     document.getElementById('icon-lupa').style.display = 'none';
     document.getElementById('spin-btn').style.display = 'block';
-    document.getElementById('btn-pesquisar').style.pointerEvents = 'none'; // Impede clicar 2 vezes
+    document.getElementById('btn-pesquisar').style.pointerEvents = 'none';
 
     let origem = document.getElementById('input-origem').value.trim();
     let destino = document.getElementById('input-destino').value.trim();
     const dataIda = document.getElementById('input-ida').value;
 
-    // Desativa bolinha se cair nas validações
     const resetBtn = () => {
         document.getElementById('icon-lupa').style.display = 'block';
         document.getElementById('spin-btn').style.display = 'none';
@@ -563,25 +558,15 @@
     if (!destino) { alert("Por favor, digite a cidade de destino."); resetBtn(); return; }
     if (!dataIda) { alert("Por favor, escolha a data de ida."); resetBtn(); return; }
 
-    // 🪄 MÁGICA: Se a pessoa digitou sem a vírgula, o sistema completa
     if (!origem.includes(',')) {
       const buscaOrigem = cidadesBrasil.find(c => normalizarTexto(c).startsWith(normalizarTexto(origem)));
-      if (buscaOrigem) {
-        origem = buscaOrigem;
-        document.getElementById('input-origem').value = buscaOrigem;
-      } else {
-        alert("Cidade de origem não encontrada. Tente digitar novamente."); resetBtn(); return;
-      }
+      if (buscaOrigem) { origem = buscaOrigem; document.getElementById('input-origem').value = buscaOrigem; }
+      else { alert("Cidade de origem não encontrada."); resetBtn(); return; }
     }
-
     if (!destino.includes(',')) {
       const buscaDestino = cidadesBrasil.find(c => normalizarTexto(c).startsWith(normalizarTexto(destino)));
-      if (buscaDestino) {
-        destino = buscaDestino;
-        document.getElementById('input-destino').value = buscaDestino;
-      } else {
-        alert("Cidade de destino não encontrada. Tente digitar novamente."); resetBtn(); return;
-      }
+      if (buscaDestino) { destino = buscaDestino; document.getElementById('input-destino').value = buscaDestino; }
+      else { alert("Cidade de destino não encontrada."); resetBtn(); return; }
     }
 
     const container = document.getElementById('resultados-viagem');
@@ -606,7 +591,7 @@
           gerarFiltros(dados);
           renderizarViagens(dados);
           filtros.style.display = 'block';
-          resetBtn(); // Desliga bolinha
+          resetBtn();
           return;
         }
       }
@@ -621,7 +606,6 @@
     
     let dados = null, erroTipo = null, erroDetalhe = '';
     
-    // URL NOVA DO RENDER AQUI
     const apiUrl = `https://buser-backend.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
     const proxy1 = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
     const proxy2 = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
@@ -629,17 +613,32 @@
     try {
       let response = null;
       try {
-        // Tenta conexão direta primeiro
         response = await fetch(apiUrl, { signal: controller.signal });
+        
+        // TRATAMENTO DO ERRO 502 AQUI
+        if (response.status === 502) {
+            erroTipo = 'manutencao';
+            erroDetalhe = 'O servidor de viagens está reiniciando.';
+            throw new Error('502');
+        }
+        
         if (!response.ok) throw new Error('http');
       } catch (err) {
         if (err.name === 'AbortError') throw err;
+        if (erroTipo === 'manutencao') throw err;
+
         console.log('Conexão direta falhou, tentando Proxy 1...');
         try {
             response = await fetch(proxy1, { signal: controller.signal });
+            if (response.status === 502) {
+                erroTipo = 'manutencao';
+                throw new Error('502');
+            }
             if (!response.ok) throw new Error('proxy1');
         } catch (err2) {
             if (err2.name === 'AbortError') throw err2;
+            if (erroTipo === 'manutencao') throw err2;
+
             console.log('Proxy 1 falhou, tentando Proxy 2...');
             response = await fetch(proxy2, { signal: controller.signal });
         }
@@ -655,7 +654,7 @@
     } finally { 
       clearTimeout(timeoutId); 
       clearInterval(timerInterval); 
-      resetBtn(); // Desliga bolinha
+      resetBtn(); 
     }
 
     if (dados && Array.isArray(dados) && dados.length > 0 && !erroTipo) {
@@ -667,8 +666,31 @@
       return;
     }
 
-    const mensagens = { timeout: '⏱️ O servidor não respondeu em 2 minutos.', cors: '🔌 Falha de conexão. Tente novamente.', http: '❌ Erro do servidor', parse: '📄 Formato inválido', vazio: '🔍 Sem viagens' };
-    lista.innerHTML = `<div style="background:#fff7fa;padding:24px;border-radius:16px;border:1px solid #ffccd5;text-align:center;"><div style="font-size:40px;margin-bottom:8px;">⚠️</div><p style="color:#d81b60;font-weight:700;margin:0 0 8px;">${mensagens[erroTipo]||'Erro'}</p><p style="color:var(--grey-med);font-size:12px;margin:0 0 20px;word-break:break-all;">${erroDetalhe}</p><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;"><button onclick="document.getElementById('btn-pesquisar').click()" style="padding:12px 20px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">🔄 Tentar novamente</button><button onclick="usarViagensDemo()" style="padding:12px 20px;background:#fff;color:var(--brand);border:2px solid var(--brand);border-radius:8px;font-weight:700;cursor:pointer;">🎮 Demonstração</button></div><p style="color:var(--grey-med);font-size:11px;margin:20px 0 0;line-height:1.5;">💡 Tivemos uma instabilidade na conexão.<br>Clique em Tentar novamente que já deve funcionar.</p></div>`;
+    const mensagens = { 
+      timeout: '⏱️ O servidor não respondeu em 2 minutos.', 
+      cors: '🔌 Falha de conexão. Tente novamente.', 
+      http: '❌ Erro do servidor', 
+      parse: '📄 Formato inválido', 
+      vazio: '🔍 Sem viagens',
+      manutencao: '🛠️ O sistema de busca está em manutenção. Carregando modo demonstração...' 
+    };
+
+    lista.innerHTML = `
+      <div style="background:#fff7fa;padding:24px;border-radius:16px;border:1px solid #ffccd5;text-align:center;">
+        <div style="font-size:40px;margin-bottom:8px;">⚠️</div>
+        <p style="color:#d81b60;font-weight:700;margin:0 0 8px;">${mensagens[erroTipo]||'Erro'}</p>
+        <p style="color:var(--grey-med);font-size:12px;margin:0 0 20px;word-break:break-all;">${erroDetalhe}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+          <button onclick="document.getElementById('btn-pesquisar').click()" style="padding:12px 20px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">🔄 Tentar novamente</button>
+          <button onclick="usarViagensDemo()" style="padding:12px 20px;background:#fff;color:var(--brand);border:2px solid var(--brand);border-radius:8px;font-weight:700;cursor:pointer;">🎮 Demonstração</button>
+        </div>
+        <p style="color:var(--grey-med);font-size:11px;margin:20px 0 0;line-height:1.5;">💡 Tivemos uma instabilidade na conexão.<br>Clique em Tentar novamente que já deve funcionar.</p>
+      </div>`;
+
+    // AUTO-DEMO SE DER ERRO 502 ou TIMEOUT
+    if (erroTipo === 'manutencao') {
+      setTimeout(() => { usarViagensDemo(); }, 1500);
+    }
   });
 
   function usarViagensDemo() {
@@ -731,7 +753,6 @@
   let viagemSel = null, passageiros = [], precoUnit = 0, assentosSelecionados = [];
   let checkoutState = { total: 0, totalOriginal: 0, payload: '', txid: '', empresa: '', poltrona: '', route: '' };
 
-  // MÁSCARAS
   function mascaraWhats(v) { v = v.replace(/\D/g,'').substring(0,11); return v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/,'($1) $2-$3').replace(/[-\s()]*$/,''); }
   function mascaraCPF(v) { v = v.replace(/\D/g,'').substring(0,11); return v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2'); }
   function mascaraData(v) { v = v.replace(/\D/g,'').substring(0,8); return v.replace(/(\d{2})(\d)/,'$1/$2').replace(/(\d{2})(\d)/,'$1/$2'); }
@@ -747,9 +768,6 @@
     atualizarTotal();
   }
 
-  // ==========================================
-  // PASSAGEIROS (Nome, CPF, Data Nasc, Email, WhatsApp)
-  // ==========================================
   function adicionarPassageiro() {
     const container = document.getElementById('lista-passageiros');
     const index = passageiros.length;

@@ -98,9 +98,7 @@
   .bus-placeholder{width:44px;height:44px;flex-shrink:0}
   @media (max-width:400px){.poltrona-btn{width:38px;height:38px;font-size:12px}.bus-aisle{width:16px;height:38px}.bus-placeholder{width:38px;height:38px}.bus-map{padding:10px 12px 18px;max-width:290px}}
 
-  /* FAB & PIX */
-  .admin-fab{position:fixed;bottom:80px;right:16px;width:52px;height:52px;border-radius:50%;background:#333;color:#fff;border:none;cursor:pointer;z-index:9998;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
-  @media (max-width:767px){.admin-fab{bottom:calc(70px + var(--safe-bottom))}}
+  /* PIX */
   .pix-display{text-align:center;margin-top:8px}
   #qrcode{display:flex;justify-content:center;margin:16px 0}
   #qrcode img,#qrcode canvas{border-radius:8px}
@@ -393,8 +391,7 @@
   <a href="#" class="nb-item"><i>👤</i> Perfil</a>
 </nav>
 
-<!-- FAB -->
-<button class="admin-fab" onclick="window.open('admin.html', '_blank')" title="Painel administrativo">⚙️</button>
+<!-- FAB REMOVIDO CONFORME SOLICITADO -->
 
 <!-- MODAIS -->
 <div id="modal-passageiros" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1002;align-items:center;justify-content:center;">
@@ -536,7 +533,7 @@
   }
 
   // ==========================================
-  // BUSCA COM BOLINHA E PROXY (Anti-CORS) + TRATAMENTO 502
+  // BUSCA COM BOLINHA E PROXY (Anti-CORS) + AUTO-DEMO
   // ==========================================
   let viagensOriginais = [];
   document.getElementById('btn-pesquisar').addEventListener('click', async function() {
@@ -615,7 +612,6 @@
       try {
         response = await fetch(apiUrl, { signal: controller.signal });
         
-        // TRATAMENTO DO ERRO 502 AQUI
         if (response.status === 502) {
             erroTipo = 'manutencao';
             erroDetalhe = 'O servidor de viagens está reiniciando.';
@@ -687,8 +683,8 @@
         <p style="color:var(--grey-med);font-size:11px;margin:20px 0 0;line-height:1.5;">💡 Tivemos uma instabilidade na conexão.<br>Clique em Tentar novamente que já deve funcionar.</p>
       </div>`;
 
-    // AUTO-DEMO SE DER ERRO 502 ou TIMEOUT
-    if (erroTipo === 'manutencao') {
+    // AUTO-DEMO SE DER ERRO 502, TIMEOUT OU SE VIER VAZIO
+    if (erroTipo === 'manutencao' || erroTipo === 'vazio') {
       setTimeout(() => { usarViagensDemo(); }, 1500);
     }
   });
@@ -706,10 +702,39 @@
     document.getElementById('lista-viagens').insertAdjacentHTML('afterbegin', `<div style="background:#fff8e1;padding:12px 16px;border-radius:8px;border:1px solid #ffe082;margin-bottom:16px;font-size:13px;color:#7a5c00;">🎮 Modo demonstração.</div>`);
   }
 
+  // ==========================================
+  // EXTRAIR TERMINAL (Nome + Endereço)
+  // ==========================================
   function extrairTerminal(t) {
     if (!t) return { nome: '-', endereco: '' };
     if (typeof t === 'string') return { nome: t, endereco: '' };
-    return { nome: t.name || t.nome || t.terminal || '-', endereco: t.address || t.endereco || '' };
+
+    // Tenta achar o nome
+    const nome = t.name || t.nome || t.terminal || t.title || t.label || t.rodoviaria || '-';
+
+    // Tenta achar o endereço em várias camadas
+    let endereco = '';
+    const candidatos = [
+      t.address, t.endereco, t.full_address, t.fullAddress,
+      t.address_line, t.addressLine,
+      t.location && t.location.address,
+      t.location && t.location.endereco,
+      t.location && t.location.street,
+      t.place && t.place.address,
+      t.place && t.place.endereco
+    ];
+    for (const c of candidatos) {
+      if (c && typeof c === 'string' && c.trim()) { endereco = c.trim(); break; }
+    }
+    
+    // Se não achou o endereço completo, tenta montar
+    if (!endereco && (t.street || t.rua || t.logradouro)) {
+      const rua = t.street || t.rua || t.logradouro;
+      endereco = rua + (t.number || t.numero ? ', ' + (t.number || t.numero) : '');
+      if (t.neighborhood || t.bairro) endereco += ' - ' + (t.neighborhood || t.bairro);
+      if (t.city || t.cidade) endereco += ', ' + (t.city || t.cidade);
+    }
+    return { nome, endereco };
   }
 
   function renderizarViagens(viagens) {
@@ -717,19 +742,39 @@
     if (viagens.length === 0) { lista.innerHTML = `<p>Nenhuma viagem.</p>`; return; }
     viagensOriginais = [...viagens];
     const banner = `<div class="black-friday-banner"><span class="pulse">🔥 BLACK FRIDAY</span><span>Todas com <strong style="color:#40b552">50% OFF</strong></span></div>`;
+    
     lista.innerHTML = banner + viagens.map((v, i) => {
       const tP = extrairTerminal(v.departure.terminal);
       const tC = extrairTerminal(v.arrival.terminal);
       const precoNum = parseFloat(v.price) || 0;
+      
       return `<div class="trip-card">
         <div class="trip-info" style="flex:1;">
           <h4>${v.company.name} <span style="font-size:12px;color:#fff;background:var(--brand);padding:2px 6px;border-radius:4px;">${v.bus_type}</span></h4>
           <div style="display:flex;gap:16px;margin-top:8px;font-size:14px;">
-            <div style="flex:1;"><span style="color:var(--grey-med);font-size:12px;display:block;">Saída</span><strong>${v.departure.time}</strong><span style="display:block;font-size:12px;color:var(--grey-med);">${tP.nome}</span>${tP.endereco?`<span style="display:block;font-size:11px;color:#999;">📍 ${tP.endereco}</span>`:''}</div>
-            <div style="border-left:2px dashed var(--grey-light);padding-left:16px;flex:1;"><span style="color:var(--grey-med);font-size:12px;display:block;">Chegada</span><strong>${v.arrival.time}</strong><span style="display:block;font-size:12px;color:var(--grey-med);">${tC.nome}</span>${tC.endereco?`<span style="display:block;font-size:11px;color:#999;">📍 ${tC.endereco}</span>`:''}</div>
+            <div style="flex:1;">
+              <span style="color:var(--grey-med);font-size:12px;display:block;">Saída</span>
+              <strong>${v.departure.time}</strong>
+              <span style="display:block;font-size:12px;color:var(--grey-med);">${tP.nome}</span>
+              ${tP.endereco ? `<span style="display:block;font-size:11px;color:#999;margin-top:2px;">📍 ${tP.endereco}</span>` : ''}
+            </div>
+            <div style="border-left:2px dashed var(--grey-light);padding-left:16px;flex:1;">
+              <span style="color:var(--grey-med);font-size:12px;display:block;">Chegada</span>
+              <strong>${v.arrival.time}</strong>
+              <span style="display:block;font-size:12px;color:var(--grey-med);">${tC.nome}</span>
+              ${tC.endereco ? `<span style="display:block;font-size:11px;color:#999;margin-top:2px;">📍 ${tC.endereco}</span>` : ''}
+            </div>
           </div>
         </div>
-        <div class="trip-price"><span>A partir de</span><div class="preco-antigo">R$ ${precoNum.toFixed(2).replace('.',',')}</div><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;"><span>R$ ${(precoNum*0.5).toFixed(2).replace('.',',')}</span><span class="desconto-badge">-50%</span></div><button class="btn-comprar" onclick="selecionarViagem(${i})">Selecionar</button></div>
+        <div class="trip-price">
+          <span>A partir de</span>
+          <div class="preco-antigo">R$ ${precoNum.toFixed(2).replace('.',',')}</div>
+          <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+            <span>R$ ${(precoNum*0.5).toFixed(2).replace('.',',')}</span>
+            <span class="desconto-badge">-50%</span>
+          </div>
+          <button class="btn-comprar" onclick="selecionarViagem(${i})">Selecionar</button>
+        </div>
       </div>`;
     }).join('');
   }
@@ -965,7 +1010,7 @@
       <span style="font-size:12px;color:#666;">E-mail: ${p.email} | Zap: ${p.whatsapp}</span>
     </li>`).join('');
 
-    info.innerHTML = `<strong>Empresa:</strong> ${viagem.company.name}<br><strong>Poltrona(s):</strong> ${poltronas.join(', ')}<br><strong>Embarque:</strong> ${tP.nome}<br><strong>Desembarque:</strong> ${tC.nome}<br><br><strong>Passageiros:</strong><ul style="padding-left:0; margin:8px 0; list-style:none;">${htmlPass}</ul><div style="background:#f0f9f0;padding:12px;border-radius:8px;margin-top:12px;"><div style="font-size:12px;color:#666;">Valor original</div><div class="preco-antigo" style="font-size:16px;">R$ ${totalOriginal.toFixed(2).replace('.',',')}</div><div style="font-size:12px;color:#2e7d32;margin-top:8px;font-weight:600;">🔥 Black Friday -50%</div><div style="color:var(--brand);font-weight:bold;font-size:22px;">R$ ${totalFinal.toFixed(2).replace('.',',')}</div></div>`;
+    info.innerHTML = `<strong>Empresa:</strong> ${viagem.company.name}<br><strong>Poltrona(s):</strong> ${poltronas.join(', ')}<br><strong>Embarque:</strong> ${tP.nome}${tP.endereco?'<br><span style="font-size:11px;color:#757575;">📍 '+tP.endereco+'</span>':''}<br><strong>Desembarque:</strong> ${tC.nome}${tC.endereco?'<br><span style="font-size:11px;color:#757575;">📍 '+tC.endereco+'</span>':''}<br><br><strong>Passageiros:</strong><ul style="padding-left:0; margin:8px 0; list-style:none;">${htmlPass}</ul><div style="background:#f0f9f0;padding:12px;border-radius:8px;margin-top:12px;"><div style="font-size:12px;color:#666;">Valor original</div><div class="preco-antigo" style="font-size:16px;">R$ ${totalOriginal.toFixed(2).replace('.',',')}</div><div style="font-size:12px;color:#2e7d32;margin-top:8px;font-weight:600;">🔥 Black Friday -50%</div><div style="color:var(--brand);font-weight:bold;font-size:22px;">R$ ${totalFinal.toFixed(2).replace('.',',')}</div></div>`;
     document.getElementById('area-pix').innerHTML = `<button onclick="gerarPix()" style="width:100%;padding:14px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Gerar PIX</button>`;
     document.getElementById('modal-checkout').style.display = 'flex';
   }

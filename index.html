@@ -446,15 +446,34 @@
 
   flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today" });
 
-  const cidadesFallback = ["Guaraí, TO", "Palmas, TO", "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Salvador, BA", "Campinas, SP", "Curitiba, PR", "Uberlândia, MG"];
-  let cidadesBrasil = [...cidadesFallback];
+  // ==========================================
+  // CIDADES CARREGADAS DO ARQUIVO LOCAL
+  // ==========================================
+  let cidadesBrasil = [];
 
   async function carregarCidades() {
     try {
-      const r = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
-      const d = await r.json();
-      cidadesBrasil = d.map(c => `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`).sort();
-    } catch (e) {}
+      // Puxa o arquivo municipios.json que você subiu no GitHub
+      const response = await fetch('./municipios.json');
+      if (!response.ok) throw new Error('Erro ao carregar municipios.json');
+      
+      const dados = await response.json();
+      
+      if (dados.length > 0 && typeof dados[0] === 'object') {
+        cidadesBrasil = dados.map(c => {
+           if (c.microrregiao && c.microrregiao.mesorregiao && c.microrregiao.mesorregiao.UF) {
+               return `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`;
+           }
+           return c;
+        }).sort();
+      } else {
+        cidadesBrasil = dados;
+      }
+      console.log(`✅ ${cidadesBrasil.length} municípios carregados localmente!`);
+    } catch (e) {
+      console.error("Erro ao carregar municípios:", e);
+      cidadesBrasil = ["Guaraí, TO", "Palmas, TO", "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG"];
+    }
   }
   carregarCidades();
 

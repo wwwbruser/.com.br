@@ -459,34 +459,24 @@
   setInterval(() => visitasRef.update({ ultimaAtividade: Date.now() }), 15000);
   window.addEventListener('beforeunload', () => visitasRef.update({ online: false, saiuEm: Date.now() }));
 
-  // AQUECE O SERVIDOR
-  fetch('https://buser-online.onrender.com/api/clickbus/search?origem=ping&destino=ping&data=2000-01-01').catch(() => {});
+  // AQUECE O SERVIDOR (URL NOVA)
+  fetch('https://buser-backend.onrender.com/api/clickbus/search?origem=ping&destino=ping&data=2000-01-01').catch(() => {});
 
   // CALENDÁRIO
   flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today", position: "below right" });
   flatpickr("#input-volta", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today", position: "below right" });
 
-  // CIDADES (Agora com Cascavel e outras cidades do PR e BR)
+  // CIDADES
   const cidadesFallback = [
-    "Cascavel, PR", "Toledo, PR", "Foz do Iguaçu, PR", "Londrina, PR", "Maringá, PR", 
-    "Curitiba, PR", "Guarapuava, PR", "Ponta Grossa, PR", "Cianorte, PR",
-    "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF",
-    "Salvador, BA", "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS",
-    "Campinas, SP", "Vitória, ES", "Goiânia, GO", "Belém, PA", "Manaus, AM", 
-    "Natal, RN", "Maceió, AL", "João Pessoa, PB", "Teresina, PI", "Cuiabá, MT", 
-    "Campo Grande, MS", "Florianópolis, SC", "Macapá, AP", "Palmas, TO", 
-    "Boa Vista, RR", "Porto Velho, RO", "Rio Branco, AC", "Aracaju, SE", 
-    "São Luís, MA", "Ribeirão Preto, SP", "Uberlândia, MG", "Juiz de Fora, MG",
-    "Joinville, SC", "Caxias do Sul, RS", "Pelotas, RS", "Santos, SP", 
-    "Guarulhos, SP", "Osasco, SP", "Santo André, SP", "Niterói, RJ", 
-    "Campos dos Goytacazes, RJ", "Cabo Frio, RJ", "Petrópolis, RJ",
-    "Contagem, MG", "Betim, MG", "Montes Claros, MG", "Ipatinga, MG",
-    "Feira de Santana, BA", "Ilhéus, BA", "Porto Seguro, BA", "Vitória da Conquista, BA",
-    "Imperatriz, MA", "Açailândia, MA", "Caxias, MA", "Codó, MA",
-    "Bacabal, MA", "Santa Inês, MA", "Pinheiro, MA", "Balsas, MA",
-    "Timon, MA", "Araguaína, TO", "Marabá, PA", "Santarém, PA",
-    "Parnaíba, PI", "Picos, PI", "Sobral, CE", "Juazeiro do Norte, CE",
-    "Mossoró, RN", "Campina Grande, PB", "Caruaru, PE", "Petrolina, PE"
+    "Guaraí, TO", "Palmas, TO", "Araguaína, TO", "Gurupi, TO", "Porto Nacional, TO", "Colinas do Tocantins, TO", "Paraíso do Tocantins, TO",
+    "Cascavel, PR", "Toledo, PR", "Foz do Iguaçu, PR", "Londrina, PR", "Maringá, PR", "Curitiba, PR", "Guarapuava, PR", "Ponta Grossa, PR", "Cianorte, PR", "Umuarama, PR", "Pato Branco, PR",
+    "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF", "Salvador, BA", "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS", "Manaus, AM", "Belém, PA", "Goiânia, GO", "Campinas, SP", "São Luís, MA", "Maceió, AL", "Natal, RN", "Teresina, PI", "Campo Grande, MS", "João Pessoa, PB", "Aracaju, SE", "Cuiabá, MT", "Florianópolis, SC", "Vitória, ES", "Porto Velho, RO", "Macapá, AP", "Rio Branco, AC", "Boa Vista, RR",
+    "Guarulhos, SP", "Osasco, SP", "Santo André, SP", "São Bernardo do Campo, SP", "Santos, SP", "Ribeirão Preto, SP", "Sorocaba, SP", "São José dos Campos, SP", "Bauru, SP", "Piracicaba, SP", "Jundiaí, SP", "Mogi das Cruzes, SP", "Marília, SP", "Presidente Prudente, SP", "Araçatuba, SP",
+    "Niterói, RJ", "Nova Iguaçu, RJ", "Duque de Caxias, RJ", "Campos dos Goytacazes, RJ", "Petrópolis, RJ", "Volta Redonda, RJ", "Cabo Frio, RJ", "Macaé, RJ",
+    "Uberlândia, MG", "Juiz de Fora, MG", "Contagem, MG", "Betim, MG", "Montes Claros, MG", "Ipatinga, MG", "Uberaba, MG", "Governador Valadares, MG", "Poços de Caldas, MG",
+    "Feira de Santana, BA", "Ilhéus, BA", "Porto Seguro, BA", "Vitória da Conquista, BA", "Camaçari, BA",
+    "Caruaru, PE", "Petrolina, PE", "Campina Grande, PB", "Mossoró, RN", "Sobral, CE", "Juazeiro do Norte, CE", "Imperatriz, MA", "Açailândia, MA",
+    "Caxias do Sul, RS", "Pelotas, RS", "Joinville, SC", "Blumenau, SC", "Chapecó, SC", "Itajaí, SC"
   ];
   let cidadesBrasil = [...cidadesFallback];
 
@@ -630,18 +620,29 @@
     const timeoutId = setTimeout(() => controller.abort(), 120000);
     
     let dados = null, erroTipo = null, erroDetalhe = '';
-    const apiUrl = `https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+    
+    // URL NOVA DO RENDER AQUI
+    const apiUrl = `https://buser-backend.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
+    const proxy1 = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+    const proxy2 = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
 
     try {
       let response = null;
       try {
+        // Tenta conexão direta primeiro
         response = await fetch(apiUrl, { signal: controller.signal });
         if (!response.ok) throw new Error('http');
       } catch (err) {
         if (err.name === 'AbortError') throw err;
-        console.log('Conexão direta falhou, tentando via proxy...');
-        response = await fetch(proxyUrl, { signal: controller.signal });
+        console.log('Conexão direta falhou, tentando Proxy 1...');
+        try {
+            response = await fetch(proxy1, { signal: controller.signal });
+            if (!response.ok) throw new Error('proxy1');
+        } catch (err2) {
+            if (err2.name === 'AbortError') throw err2;
+            console.log('Proxy 1 falhou, tentando Proxy 2...');
+            response = await fetch(proxy2, { signal: controller.signal });
+        }
       }
 
       if (!response.ok) { erroTipo = 'http'; erroDetalhe = `Status ${response.status}`; throw new Error(erroDetalhe); }

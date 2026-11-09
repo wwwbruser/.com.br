@@ -20,13 +20,23 @@
 
   /* TASKBAR */
   .taskbar{position:fixed;top:0;left:0;right:0;z-index:35;height:calc(60px + var(--safe-top));padding-top:var(--safe-top);background:#fafafa;box-shadow:0 4px 8px rgba(0,0,0,.1)}
-  .taskbar .t-content{align-items:center;display:flex;height:100%}
+  .taskbar .t-content{align-items:center;display:flex;height:100%;justify-content:space-between}
   .taskbar-desktop{display:flex;align-items:center;justify-content:space-between;flex-grow:1;height:100%;max-width:100%}
-  .logo{width:122px;height:24px;color:var(--brand);fill:var(--brand)}
+  
+  /* LOGO CORRIGIDO PARA NÃO SUMIR */
+  .logo{width:122px;height:24px;color:var(--brand);fill:var(--brand);flex-shrink:0;display:block}
+  
   .menu-links{display:flex;gap:8px;align-items:center}
   .menu-links .ml-item{color:var(--grey-dark);font-weight:500;padding:6px 16px;border-radius:500px;transition:.2s;font-size:14px;cursor:pointer}
   .menu-links .ml-item:hover{background:var(--brand);color:#fff}
   .avatar{width:36px;height:36px;border-radius:50%;background-image:url('https://bcdn.com.br/_nuxt3/avatar.fWv4A4-_.webp');background-size:cover;background-color:#e0e0e0;cursor:pointer}
+  
+  /* LOGO NO CELULAR */
+  .taskbar-mobile{display:none;width:100%;justify-content:center;}
+  @media (max-width:767px){
+    .taskbar-desktop{display:none}
+    .taskbar-mobile{display:flex;align-items:center;justify-content:center;}
+  }
 
   /* HEADER COM IMAGEM */
   .header{padding-top:calc(60px + var(--safe-top));position:relative;background:#f11075;overflow:hidden}
@@ -193,7 +203,6 @@
   .ticket-instructions{font-size:12px;color:#666;background:#f9f9f9;padding:12px;border-radius:8px;margin-top:8px;border-left:3px solid #f11075}
 
   @media (max-width:767px){
-    .taskbar-desktop{display:none}
     .searchbox-wrapper{margin-top:40px}
     .searchbox-field{min-width:100%;border-right:none;border-bottom:1px solid var(--grey-light);padding:12px 16px;height:auto}
     .searchbox-field:last-of-type{border-bottom:none}
@@ -218,11 +227,13 @@
 </head>
 <body>
 
-<!-- TASKBAR -->
+<!-- TASKBAR (Logo corrigido no desktop e mobile) -->
 <nav class="taskbar">
   <div class="container t-content">
     <div class="taskbar-desktop">
-      <a href="/" title="Buser"><svg class="logo" viewBox="0 0 122 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path></svg></a>
+      <a href="/" title="Buser">
+        <svg class="logo" viewBox="0 0 122 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path></svg>
+      </a>
       <div class="menu-links">
         <a href="/" class="ml-item">Início</a>
         <a href="/promo" class="ml-item">Promoções</a>
@@ -230,6 +241,13 @@
         <a href="/ajuda" class="ml-item">Ajuda</a>
         <div class="avatar"></div>
       </div>
+    </div>
+    
+    <!-- LOGO MOBILE PARA NÃO SUMIR -->
+    <div class="taskbar-mobile">
+      <a href="/" title="Buser">
+        <svg class="logo" viewBox="0 0 122 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path></svg>
+      </a>
     </div>
   </div>
 </nav>
@@ -408,7 +426,7 @@
   </div>
 </div>
 
-<!-- MODAL VER PASSAGEM (Tela completa com Bagagens, Fretamento e Reserva) -->
+<!-- MODAL VER PASSAGEM -->
 <div id="modal-passagem" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1003;align-items:center;justify-content:center;">
   <div class="buser-modal">
     <div class="bm-header">
@@ -447,57 +465,136 @@
   flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today" });
 
   // ==========================================
-  // CIDADES CARREGADAS DO ARQUIVO LOCAL
+  // LISTA EMBUTIDA COM MAIS DE 300 CIDADES
   // ==========================================
-  let cidadesBrasil = [];
+  let cidadesBrasil = [
+    "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF", "Salvador, BA", 
+    "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS", "Curitiba, PR", "Manaus, AM", 
+    "Belém, PA", "Goiânia, GO", "Campinas, SP", "São Luís, MA", "Maceió, AL", 
+    "Natal, RN", "Teresina, PI", "Campo Grande, MS", "João Pessoa, PB", "Aracaju, SE", 
+    "Cuiabá, MT", "Florianópolis, SC", "Vitória, ES", "Porto Velho, RO", "Macapá, AP", 
+    "Rio Branco, AC", "Boa Vista, RR", "Palmas, TO", "Guarulhos, SP", "Osasco, SP", 
+    "Santo André, SP", "São Bernardo do Campo, SP", "Santos, SP", "Ribeirão Preto, SP", 
+    "Sorocaba, SP", "São José dos Campos, SP", "Bauru, SP", "Piracicaba, SP", "Jundiaí, SP", 
+    "Mogi das Cruzes, SP", "Marília, SP", "Presidente Prudente, SP", "Araçatuba, SP", 
+    "Franca, SP", "São Carlos, SP", "Limeira, SP", "Taubaté, SP", "Suzano, SP", 
+    "Barueri, SP", "Praia Grande, SP", "Carapicuíba, SP", "Cotia, SP", "Taboão da Serra, SP",
+    "Niterói, RJ", "Nova Iguaçu, RJ", "Duque de Caxias, RJ", "Campos dos Goytacazes, RJ", 
+    "Petrópolis, RJ", "Volta Redonda, RJ", "Cabo Frio, RJ", "Macaé, RJ", "Angra dos Reis, RJ", 
+    "Barra Mansa, RJ", "Teresópolis, RJ", "Resende, RJ", "Nova Friburgo, RJ", "Itaboraí, RJ", 
+    "São Gonçalo, RJ", "Maricá, RJ", "Uberlândia, MG", "Juiz de Fora, MG", "Contagem, MG", 
+    "Betim, MG", "Montes Claros, MG", "Ipatinga, MG", "Uberaba, MG", "Governador Valadares, MG", 
+    "Poços de Caldas, MG", "Divinópolis, MG", "Sete Lagoas, MG", "Santa Luzia, MG", 
+    "Varginha, MG", "Patos de Minas, MG", "Barbacena, MG", "Sabará, MG", "Ribeirão das Neves, MG", 
+    "Ibirité, MG", "Pouso Alegre, MG", "Teófilo Otoni, MG", "Londrina, PR", "Maringá, PR", 
+    "Cascavel, PR", "Toledo, PR", "Foz do Iguaçu, PR", "Ponta Grossa, PR", "Guarapuava, PR", 
+    "Cianorte, PR", "Umuarama, PR", "Pato Branco, PR", "Paranaguá, PR", "Apucarana, PR", 
+    "Arapongas, PR", "Campo Mourão, PR", "Colombo, PR", "São José dos Pinhais, PR", 
+    "Almirante Tamandaré, PR", "Pinhais, PR", "Feira de Santana, BA", "Vitória da Conquista, BA", 
+    "Camaçari, BA", "Ilhéus, BA", "Itabuna, BA", "Porto Seguro, BA", "Lauro de Freitas, BA", 
+    "Barreiras, BA", "Jequié, BA", "Teixeira de Freitas, BA", "Alagoinhas, BA", "Juazeiro, BA", 
+    "Eunápolis, BA", "Simões Filho, BA", "Paulo Afonso, BA", "Candeias, BA", "Caxias do Sul, RS", 
+    "Pelotas, RS", "Canoas, RS", "Santa Maria, RS", "Gravataí, RS", "Viamão, RS", 
+    "Novo Hamburgo, RS", "São Leopoldo, RS", "Rio Grande, RS", "Alvorada, RS", "Passo Fundo, RS", 
+    "Uruguaiana, RS", "Bagé, RS", "Sapucaia do Sul, RS", "Santa Cruz do Sul, RS", 
+    "Cachoeirinha, RS", "Jaboatão dos Guararapes, PE", "Olinda, PE", "Caruaru, PE", 
+    "Petrolina, PE", "Paulista, PE", "Cabo de Santo Agostinho, PE", "Camaragibe, PE", 
+    "Garanhuns, PE", "Vitória de Santo Antão, PE", "Igarassu, PE", "São Lourenço da Mata, PE", 
+    "Caucaia, CE", "Juazeiro do Norte, CE", "Maracanaú, CE", "Sobral, CE", "Crato, CE", 
+    "Itapipoca, CE", "Maranguape, CE", "Iguatu, CE", "Quixadá, CE", "Pacatuba, CE", 
+    "Ananindeua, PA", "Santarém, PA", "Marabá, PA", "Parauapebas, PA", "Castanhal, PA", 
+    "Abaetetuba, PA", "Cametá, PA", "Bragança, PA", "Altamira, PA", "Tucuruí, PA", 
+    "Joinville, SC", "Blumenau, SC", "São José, SC", "Criciúma, SC", "Chapecó, SC", 
+    "Itajaí, SC", "Jaraguá do Sul, SC", "Palhoça, SC", "Lages, SC", "Balneário Camboriú, SC", 
+    "Brusque, SC", "Tubarão, SC", "São Bento do Sul, SC", "Caçador, SC", "Navegantes, SC",
+    "Aparecida de Goiânia, GO", "Anápolis, GO", "Rio Verde, GO", "Luziânia, GO", 
+    "Águas Lindas de Goiás, GO", "Valparaíso de Goiás, GO", "Trindade, GO", "Formosa, GO", 
+    "Novo Gama, GO", "Senador Canedo, GO", "Catalão, GO", "Itumbiara, GO", "Jataí, GO",
+    "Imperatriz, MA", "São José de Ribamar, MA", "Timon, MA", "Caxias, MA", "Codó, MA", 
+    "Paço do Lumiar, MA", "Açailândia, MA", "Bacabal, MA", "Balsas, MA", "Santa Inês, MA", 
+    "Pinheiro, MA", "Barra do Corda, MA", "Parintins, AM", "Itacoatiara, AM", "Manacapuru, AM", 
+    "Coari, AM", "Tabatinga, AM", "Maués, AM", "Tefé, AM", "Vila Velha, ES", "Serra, ES", 
+    "Cariacica, ES", "Cachoeiro de Itapemirim, ES", "Linhares, ES", "São Mateus, ES", 
+    "Colatina, ES", "Guarapari, ES", "Aracruz, ES", "Viana, ES", "Campina Grande, PB", 
+    "Santa Rita, PB", "Patos, PB", "Bayeux, PB", "Sousa, PB", "Cabedelo, PB", 
+    "Cajazeiras, PB", "Guarabira, PB", "Mossoró, RN", "Parnamirim, RN", 
+    "São Gonçalo do Amarante, RN", "Macaíba, RN", "Ceará-Mirim, RN", "Caicó, RN", 
+    "Assu, RN", "Várzea Grande, MT", "Rondonópolis, MT", "Sinop, MT", "Tangará da Serra, MT", 
+    "Cáceres, MT", "Sorriso, MT", "Lucas do Rio Verde, MT", "Primavera do Leste, MT", 
+    "Barra do Garças, MT", "Dourados, MS", "Três Lagoas, MS", "Corumbá, MS", "Ponta Porã, MS", 
+    "Naviraí, MS", "Nova Andradina, MS", "Aquidauana, MS", "Sidrolândia, MS", "Parnaíba, PI", 
+    "Picos, PI", "Piripiri, PI", "Floriano, PI", "Campo Maior, PI", "Barras, PI", "Altos, PI",
+    "Arapiraca, AL", "Palmeira dos Índios, AL", "Rio Largo, AL", "Penedo, AL", 
+    "União dos Palmares, AL", "São Miguel dos Campos, AL", "Nossa Senhora do Socorro, SE", 
+    "Lagarto, SE", "Itabaiana, SE", "São Cristóvão, SE", "Estância, SE", 
+    "Nossa Senhora da Glória, SE", "Araguaína, TO", "Gurupi, TO", "Porto Nacional, TO", 
+    "Paraíso do Tocantins, TO", "Colinas do Tocantins, TO", "Guaraí, TO", "Tocantinópolis, TO", 
+    "Dianópolis, TO", "Formoso do Araguaia, TO", "Ji-Paraná, RO", "Ariquemes, RO", "Vilhena, RO", 
+    "Cacoal, RO", "Rolim de Moura, RO", "Jaru, RO", "Guajará-Mirim, RO", "Cruzeiro do Sul, AC", 
+    "Sena Madureira, AC", "Tarauacá, AC", "Feijó, AC", "Brasiléia, AC", "Santana, AP", 
+    "Laranjal do Jari, AP", "Oiapoque, AP", "Porto Grande, AP", "Mazagão, AP", 
+    "Rorainópolis, RR", "Caracaraí, RR", "Alto Alegre, RR", "Mucajaí, RR", "Pacaraima, RR",
+    "Ceilândia, DF", "Taguatinga, DF", "Planaltina, DF", "Samambaia, DF", "Gama, DF", 
+    "Guará, DF", "Águas Claras, DF", "Sobradinho, DF", "Recanto das Emas, DF"
+  ];
 
-  async function carregarCidades() {
+  // Carrega o resto em segundo plano se o arquivo municipios.json existir
+  async function carregarCidadesCompletas() {
+    const cache = localStorage.getItem('buser_cidades_v1');
+    if (cache) {
+      cidadesBrasil = JSON.parse(cache);
+      return;
+    }
     try {
-      // Puxa o arquivo municipios.json que você subiu no GitHub
       const response = await fetch('./municipios.json');
-      if (!response.ok) throw new Error('Erro ao carregar municipios.json');
-      
+      if (!response.ok) throw new Error('Arquivo falhou');
       const dados = await response.json();
-      
-      if (dados.length > 0 && typeof dados[0] === 'object') {
-        cidadesBrasil = dados.map(c => {
-           if (c.microrregiao && c.microrregiao.mesorregiao && c.microrregiao.mesorregiao.UF) {
-               return `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`;
-           }
-           return c;
-        }).sort();
-      } else {
-        cidadesBrasil = dados;
-      }
-      console.log(`✅ ${cidadesBrasil.length} municípios carregados localmente!`);
+      const listaCompleta = dados.map(c => `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`).sort();
+      localStorage.setItem('buser_cidades_v1', JSON.stringify(listaCompleta));
+      cidadesBrasil = listaCompleta;
+      console.log(`✅ SUCESSO: Agora o site tem ${cidadesBrasil.length} cidades!`);
     } catch (e) {
-      console.error("Erro ao carregar municípios:", e);
-      cidadesBrasil = ["Guaraí, TO", "Palmas, TO", "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG"];
+      console.log("⚠️ Usando lista embutida.");
     }
   }
-  carregarCidades();
+  carregarCidadesCompletas();
 
   function normalizarTexto(t) { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
 
   function configurarAutocomplete(inputId, listaId) {
     const input = document.getElementById(inputId);
     const lista = document.getElementById(listaId);
+    
     input.addEventListener('input', function() {
       const termo = normalizarTexto(this.value);
       lista.innerHTML = '';
-      if (termo.length < 2) { lista.style.display = 'none'; return; }
-      const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 8);
+      
+      if (termo.length < 2) { 
+        lista.style.display = 'none'; 
+        return; 
+      }
+      
+      const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 10);
+      
       if (filtradas.length > 0) {
         lista.style.display = 'block';
         filtradas.forEach(cidade => {
           const li = document.createElement('li');
           li.textContent = cidade;
-          li.onmousedown = function(e) { e.preventDefault(); input.value = cidade; lista.style.display = 'none'; };
+          li.onmousedown = function(e) { 
+            e.preventDefault(); 
+            input.value = cidade; 
+            lista.style.display = 'none'; 
+            if(inputId === 'input-origem') document.getElementById('input-destino').focus();
+          };
           lista.appendChild(li);
         });
+      } else {
+        lista.style.display = 'none';
       }
     });
   }
+
   configurarAutocomplete('input-origem', 'lista-origem');
   configurarAutocomplete('input-destino', 'lista-destino');
 

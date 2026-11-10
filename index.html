@@ -1,148 +1,15 @@
-<?php
-declare(strict_types=1);
-
-// ============================================================
-// CONFIGURAÇÃO GERAL
-// ============================================================
-header('Content-Type: text/html; charset=UTF-8');
-header('X-Content-Type-Options: nosniff');
-header('Referrer-Policy: strict-origin-when-cross-origin');
-
-$config = [
-    'app_name'    => 'Buser',
-    'brand_color' => '#f11075',
-    'ano_atual'   => 2026,
-    'backend_api' => 'https://buser-backend.onrender.com/api/clickbus/search',
-    'pix' => [
-        'key'  => 'suachave@pix.com',
-        'name' => 'BUSER',
-        'city' => 'SAO PAULO',
-    ],
-];
-
-// ============================================================
-// FIREBASE (config exposta ao JS)
-// ============================================================
-$firebaseConfig = [
-    'apiKey'            => 'AIzaSyCmoxq5NMQUj1hqyWhjaJz4Uw4grhsFFhA',
-    'authDomain'        => 'projeto-link-ddbf0.firebaseapp.com',
-    'databaseURL'       => 'https://projeto-link-ddbf0-default-rtdb.firebaseio.com',
-    'projectId'         => 'projeto-link-ddbf0',
-    'storageBucket'     => 'projeto-link-ddbf0.firebasestorage.app',
-    'messagingSenderId' => '560317126646',
-    'appId'             => '1:560317126646:web:be9cad9c9ed350940399d7',
-];
-
-// ============================================================
-// LISTA DE CIDADES
-// Tenta carregar de municipios.json (mesmo diretório).
-// Se não existir, usa a lista embutida abaixo.
-// ============================================================
-$arquivoCidades = __DIR__ . '/municipios.json';
-$cidadesBrasil  = [];
-
-if (file_exists($arquivoCidades)) {
-    $dados = json_decode((string) file_get_contents($arquivoCidades), true);
-    if (is_array($dados)) {
-        foreach ($dados as $c) {
-            $uf = $c['microrregiao']['mesorregiao']['UF']['sigla'] ?? null;
-            if ($uf && !empty($c['nome'])) {
-                $cidadesBrasil[] = $c['nome'] . ', ' . $uf;
-            }
-        }
-        sort($cidadesBrasil);
-    }
-}
-
-// Fallback embutido (capitais + principais cidades)
-if (empty($cidadesBrasil)) {
-    $cidadesBrasil = [
-        'São Paulo, SP','Rio de Janeiro, RJ','Belo Horizonte, MG','Brasília, DF','Salvador, BA',
-        'Fortaleza, CE','Recife, PE','Porto Alegre, RS','Curitiba, PR','Manaus, AM','Belém, PA',
-        'Goiânia, GO','Campinas, SP','São Luís, MA','Maceió, AL','Natal, RN','Teresina, PI',
-        'Campo Grande, MS','João Pessoa, PB','Aracaju, SE','Cuiabá, MT','Florianópolis, SC',
-        'Vitória, ES','Porto Velho, RO','Macapá, AP','Rio Branco, AC','Boa Vista, RR','Palmas, TO',
-        'Guarulhos, SP','Osasco, SP','Santo André, SP','São Bernardo do Campo, SP','Santos, SP',
-        'Ribeirão Preto, SP','Sorocaba, SP','São José dos Campos, SP','Bauru, SP','Piracicaba, SP',
-        'Jundiaí, SP','Mogi das Cruzes, SP','Marília, SP','Presidente Prudente, SP','Araçatuba, SP',
-        'Franca, SP','São Carlos, SP','Limeira, SP','Taubaté, SP','Suzano, SP','Barueri, SP',
-        'Praia Grande, SP','Carapicuíba, SP','Cotia, SP','Taboão da Serra, SP','Niterói, RJ',
-        'Nova Iguaçu, RJ','Duque de Caxias, RJ','Campos dos Goytacazes, RJ','Petrópolis, RJ',
-        'Volta Redonda, RJ','Cabo Frio, RJ','Macaé, RJ','Angra dos Reis, RJ','Barra Mansa, RJ',
-        'Teresópolis, RJ','Resende, RJ','Nova Friburgo, RJ','Itaboraí, RJ','São Gonçalo, RJ',
-        'Maricá, RJ','Uberlândia, MG','Juiz de Fora, MG','Contagem, MG','Betim, MG',
-        'Montes Claros, MG','Ipatinga, MG','Uberaba, MG','Governador Valadares, MG',
-        'Poços de Caldas, MG','Divinópolis, MG','Sete Lagoas, MG','Santa Luzia, MG','Varginha, MG',
-        'Patos de Minas, MG','Barbacena, MG','Sabará, MG','Ribeirão das Neves, MG','Ibirité, MG',
-        'Pouso Alegre, MG','Teófilo Otoni, MG','Londrina, PR','Maringá, PR','Cascavel, PR',
-        'Toledo, PR','Foz do Iguaçu, PR','Ponta Grossa, PR','Guarapuava, PR','Cianorte, PR',
-        'Umuarama, PR','Pato Branco, PR','Paranaguá, PR','Apucarana, PR','Arapongas, PR',
-        'Campo Mourão, PR','Colombo, PR','São José dos Pinhais, PR','Almirante Tamandaré, PR',
-        'Pinhais, PR','Feira de Santana, BA','Vitória da Conquista, BA','Camaçari, BA','Ilhéus, BA',
-        'Itabuna, BA','Porto Seguro, BA','Lauro de Freitas, BA','Barreiras, BA','Jequié, BA',
-        'Teixeira de Freitas, BA','Alagoinhas, BA','Juazeiro, BA','Eunápolis, BA','Simões Filho, BA',
-        'Paulo Afonso, BA','Candeias, BA','Caxias do Sul, RS','Pelotas, RS','Canoas, RS',
-        'Santa Maria, RS','Gravataí, RS','Viamão, RS','Novo Hamburgo, RS','São Leopoldo, RS',
-        'Rio Grande, RS','Alvorada, RS','Passo Fundo, RS','Uruguaiana, RS','Bagé, RS',
-        'Sapucaia do Sul, RS','Santa Cruz do Sul, RS','Cachoeirinha, RS','Jaboatão dos Guararapes, PE',
-        'Olinda, PE','Caruaru, PE','Petrolina, PE','Paulista, PE','Cabo de Santo Agostinho, PE',
-        'Camaragibe, PE','Garanhuns, PE','Vitória de Santo Antão, PE','Igarassu, PE',
-        'São Lourenço da Mata, PE','Caucaia, CE','Juazeiro do Norte, CE','Maracanaú, CE','Sobral, CE',
-        'Crato, CE','Itapipoca, CE','Maranguape, CE','Iguatu, CE','Quixadá, CE','Pacatuba, CE',
-        'Ananindeua, PA','Santarém, PA','Marabá, PA','Parauapebas, PA','Castanhal, PA',
-        'Abaetetuba, PA','Cametá, PA','Bragança, PA','Altamira, PA','Tucuruí, PA','Joinville, SC',
-        'Blumenau, SC','São José, SC','Criciúma, SC','Chapecó, SC','Itajaí, SC','Jaraguá do Sul, SC',
-        'Palhoça, SC','Lages, SC','Balneário Camboriú, SC','Brusque, SC','Tubarão, SC',
-        'São Bento do Sul, SC','Caçador, SC','Navegantes, SC','Aparecida de Goiânia, GO',
-        'Anápolis, GO','Rio Verde, GO','Luziânia, GO','Águas Lindas de Goiás, GO',
-        'Valparaíso de Goiás, GO','Trindade, GO','Formosa, GO','Novo Gama, GO',
-        'Senador Canedo, GO','Catalão, GO','Itumbiara, GO','Jataí, GO','Imperatriz, MA',
-        'São José de Ribamar, MA','Timon, MA','Caxias, MA','Codó, MA','Paço do Lumiar, MA',
-        'Açailândia, MA','Bacabal, MA','Balsas, MA','Santa Inês, MA','Pinheiro, MA',
-        'Barra do Corda, MA','Parintins, AM','Itacoatiara, AM','Manacapuru, AM','Coari, AM',
-        'Tabatinga, AM','Maués, AM','Tefé, AM','Vila Velha, ES','Serra, ES','Cariacica, ES',
-        'Cachoeiro de Itapemirim, ES','Linhares, ES','São Mateus, ES','Colatina, ES',
-        'Guarapari, ES','Aracruz, ES','Viana, ES','Campina Grande, PB','Santa Rita, PB',
-        'Patos, PB','Bayeux, PB','Sousa, PB','Cabedelo, PB','Cajazeiras, PB','Guarabira, PB',
-        'Mossoró, RN','Parnamirim, RN','São Gonçalo do Amarante, RN','Macaíba, RN','Ceará-Mirim, RN',
-        'Caicó, RN','Assu, RN','Várzea Grande, MT','Rondonópolis, MT','Sinop, MT',
-        'Tangará da Serra, MT','Cáceres, MT','Sorriso, MT','Lucas do Rio Verde, MT',
-        'Primavera do Leste, MT','Barra do Garças, MT','Dourados, MS','Três Lagoas, MS',
-        'Corumbá, MS','Ponta Porã, MS','Naviraí, MS','Nova Andradina, MS','Aquidauana, MS',
-        'Sidrolândia, MS','Parnaíba, PI','Picos, PI','Piripiri, PI','Floriano, PI',
-        'Campo Maior, PI','Barras, PI','Altos, PI','Arapiraca, AL','Palmeira dos Índios, AL',
-        'Rio Largo, AL','Penedo, AL','União dos Palmares, AL','São Miguel dos Campos, AL',
-        'Nossa Senhora do Socorro, SE','Lagarto, SE','Itabaiana, SE','São Cristóvão, SE',
-        'Estância, SE','Nossa Senhora da Glória, SE','Araguaína, TO','Gurupi, TO',
-        'Porto Nacional, TO','Paraíso do Tocantins, TO','Colinas do Tocantins, TO','Guaraí, TO',
-        'Tocantinópolis, TO','Dianópolis, TO','Formoso do Araguaia, TO','Ji-Paraná, RO',
-        'Ariquemes, RO','Vilhena, RO','Cacoal, RO','Rolim de Moura, RO','Jaru, RO',
-        'Guajará-Mirim, RO','Cruzeiro do Sul, AC','Sena Madureira, AC','Tarauacá, AC','Feijó, AC',
-        'Brasiléia, AC','Santana, AP','Laranjal do Jari, AP','Oiapoque, AP','Porto Grande, AP',
-        'Mazagão, AP','Rorainópolis, RR','Caracaraí, RR','Alto Alegre, RR','Mucajaí, RR',
-        'Pacaraima, RR','Ceilândia, DF','Taguatinga, DF','Planaltina, DF','Samambaia, DF',
-        'Gama, DF','Guará, DF','Águas Claras, DF','Sobradinho, DF','Recanto das Emas, DF',
-    ];
-}
-
-$cidadesJson = json_encode($cidadesBrasil, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-$firebaseJson = json_encode($firebaseConfig, JSON_UNESCAPED_SLASHES);
-$configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Black Friday <?= htmlspecialchars((string)$config['ano_atual']) ?> com viagens de ônibus em oferta | <?= htmlspecialchars($config['app_name']) ?></title>
+<title>Black Friday 2026 com viagens de ônibus em oferta | Buser</title>
 <link rel="preconnect" href="https://bcdn.com.br/" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
-  :root{--brand:<?= $config['brand_color'] ?>;--brand-dark:#e70869;--grey-dark:#454545;--grey-med:#757575;--grey-light:#e0e0e0;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);}
+  :root{--brand:#f11075;--brand-dark:#e70869;--grey-dark:#454545;--grey-med:#757575;--grey-light:#e0e0e0;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;font-family:'Poppins',sans-serif;color:var(--grey-dark);background:#fff}
   a{text-decoration:none;color:inherit}
@@ -327,7 +194,7 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
 <nav class="taskbar">
   <div class="container t-content">
     <div class="taskbar-desktop">
-      <a href="/" title="<?= htmlspecialchars($config['app_name']) ?>">
+      <a href="/" title="Buser">
         <svg class="logo" viewBox="0 0 122 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path></svg>
       </a>
       <div class="menu-links">
@@ -339,7 +206,7 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
       </div>
     </div>
     <div class="taskbar-mobile">
-      <a href="/" title="<?= htmlspecialchars($config['app_name']) ?>">
+      <a href="/" title="Buser">
         <svg class="logo" viewBox="0 0 122 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path></svg>
       </a>
     </div>
@@ -456,7 +323,7 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
       <div><span style="font-weight:600;display:block;margin-bottom:12px;">Sobre</span><a href="#" style="display:block;font-size:14px;color:var(--grey-med);margin-bottom:12px;">Ajuda</a><a href="#" style="display:block;font-size:14px;color:var(--grey-med);margin-bottom:12px;">Imprensa</a></div>
     </div>
     <span class="ada-divider"></span>
-    <div class="fe-copyright">© <?= htmlspecialchars((string)$config['ano_atual']) ?> Copyright - Todos os direitos reservados. Buser Brasil Tecnologia LTDA</div>
+    <div class="fe-copyright">© 2026 Copyright - Todos os direitos reservados. Buser Brasil Tecnologia LTDA</div>
   </div>
 </footer>
 
@@ -468,7 +335,6 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
   <a href="#" class="nb-item"><i>👤</i> Perfil</a>
 </nav>
 
-<!-- MODAL PASSAGEIROS -->
 <div id="modal-passageiros" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1002;align-items:center;justify-content:center;">
   <div class="buser-modal" style="max-width:600px;">
     <div class="bm-header"><h2>Quem vai viajar?</h2></div>
@@ -484,7 +350,6 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
   </div>
 </div>
 
-<!-- MODAL POLTRONA -->
 <div id="modal-poltrona" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1001;align-items:center;justify-content:center;">
   <div class="buser-modal">
     <div class="bm-header"><h2>Escolha sua Poltrona</h2></div>
@@ -499,7 +364,6 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
   </div>
 </div>
 
-<!-- MODAL CHECKOUT -->
 <div id="modal-checkout" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;">
   <div class="buser-modal">
     <div class="bm-header">
@@ -513,7 +377,6 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
   </div>
 </div>
 
-<!-- MODAL PASSAGEM -->
 <div id="modal-passagem" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1003;align-items:center;justify-content:center;">
   <div class="buser-modal">
     <div class="bm-header">
@@ -531,72 +394,84 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
 <script>
-  // ============================================================
-  // CONFIGURAÇÕES INJETADAS PELO PHP
-  // ============================================================
-  const CONFIG          = <?= $configJson ?>;
-  const firebaseConfig  = <?= $firebaseJson ?>;
-  const CIDADES_INICIAIS = <?= $cidadesJson ?>;
+  flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today" });
 
-  firebase.initializeApp(firebaseConfig);
+  // ==========================================
+  // PUXANDO CIDADES DO IBGE VIA JAVASCRIPT
+  // ==========================================
+  let cidadesBrasil = [];
+  
+  // Lista de fallback rápida (caso a API do IBGE demore ou falhe)
+  const cidadesFallback = [
+    "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF", "Salvador, BA", 
+    "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS", "Curitiba, PR", "Manaus, AM", 
+    "Belém, PA", "Goiânia, GO", "Campinas, SP", "São Luís, MA", "Maceió, AL", 
+    "Natal, RN", "Teresina, PI", "Campo Grande, MS", "João Pessoa, PB", "Aracaju, SE", 
+    "Cuiabá, MT", "Florianópolis, SC", "Vitória, ES", "Porto Velho, RO", "Macapá, AP", 
+    "Rio Branco, AC", "Boa Vista, RR", "Palmas, TO", "Guarulhos, SP", "Osasco, SP"
+  ];
 
-  const clienteId = localStorage.getItem('buser_cliente_id') || 'buser_' + Date.now();
-  localStorage.setItem('buser_cliente_id', clienteId);
-
-  flatpickr("#input-ida", {
-    locale: "pt",
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "d/m/Y",
-    minDate: "today"
-  });
-
-  // ============================================================
-  // CIDADES (vindas do PHP; podem ser expandidas via JSON)
-  // ============================================================
-  let cidadesBrasil = CIDADES_INICIAIS;
-
-  async function carregarCidadesCompletas() {
-    const cache = localStorage.getItem('buser_cidades_v1');
+  async function carregarCidadesIBGE() {
+    // 1. Tenta pegar do cache do navegador (carregamento instantâneo)
+    const cache = localStorage.getItem('buser_cidades_ibge_v1');
     if (cache) {
-      try { cidadesBrasil = JSON.parse(cache); return; } catch (e) {}
+      cidadesBrasil = JSON.parse(cache);
+      console.log(`✅ Cidades carregadas do cache: ${cidadesBrasil.length}`);
+      return;
     }
+
+    // 2. Se não tiver cache, usa a lista fallback para não travar a tela
+    cidadesBrasil = [...cidadesFallback];
+
+    // 3. Busca a lista completa no IBGE em segundo plano
     try {
-      const response = await fetch('./municipios.json');
-      if (!response.ok) throw new Error('Arquivo falhou');
+      console.log("⏳ Buscando cidades no IBGE...");
+      const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
       const dados = await response.json();
-      const listaCompleta = dados
-        .map(c => `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`)
-        .sort();
-      localStorage.setItem('buser_cidades_v1', JSON.stringify(listaCompleta));
-      cidadesBrasil = listaCompleta;
+      
+      cidadesBrasil = dados.map(c => `${c.nome}, ${c.microrregiao.mesorregiao.UF.sigla}`).sort();
+      
+      // Salva no cache para a próxima visita ser instantânea
+      localStorage.setItem('buser_cidades_ibge_v1', JSON.stringify(cidadesBrasil));
       console.log(`✅ SUCESSO: Agora o site tem ${cidadesBrasil.length} cidades!`);
     } catch (e) {
-      console.log("⚠️ Usando lista vinda do PHP.");
+      console.log("⚠️ API do IBGE falhou. Usando lista fallback.");
     }
   }
-  carregarCidadesCompletas();
+  
+  // Inicia o carregamento
+  carregarCidadesIBGE();
 
-  function normalizarTexto(t) { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+  function normalizarTexto(t) { 
+    return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase(); 
+  }
 
   function configurarAutocomplete(inputId, listaId) {
     const input = document.getElementById(inputId);
     const lista = document.getElementById(listaId);
+    
     input.addEventListener('input', function() {
       const termo = normalizarTexto(this.value);
       lista.innerHTML = '';
-      if (termo.length < 2) { lista.style.display = 'none'; return; }
+      
+      if (termo.length < 2) { 
+        lista.style.display = 'none'; 
+        return; 
+      }
+      
+      // Filtra as cidades
       const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 10);
+      
       if (filtradas.length > 0) {
         lista.style.display = 'block';
         filtradas.forEach(cidade => {
           const li = document.createElement('li');
           li.textContent = cidade;
-          li.onmousedown = function(e) {
-            e.preventDefault();
-            input.value = cidade;
-            lista.style.display = 'none';
-            if (inputId === 'input-origem') document.getElementById('input-destino').focus();
+          li.onmousedown = function(e) { 
+            e.preventDefault(); 
+            input.value = cidade; 
+            lista.style.display = 'none'; 
+            if(inputId === 'input-origem') document.getElementById('input-destino').focus();
           };
           lista.appendChild(li);
         });
@@ -605,6 +480,7 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
       }
     });
   }
+
   configurarAutocomplete('input-origem', 'lista-origem');
   configurarAutocomplete('input-destino', 'lista-destino');
 
@@ -613,9 +489,12 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
     const t = o.value; o.value = d.value; d.value = t;
   }
 
+  // ==========================================
+  // LÓGICA DE VIAGENS E COMPRA
+  // ==========================================
   let viagensOriginais = [];
   document.getElementById('btn-pesquisar').addEventListener('click', async function() {
-    let origem  = document.getElementById('input-origem').value.trim();
+    let origem = document.getElementById('input-origem').value.trim();
     let destino = document.getElementById('input-destino').value.trim();
     const dataIda = document.getElementById('input-ida').value;
 
@@ -637,11 +516,13 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
     lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Buscando as melhores viagens...</p></div>`;
 
     try {
-      const apiUrl = `${CONFIG.backend_api}?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
+      const apiUrl = `https://buser-backend.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
       const response = await fetch(apiUrl);
       if (!response.ok) throw new Error('Erro');
       const dados = await response.json();
+      
       if (!dados || dados.length === 0) throw new Error('Vazio');
+      
       viagensOriginais = dados;
       renderizarViagens(dados);
     } catch (error) {
@@ -662,9 +543,10 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
     const lista = document.getElementById('lista-viagens');
     lista.innerHTML = viagens.map((v, i) => {
       const precoOriginal = parseFloat(v.price) || 0;
-      const precoFinal    = precoOriginal * 0.5;
+      const precoFinal = precoOriginal * 0.5;
       const tP = v.departure.terminal;
       const tC = v.arrival.terminal;
+      
       return `
       <div class="trip-card">
         <div style="flex:1;">
@@ -731,12 +613,12 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
     passageiros.splice(index, 1);
     assentosSelecionados = [];
     document.getElementById('lista-passageiros').innerHTML = '';
-    passageiros.forEach(() => adicionarPassageiro());
+    passageiros.forEach((p, i) => adicionarPassageiro()); 
     atualizarTotal();
   }
 
   function atualizarPassageiro(i, campo, valor) { passageiros[i][campo] = valor; }
-
+  
   function atualizarTotal() {
     const totalFinal = precoUnit * passageiros.length;
     document.getElementById('valor-total').innerHTML = `<span style="text-decoration:line-through;color:#999;font-size:14px;margin-right:8px;">R$ ${(totalFinal*2).toFixed(2).replace('.',',')}</span>R$ ${totalFinal.toFixed(2).replace('.',',')}<span class="desconto-badge">-50%</span>`;
@@ -764,7 +646,7 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
     busMap.innerHTML = '<div class="bus-windshield">🚌</div>';
     const busGrid = document.createElement('div');
     busGrid.className = 'bus-grid';
-
+    
     for (let i = 1; i <= total; i += 4) {
       const row = document.createElement('div');
       row.className = 'bus-row';
@@ -824,22 +706,31 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
 
   function abrirCheckout() {
     const precoOriginal = parseFloat(viagemSel.price) || 0;
-    const totalFinal    = precoOriginal * 0.5 * passageiros.length;
-    checkoutState.total   = totalFinal;
-    checkoutState.route   = `${document.getElementById('input-origem').value} → ${document.getElementById('input-destino').value}`;
+    const totalFinal = precoOriginal * 0.5 * passageiros.length;
+    checkoutState.total = totalFinal;
+    checkoutState.route = `${document.getElementById('input-origem').value} → ${document.getElementById('input-destino').value}`;
     checkoutState.empresa = viagemSel.company.name;
     checkoutState.poltrona = assentosSelecionados.join(', ');
 
     const info = document.getElementById('checkout-info');
     info.innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Empresa:</span><strong>${viagemSel.company.name}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Rota:</span><strong>${checkoutState.route}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Poltrona(s):</span><strong>${checkoutState.poltrona}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Passageiros:</span><strong>${passageiros.length}</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <span style="color:#666;">Empresa:</span> <strong>${viagemSel.company.name}</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <span style="color:#666;">Rota:</span> <strong>${checkoutState.route}</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <span style="color:#666;">Poltrona(s):</span> <strong>${checkoutState.poltrona}</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <span style="color:#666;">Passageiros:</span> <strong>${passageiros.length}</strong>
+      </div>
       <div style="background:#f0f9f0; padding:16px; border-radius:8px; margin-top:16px; text-align:center;">
         <div style="font-size:12px; color:#666;">Total a pagar</div>
         <div style="color:var(--brand); font-weight:800; font-size:28px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</div>
-      </div>`;
+      </div>
+    `;
     document.getElementById('area-pix').innerHTML = `<button onclick="gerarPix()" style="width:100%;padding:16px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;">Gerar PIX</button>`;
     document.getElementById('modal-checkout').style.display = 'flex';
   }
@@ -847,13 +738,14 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
   function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
 
   async function gerarPix() {
+    const cfg = { key: 'suachave@pix.com', name: 'BUSER', city: 'SAO PAULO' }; 
     const total = checkoutState.total || 0;
-    const txid  = 'BUSER' + Date.now().toString().slice(-8);
-    const payload = `00020126580014br.gov.bcb.pix0136${CONFIG.pix.key}520400005303986540${total.toFixed(2)}5802BR5913${CONFIG.pix.name}6009${CONFIG.pix.city}62070503***6304ABCD`;
-
+    const txid = 'BUSER' + Date.now().toString().slice(-8);
+    const payload = `00020126580014br.gov.bcb.pix0136${cfg.key}520400005303986540${total.toFixed(2)}5802BR5913${cfg.name}6009${cfg.city}62070503***6304ABCD`;
+    
     checkoutState.payload = payload;
-    checkoutState.txid    = txid;
-    checkoutState.data    = document.getElementById('input-ida').value;
+    checkoutState.txid = txid;
+    checkoutState.data = document.getElementById('input-ida').value;
     checkoutState.horario = viagemSel.departure.time;
     checkoutState.terminalEmb = viagemSel.departure.terminal.name;
     checkoutState.terminalDes = viagemSel.arrival.terminal.name;
@@ -869,10 +761,13 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
           3. Aponte sua câmera para o QR Code ou copie o código.
         </p>
         <p style="font-size:12px; color:#999; margin:0;">Valor do Pix: R$ ${total.toFixed(2).replace('.', ',')}</p>
+        
         <div id="qrcode"></div>
+        
         <button class="pix-btn-copy" onclick="copiarPix()">📄 Copiar código do Pix</button>
         <button onclick="mostrarPassagem()" style="width:100%; padding:14px; background:transparent; color:var(--brand); font-weight:700; font-size:15px; border:2px solid var(--brand); border-radius:8px; cursor:pointer; margin-top:8px;">Ver minha passagem →</button>
-      </div>`;
+      </div>
+    `;
 
     new QRCode(document.getElementById('qrcode'), {
       text: payload, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H
@@ -886,38 +781,69 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
   function mostrarPassagem() {
     document.getElementById('modal-checkout').style.display = 'none';
     const content = document.getElementById('passagem-content');
+    
     const dataFormatada = checkoutState.data.split('-').reverse().join('/');
     const codReserva = Math.random().toString(36).substring(2, 8);
 
     content.innerHTML = `
       <div class="ticket-status">⏳ Pagamento pendente</div>
+      
       <div class="ticket-section">
         <div class="ticket-route">
-          <div class="point"><h4>${checkoutState.terminalEmb}</h4><p>${dataFormatada} • ${checkoutState.horario}</p></div>
+          <div class="point">
+            <h4>${checkoutState.terminalEmb}</h4>
+            <p>${dataFormatada} • ${checkoutState.horario}</p>
+          </div>
           <div class="arrow">→</div>
-          <div class="point dest"><h4>${checkoutState.terminalDes}</h4><p>${dataFormatada} • --:--</p></div>
+          <div class="point dest">
+            <h4>${checkoutState.terminalDes}</h4>
+            <p>${dataFormatada} • --:--</p>
+          </div>
         </div>
-        <div style="text-align:center; font-size:13px; color:#666; font-weight:500;">${checkoutState.empresa} • Poltrona(s) ${checkoutState.poltrona}</div>
+        <div style="text-align:center; font-size:13px; color:#666; font-weight:500;">
+          ${checkoutState.empresa} • Poltrona(s) ${checkoutState.poltrona}
+        </div>
       </div>
+
       <div class="ticket-section">
         <h3>Bagagens da sua reserva</h3>
         <p style="font-size:13px; color:#666; margin-top:0; margin-bottom:16px;">Veja o limite de bagagens permitido na sua viagem.</p>
+        
         <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;">
           <div style="background:#f0f0f0; padding:8px; border-radius:8px; font-size:20px;">🧳</div>
-          <div><strong style="display:block; font-size:14px; color:#333;">1 bagagem gratuita</strong><span style="font-size:12px; color:#757575;">Por passageiro • Até 30Kg</span></div>
+          <div>
+            <strong style="display:block; font-size:14px; color:#333;">1 bagagem gratuita</strong>
+            <span style="font-size:12px; color:#757575;">Por passageiro • Até 30Kg</span>
+          </div>
         </div>
+
         <div style="display:flex; gap:12px; align-items:flex-start;">
           <div style="background:#f0f0f0; padding:8px; border-radius:8px; font-size:20px;">🎒</div>
-          <div><strong style="display:block; font-size:14px; color:#333;">1 mochila ou bolsa de mão</strong><span style="font-size:12px; color:#757575;">Por passageiro • Até 5Kg</span></div>
+          <div>
+            <strong style="display:block; font-size:14px; color:#333;">1 mochila ou bolsa de mão</strong>
+            <span style="font-size:12px; color:#757575;">Por passageiro • Até 5Kg</span>
+          </div>
         </div>
       </div>
+
       <div class="ticket-section" style="background:#f9f9f9; padding:16px; border-radius:8px; border:1px solid #eee;">
         <h3 style="font-size:11px; margin-bottom:12px; color:#757575; letter-spacing:0;">Fretamento Buser</h3>
         <strong style="display:block; font-size:16px; color:#333; margin-bottom:12px;">${checkoutState.empresa}</strong>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;"><span>Ônibus</span><span style="color:#333;">2 andares</span></div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;"><span>Placa</span><span style="color:#333; font-weight:600;">UAA3F17</span></div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575;"><span>Reserva</span><span style="color:#333; font-weight:600;">Cód. ${codReserva}</span></div>
+        
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;">
+          <span>Ônibus</span>
+          <span style="color:#333;">2 andares</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;">
+          <span>Placa</span>
+          <span style="color:#333; font-weight:600;">UAA3F17</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575;">
+          <span>Reserva</span>
+          <span style="color:#333; font-weight:600;">Cód. ${codReserva}</span>
+        </div>
       </div>
+
       <div class="ticket-section">
         <h3>Itinerário</h3>
         <div class="ticket-map">🗺️ Mapa de Embarque</div>
@@ -927,23 +853,27 @@ $configJson   = json_encode($config, JSON_UNESCAPED_SLASHES);
           <div class="ticket-instructions">Instruções: O embarque e desembarque não ocorrerão no ponto da rodoviária. Caso tenha dúvidas, ligue para a viação.</div>
         </div>
       </div>
+
       <div class="ticket-section" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
         <h3>Passageiros</h3>
         ${passageiros.map((p, i) => `
           <div style="margin-bottom:12px; background:#fff; border:1px solid #eee; padding:12px; border-radius:8px;">
             <strong style="display:block; font-size:14px;">${p.nome}</strong>
             <span style="font-size:12px; color:#666;">CPF: ${p.cpf} | Poltrona: ${assentosSelecionados[i]}</span>
-          </div>`).join('')}
-      </div>`;
+          </div>
+        `).join('')}
+      </div>
+    `;
+    
     document.getElementById('modal-passagem').style.display = 'flex';
   }
 
   function fecharPassagem() { document.getElementById('modal-passagem').style.display = 'none'; }
 
-  // Máscaras
   function mascaraCPF(v) { v = v.replace(/\D/g,'').substring(0,11); return v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2'); }
   function mascaraWhats(v) { v = v.replace(/\D/g,'').substring(0,11); return v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/,'($1) $2-$3'); }
   function mascaraData(v) { v = v.replace(/\D/g,'').substring(0,8); return v.replace(/(\d{2})(\d)/,'$1/$2').replace(/(\d{2})(\d)/,'$1/$2'); }
+
 </script>
 
 </body>

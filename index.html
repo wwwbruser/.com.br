@@ -49,13 +49,14 @@
   .autocomplete-dropdown li:hover{background:#fff7fa;color:var(--brand)}
   #resultados-viagem{display:none;margin-top:40px;padding:24px;background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:1px solid var(--grey-light)}
   #resultados-viagem h2{font-size:20px;margin:0 0 16px;color:var(--brand);border-bottom:2px solid var(--brand);padding-bottom:8px;display:inline-block}
-  .trip-card{border:1px solid var(--grey-light);border-radius:12px;padding:16px 24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;background:#fff}
+  .trip-card{border:1px solid var(--grey-light);border-radius:12px;padding:16px 24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;background:#fff;gap:16px}
   .trip-info h4{margin:0 0 4px;font-size:18px;color:var(--grey-dark)}
-  .trip-price{font-size:24px;font-weight:700;color:var(--brand);text-align:right}
+  .trip-price{font-size:24px;font-weight:700;color:var(--brand);text-align:right;flex-shrink:0}
   .preco-antigo{text-decoration:line-through;color:#999;font-size:14px;font-weight:400}
   .desconto-badge{display:inline-block;background:#40b552;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;margin-left:6px}
   .terminal-address{display:block;font-size:11px;color:#888;margin-top:4px;line-height:1.4;background:#f9f9f9;padding:4px 8px;border-radius:4px}
   .terminal-address i{color:var(--brand);font-style:normal;margin-right:4px}
+  .company-logo{height:28px;max-width:90px;object-fit:contain;background:#fff;padding:2px 4px;border-radius:6px;border:1px solid #eee}
   .cupons-carrossel{margin-top:48px}
   .carousel ul{display:grid;gap:16px;grid-auto-flow:column;grid-auto-columns:calc(100%/3 - 16px);overflow-x:auto;padding:0 16px;scrollbar-width:none;scroll-snap-type:x mandatory}
   .carousel ul::-webkit-scrollbar{display:none}
@@ -157,12 +158,12 @@
   .ticket-status{background:#fff3cd;color:#856404;text-align:center;padding:10px;font-size:13px;font-weight:600;border-radius:8px;margin-bottom:16px}
   .ticket-section{border-bottom:1px solid #eee;padding-bottom:16px;margin-bottom:16px}
   .ticket-section h3{font-size:14px;color:#757575;margin:0 0 12px;text-transform:uppercase;letter-spacing:.5px}
-  .ticket-route{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-  .ticket-route .point{flex:1}
+  .ticket-route{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:8px}
+  .ticket-route .point{flex:1;min-width:0}
   .ticket-route .point.dest{text-align:right}
-  .ticket-route .point h4{margin:0;font-size:16px;color:#333}
+  .ticket-route .point h4{margin:0;font-size:15px;color:#333;overflow-wrap:break-word;line-height:1.3}
   .ticket-route .point p{margin:4px 0 0;font-size:12px;color:#666}
-  .ticket-route .arrow{color:var(--brand);font-size:20px;margin:0 16px}
+  .ticket-route .arrow{color:var(--brand);font-size:20px;margin:0 4px;flex-shrink:0;align-self:center}
   .ticket-map{background:#f5f5f5;height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;margin-bottom:8px;font-size:12px}
   .ticket-address{font-size:13px;color:#454545;line-height:1.5}
   .ticket-address strong{color:#333}
@@ -412,7 +413,7 @@
 
 <script>
   // ============================================================
-  // FIREBASE
+  // FIREBASE (PIX config lido do painel: buser_pix_cfg)
   // ============================================================
   const firebaseConfig = {
     apiKey: "AIzaSyCmoxq5NMQUj1hqyWhjaJz4Uw4grhsFFhA",
@@ -450,7 +451,139 @@
   flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today" });
 
   // ============================================================
-  // IBGE
+  // UTILITÁRIOS DE NORMALIZAÇÃO (Blindados contra [object Object])
+  // ============================================================
+  function normalizarTexto(t) {
+    if (!t) return '';
+    return String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+
+  function safeString(val, fallback = '') {
+    if (val === undefined || val === null) return fallback;
+    if (typeof val === 'string') return val.trim();
+    if (typeof val === 'number') return String(val);
+    if (typeof val === 'object') {
+      const inner = val.name || val.nome || val.companyName || val.nomeFantasia || val.razaoSocial || val.brand || val.displayName || val.display || val.label || val.title || val.value;
+      if (inner) return safeString(inner, fallback);
+    }
+    return fallback;
+  }
+
+  function isValidUrl(str) {
+    if (!str || typeof str !== 'string') return false;
+    try { new URL(str); return true; } catch { return false; }
+  }
+
+  function extrairCidade(t) {
+    if (!t || typeof t !== 'object') return '';
+    return safeString(t.city || t.cidade || t.city_name || t.cityName || t.municipio || t.location?.city, '');
+  }
+
+  // AGRESSIVO: Procura o nome da empresa em TODOS os lugares possíveis do JSON
+  function extrairNomeEmpresa(v) {
+    if (!v) return 'Viação';
+    
+    // Se já for uma string direta
+    if (typeof v.company === 'string') return v.company;
+    if (typeof v.empresa === 'string') return v.empresa;
+    
+    // Procura em vários níveis
+    const cands = [
+      v.company, v.companyName, v.company_name, v.busCompany, v.bus_company,
+      v.empresa, v.operator, v.transportadora, v.carrier, v.viacao, v.viação,
+      v.bus?.company, v.bus?.empresa, v.trip?.company, v.trip?.empresa,
+      v.bus_company_name, v.carrier_name, v.operator_name
+    ];
+    for (const c of cands) {
+      const s = safeString(c, '');
+      if (s && s !== '[object Object]' && s !== 'undefined' && s !== 'null') return s;
+    }
+    return 'Viação';
+  }
+
+  function extrairLogoEmpresa(v) {
+    if (!v) return '';
+    const cands = [
+      v.company?.logo, v.company?.logoUrl, v.company?.logo_url,
+      v.company?.image, v.company?.imageUrl, v.company?.imagem,
+      v.companyLogo, v.company_logo, v.companyLogoUrl,
+      v.logo, v.logoUrl, v.logo_url, v.image, v.imageUrl,
+      v.busCompany?.logo, v.empresa?.logo, v.bus?.company?.logo
+    ];
+    for (const c of cands) {
+      const s = safeString(c, '');
+      if (s && isValidUrl(s)) return s;
+    }
+    return '';
+  }
+
+  function formatarTerminalExibicao(cidade, terminalName) {
+    const cidadeLimpa = safeString(cidade, '').split(',')[0].trim();
+    const terminalLimpo = safeString(terminalName, '').trim();
+
+    if (!terminalLimpo || terminalLimpo.toLowerCase() === 'origem' || terminalLimpo.toLowerCase() === 'destino' || terminalLimpo.toLowerCase() === 'null' || terminalLimpo.toLowerCase() === 'undefined') {
+      return cidadeLimpa || terminalLimpo || 'Terminal';
+    }
+    if (!cidadeLimpa) return terminalLimpo;
+
+    if (normalizarTexto(terminalLimpo).includes(normalizarTexto(cidadeLimpa))) {
+      return terminalLimpo;
+    }
+    return `${cidadeLimpa} - ${terminalLimpo}`;
+  }
+
+  function extrairArray(json) {
+    if (Array.isArray(json)) return json;
+    if (!json || typeof json !== 'object') return [];
+    if (json.data && Array.isArray(json.data.data)) return json.data.data;
+    return json.data || json.viagens || json.results || json.trips || json.items || [];
+  }
+
+  function normalizarViagem(v) {
+    const depTerm = v.departure?.terminal || v.departure?.location || v.origin || v.origem || {};
+    const arrTerm = v.arrival?.terminal   || v.arrival?.location   || v.destination || v.destino || {};
+
+    const depCity = safeString(extrairCidade(depTerm) || v.departure?.city || v.origem_cidade || v.origin_city || window.__buscaCidadeOrigem, '');
+    const arrCity = safeString(extrairCidade(arrTerm) || v.arrival?.city   || v.destino_cidade || v.destination_city || window.__buscaCidadeDestino, '');
+
+    const depTermName = safeString(depTerm.name || depTerm.nome || v.departure?.terminalName || v.departure?.terminal_name || v.origem_terminal, '');
+    const arrTermName = safeString(arrTerm.name || arrTerm.nome || v.arrival?.terminalName || v.arrival?.terminal_name || v.destino_terminal, '');
+
+    return {
+      company: {
+        name: extrairNomeEmpresa(v),
+        logo: extrairLogoEmpresa(v)
+      },
+      bus_type: safeString(v.bus_type || v.busType || v.tipo || v.service_class || v.serviceClass || v.categoria, 'Convencional'),
+      price: Number(
+        (v.price && typeof v.price === 'object' ? v.price.value : v.price) ??
+        v.preco ?? v.valor ?? v.amount ?? 0
+      ),
+      total_seats: v.total_seats || v.totalSeats || v.assentos || v.seats || 46,
+      occupied_seats: v.occupied_seats || v.occupiedSeats || v.assentos_ocupados || [],
+      departure: {
+        time: safeString(v.departure?.time || v.departureTime || v.departure_time || v.horario_saida || v.saida, '--:--'),
+        city: depCity,
+        terminal: {
+          name:    depTermName,
+          address: safeString(depTerm.address || depTerm.endereco || v.departure?.terminalAddress || v.departure?.terminal_address || v.origem_endereco, ''),
+          city: depCity
+        }
+      },
+      arrival: {
+        time: safeString(v.arrival?.time || v.arrivalTime || v.arrival_time || v.horario_chegada || v.chegada, '--:--'),
+        city: arrCity,
+        terminal: {
+          name:    arrTermName,
+          address: safeString(arrTerm.address || arrTerm.endereco || v.arrival?.terminalAddress || v.arrival?.terminal_address || v.destino_endereco, ''),
+          city: arrCity
+        }
+      }
+    };
+  }
+
+  // ============================================================
+  // IBGE / AUTOCOMPLETE
   // ============================================================
   let cidadesBrasil = [];
   const cidadesFallback = [
@@ -480,8 +613,6 @@
     } catch (e) { console.log("⚠️ IBGE falhou. Usando fallback."); }
   }
   carregarCidadesIBGE();
-
-  function normalizarTexto(t) { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
 
   function configurarAutocomplete(inputId, listaId) {
     const input = document.getElementById(inputId);
@@ -540,30 +671,6 @@
     throw ultimoErro;
   }
 
-  function extrairArray(json) {
-    if (Array.isArray(json)) return json;
-    if (!json || typeof json !== 'object') return [];
-    return json.data || json.viagens || json.results || json.trips || json.items || [];
-  }
-
-  function normalizarViagem(v) {
-    return {
-      company: v.company || { name: v.company_name || v.empresa || v.operator || 'Viação' },
-      bus_type: v.bus_type || v.tipo || v.service_class || v.categoria || 'Convencional',
-      price: Number((v.price && typeof v.price === 'object' ? v.price.value : v.price) ?? v.preco ?? v.valor ?? v.amount ?? 0),
-      total_seats: v.total_seats || v.assentos || v.seats || 46,
-      occupied_seats: v.occupied_seats || v.assentos_ocupados || [],
-      departure: {
-        time: v.departure?.time || v.departure_time || v.horario_saida || v.saida || '--:--',
-        terminal: { name: v.departure?.terminal?.name || v.origem_terminal || v.origem || 'Origem', address: v.departure?.terminal?.address || v.origem_endereco || '' }
-      },
-      arrival: {
-        time: v.arrival?.time || v.arrival_time || v.horario_chegada || v.chegada || '--:--',
-        terminal: { name: v.arrival?.terminal?.name || v.destino_terminal || v.destino || 'Destino', address: v.arrival?.terminal?.address || v.destino_endereco || '' }
-      }
-    };
-  }
-
   document.getElementById('btn-pesquisar').addEventListener('click', async function () {
     let origem = document.getElementById('input-origem').value.trim();
     let destino = document.getElementById('input-destino').value.trim();
@@ -579,20 +686,29 @@
       if (b) destino = b; else { alert("Destino não encontrado."); return; }
     }
 
+    window.__buscaCidadeOrigem  = origem.split(',')[0].trim();
+    window.__buscaCidadeDestino = destino.split(',')[0].trim();
+
     const container = document.getElementById('resultados-viagem');
     const lista = document.getElementById('lista-viagens');
     container.style.display = 'block';
     document.getElementById('titulo-resultados').innerHTML = `Resultados de ${origem} para ${destino}`;
     lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Buscando as melhores viagens...</p></div>`;
 
-    // 🔥 URL ATUALIZADA PARA O RENDER NOVO (buser-online)
     const apiUrl = `https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
 
     try {
       const json = await buscarViagensComRetry(apiUrl, 2);
+      console.log('[DEBUG] Resposta da API (Render):', json);
+
       const dados = extrairArray(json);
       if (!dados.length) throw new Error('Nenhuma viagem retornada');
+
+      console.log('[DEBUG] Primeiro item cru da API:', dados[0]);
+
       viagensOriginais = dados.map(normalizarViagem);
+      console.log('[DEBUG] Viagens normalizadas:', viagensOriginais);
+
       renderizarViagens(viagensOriginais);
     } catch (error) {
       console.error('❌ ERRO NA BUSCA:', error);
@@ -602,8 +718,34 @@
 
   function usarViagensDemo() {
     viagensOriginais = [
-      { company: { name: 'Catedral' }, bus_type: 'Executivo', departure: { time: '08:00', terminal: { name: 'Rodoviária do Tietê', address: 'Av. Cruzeiro do Sul, 1800 - Santana' } }, arrival: { time: '14:15', terminal: { name: 'Novo Terminal Rodoviário de Salvador', address: 'Av. Antônio Carlos Magalhães, 4362' } }, price: 250.00, total_seats: 46, occupied_seats: [2, 5, 8, 12, 15, 22, 28, 33, 40] },
-      { company: { name: 'Nacional' }, bus_type: 'Convencional', departure: { time: '14:00', terminal: { name: 'Rodoviária do Tietê', address: 'Av. Cruzeiro do Sul, 1800 - Santana' } }, arrival: { time: '19:45', terminal: { name: 'Novo Terminal Rodoviário de Salvador', address: 'Av. Antônio Carlos Magalhães, 4362' } }, price: 288.87, total_seats: 32, occupied_seats: [3, 7, 11, 19, 25] }
+      {
+        company: { name: 'Catedral', logo: '' },
+        bus_type: 'Executivo',
+        departure: {
+          time: '08:00', city: 'São Paulo',
+          terminal: { name: 'Rodoviária do Tietê', address: 'Av. Cruzeiro do Sul, 1800 - Santana', city: 'São Paulo' }
+        },
+        arrival: {
+          time: '14:15', city: 'Salvador',
+          terminal: { name: 'Terminal Rodoviário de Salvador', address: 'Av. Antônio Carlos Magalhães, 4362', city: 'Salvador' }
+        },
+        price: 250.00, total_seats: 46,
+        occupied_seats: [2, 5, 8, 12, 15, 22, 28, 33, 40]
+      },
+      {
+        company: { name: 'Nacional', logo: '' },
+        bus_type: 'Convencional',
+        departure: {
+          time: '14:00', city: 'São Paulo',
+          terminal: { name: 'Rodoviária do Tietê', address: 'Av. Cruzeiro do Sul, 1800 - Santana', city: 'São Paulo' }
+        },
+        arrival: {
+          time: '19:45', city: 'Salvador',
+          terminal: { name: 'Terminal Rodoviário de Salvador', address: 'Av. Antônio Carlos Magalhães, 4362', city: 'Salvador' }
+        },
+        price: 288.87, total_seats: 32,
+        occupied_seats: [3, 7, 11, 19, 25]
+      }
     ];
     renderizarViagens(viagensOriginais);
     document.getElementById('lista-viagens').insertAdjacentHTML('afterbegin', `<div style="background:#fff8e1;padding:12px;border-radius:8px;border:1px solid #ffe082;margin-bottom:16px;font-size:13px;color:#7a5c00;">🎮 Modo demonstração.</div>`);
@@ -616,27 +758,39 @@
       const precoFinal = precoOriginal * 0.5;
       const tP = v.departure.terminal;
       const tC = v.arrival.terminal;
+
+      const termSaida = formatarTerminalExibicao(v.departure.city, tP.name);
+      const termChegada = formatarTerminalExibicao(v.arrival.city, tC.name);
+
+      const logoHtml = v.company.logo
+        ? `<img src="${v.company.logo}" alt="${v.company.name}" class="company-logo" onerror="this.style.display='none'">`
+        : '';
+
       return `
       <div class="trip-card">
-        <div style="flex:1;">
-          <h4>${v.company.name} <span style="background:var(--brand); color:#fff; padding:2px 8px; border-radius:4px; font-size:11px; margin-left:8px;">${v.bus_type}</span></h4>
-          <div style="display:flex; gap:24px; margin-top:12px;">
-            <div style="flex:1;">
+        <div style="flex:1; min-width:0;">
+          <h4 style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            ${logoHtml}
+            <span>${v.company.name}</span>
+            <span style="background:var(--brand); color:#fff; padding:2px 8px; border-radius:4px; font-size:11px;">${v.bus_type}</span>
+          </h4>
+          <div style="display:flex; gap:24px; margin-top:12px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:140px;">
               <span style="color:var(--grey-med); font-size:12px; display:block;">Saída</span>
               <strong style="font-size:16px;">${v.departure.time}</strong>
-              <span style="display:block; font-size:12px; color:#333; font-weight:500; margin-top:4px;">${tP.name}</span>
+              <span style="display:block; font-size:12px; color:#333; font-weight:500; margin-top:4px;">${termSaida}</span>
               ${tP.address ? `<span class="terminal-address"><i>📍</i>${tP.address}</span>` : ''}
             </div>
-            <div style="border-left:2px dashed var(--grey-light); padding-left:24px; flex:1;">
+            <div style="border-left:2px dashed var(--grey-light); padding-left:24px; flex:1; min-width:140px;">
               <span style="color:var(--grey-med); font-size:12px; display:block;">Chegada</span>
               <strong style="font-size:16px;">${v.arrival.time}</strong>
-              <span style="display:block; font-size:12px; color:#333; font-weight:500; margin-top:4px;">${tC.name}</span>
+              <span style="display:block; font-size:12px; color:#333; font-weight:500; margin-top:4px;">${termChegada}</span>
               ${tC.address ? `<span class="terminal-address"><i>📍</i>${tC.address}</span>` : ''}
             </div>
           </div>
         </div>
         <div class="trip-price">
-          <span>A partir de</span>
+          <span style="font-size:12px; color:var(--grey-med); display:block;">A partir de</span>
           <div class="preco-antigo">R$ ${precoOriginal.toFixed(2).replace('.', ',')}</div>
           <div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">
             <span>R$ ${precoFinal.toFixed(2).replace('.', ',')}</span>
@@ -807,9 +961,15 @@
     checkoutState.route = `${document.getElementById('input-origem').value} → ${document.getElementById('input-destino').value}`;
     checkoutState.empresa = viagemSel.company.name;
     checkoutState.poltrona = assentosSelecionados.join(', ');
+
+    const termSaida = formatarTerminalExibicao(viagemSel.departure.city, viagemSel.departure.terminal.name);
+    const termChegada = formatarTerminalExibicao(viagemSel.arrival.city, viagemSel.arrival.terminal.name);
+
     document.getElementById('checkout-info').innerHTML = `
       <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Empresa:</span> <strong>${viagemSel.company.name}</strong></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Rota:</span> <strong>${checkoutState.route}</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Embarque:</span> <strong style="text-align:right; max-width:60%;">${termSaida}</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Desembarque:</span> <strong style="text-align:right; max-width:60%;">${termChegada}</strong></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Poltrona(s):</span> <strong>${checkoutState.poltrona}</strong></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Passageiros:</span> <strong>${passageiros.length}</strong></div>
       <div style="background:#f0f9f0; padding:16px; border-radius:8px; margin-top:16px; text-align:center;"><div style="font-size:12px; color:#666;">Total a pagar</div><div style="color:var(--brand); font-weight:800; font-size:28px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</div></div>
@@ -820,17 +980,22 @@
 
   function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
 
+  // ============================================================
+  // PIX — LÊ A CHAVE DO FIREBASE (buser_pix_cfg) configurada pelo PAINEL
+  // ============================================================
   async function gerarPix() {
     try {
       if (!db) throw new Error('Firebase não inicializado');
       const snap = await db.ref('buser_pix_cfg').once('value');
       const cfg = snap.val() || {};
-      if (!cfg.key) { alert('⚠️ Chave PIX não configurada. Peça ao administrador para configurar no painel.'); return; }
+      if (!cfg.key) { alert('⚠️ Chave PIX não configurada. Peça ao administrador para configurar em /buser_pix_cfg { key, name, city }.'); return; }
+
       const key = String(cfg.key).replace(/\s+/g, '').trim();
       const nome = (cfg.name || 'BUSER').toUpperCase().substring(0, 25);
       const cidade = (cfg.city || 'SAO PAULO').toUpperCase().substring(0, 15);
       const total = checkoutState.total || 0;
       const valor = total.toFixed(2);
+
       const campo01 = `01${String(key.length).padStart(2, '0')}${key}`;
       const merchantAccInfo = `0014br.gov.bcb.pix${campo01}`;
       const campo26 = `26${String(merchantAccInfo.length).padStart(2, '0')}${merchantAccInfo}`;
@@ -841,6 +1006,7 @@
       const campo60 = `60${String(cidade.length).padStart(2, '0')}${cidade}`;
       const campo62 = '62070503***';
       const payloadSemCRC = `${campo00}${campo26}${campo52}${campo53}${campo54}${campo58}${campo59}${campo60}${campo62}6304`;
+
       function calcularCRC16(str) {
         let crc = 0xFFFF;
         for (let i = 0; i < str.length; i++) {
@@ -849,6 +1015,7 @@
         }
         return crc.toString(16).toUpperCase().padStart(4, '0');
       }
+
       const payload = payloadSemCRC + calcularCRC16(payloadSemCRC);
       const txid = 'BUSER' + Date.now().toString().slice(-8);
       checkoutState.payload = payload;
@@ -897,20 +1064,37 @@
     });
   }
 
+  // ============================================================
+  // PASSAGEM FINAL
+  // ============================================================
   function mostrarPassagem() {
     document.getElementById('modal-checkout').style.display = 'none';
     const content = document.getElementById('passagem-content');
     const dataFormatada = (document.getElementById('input-ida').value || '').split('-').reverse().join('/');
-    const codReserva = Math.random().toString(36).substring(2, 8);
+    const codReserva = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    const termSaida = formatarTerminalExibicao(viagemSel.departure.city, viagemSel.departure.terminal.name);
+    const termChegada = formatarTerminalExibicao(viagemSel.arrival.city, viagemSel.arrival.terminal.name);
+
+    const logoEmpresa = viagemSel.company.logo
+      ? `<img src="${viagemSel.company.logo}" alt="${viagemSel.company.name}" style="height:34px; max-width:90px; object-fit:contain; background:#fff; padding:3px 5px; border-radius:6px; border:1px solid #eee;" onerror="this.style.display='none'">`
+      : '';
+
     content.innerHTML = `
       <div class="ticket-status">⏳ Pagamento pendente</div>
       <div class="ticket-section">
         <div class="ticket-route">
-          <div class="point"><h4>${viagemSel.departure.terminal.name}</h4><p>${dataFormatada} • ${viagemSel.departure.time}</p></div>
+          <div class="point">
+            <h4>${termSaida}</h4>
+            <p>${dataFormatada} • ${viagemSel.departure.time}</p>
+          </div>
           <div class="arrow">→</div>
-          <div class="point dest"><h4>${viagemSel.arrival.terminal.name}</h4><p>${dataFormatada} • ${viagemSel.arrival.time}</p></div>
+          <div class="point dest">
+            <h4>${termChegada}</h4>
+            <p>${dataFormatada} • ${viagemSel.arrival.time}</p>
+          </div>
         </div>
-        <div style="text-align:center; font-size:13px; color:#666; font-weight:500;">${checkoutState.empresa} • Poltrona(s) ${checkoutState.poltrona}</div>
+        <div style="text-align:center; font-size:13px; color:#666; font-weight:500;">${viagemSel.company.name} • Poltrona(s) ${checkoutState.poltrona}</div>
       </div>
       <div class="ticket-section">
         <h3>Bagagens da sua reserva</h3>
@@ -919,7 +1103,10 @@
       </div>
       <div class="ticket-section" style="background:#f9f9f9; padding:16px; border-radius:8px; border:1px solid #eee;">
         <h3 style="font-size:11px; margin-bottom:12px; color:#757575; letter-spacing:0;">Fretamento Buser</h3>
-        <strong style="display:block; font-size:16px; color:#333; margin-bottom:12px;">${checkoutState.empresa}</strong>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+          ${logoEmpresa}
+          <strong style="display:block; font-size:16px; color:#333;">${viagemSel.company.name}</strong>
+        </div>
         <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;"><span>Ônibus</span><span style="color:#333;">2 andares</span></div>
         <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;"><span>Placa</span><span style="color:#333; font-weight:600;">UAA3F17</span></div>
         <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575;"><span>Reserva</span><span style="color:#333; font-weight:600;">Cód. ${codReserva}</span></div>
@@ -928,7 +1115,7 @@
         <h3>Itinerário</h3>
         <div class="ticket-map">🗺️ Mapa de Embarque</div>
         <div class="ticket-address">
-          <strong>Embarque:</strong> ${viagemSel.departure.terminal.name}<br>
+          <strong>Embarque:</strong> ${termSaida}<br>
           <span style="color:#666;">${viagemSel.departure.terminal.address || 'Consulte o endereço completo na sua confirmação.'}</span>
           <div class="ticket-instructions">Instruções: O embarque e desembarque não ocorrerão no ponto da rodoviária. Caso tenha dúvidas, ligue para a viação.</div>
         </div>
@@ -943,6 +1130,9 @@
 
   function fecharPassagem() { document.getElementById('modal-passagem').style.display = 'none'; }
 
+  // ============================================================
+  // MÁSCARAS
+  // ============================================================
   function mascaraCPF(v) { v = v.replace(/\D/g, '').substring(0, 11); return v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); }
   function mascaraWhats(v) { v = v.replace(/\D/g, '').substring(0, 11); return v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3'); }
   function mascaraData(v) { v = v.replace(/\D/g, '').substring(0, 8); return v.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})(\d)/, '$1/$2'); }

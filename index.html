@@ -187,6 +187,23 @@
     .seguranca-section{margin-top:32px;padding:24px 16px}
     .footer{margin-top:32px}
   }
+
+  /* ===== Mobile: modal de passageiros ===== */
+  @media (max-width: 767px) {
+    .passageiro-box { padding: 16px 14px 8px; }
+    .passageiro-box input { font-size: 16px; padding: 14px 12px; margin-bottom: 10px; }
+    .btn-remover-passageiro { font-size: 12px; padding: 6px 12px; min-height: 32px; }
+    #modal-passageiros .bm-content > button,
+    #modal-passageiros .bm-content > div:last-child button { min-height: 48px; font-size: 15px; }
+    #modal-passageiros .buser-modal {
+      max-height: 100dvh; height: 100dvh; margin: 0; border-radius: 0;
+      display: flex; flex-direction: column;
+    }
+    #modal-passageiros .bm-content {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 16px 14px calc(24px + env(safe-area-inset-bottom));
+    }
+  }
 </style>
 </head>
 <body>
@@ -495,7 +512,6 @@
   // ==========================================
   let viagensOriginais = [];
 
-  // ---- 1) Fetch com timeout + retry (Render free tier dorme) ----
   async function buscarViagensComRetry(url, tentativas = 2) {
     let ultimoErro;
     for (let i = 0; i < tentativas; i++) {
@@ -516,14 +532,12 @@
     throw ultimoErro;
   }
 
-  // ---- 2) Aceita array direto OU { data: [...] } OU outros wrappers ----
   function extrairArray(json) {
     if (Array.isArray(json)) return json;
     if (!json || typeof json !== 'object') return [];
     return json.data || json.viagens || json.results || json.trips || json.items || [];
   }
 
-  // ---- 3) Normaliza campos ----
   function normalizarViagem(v) {
     return {
       company: v.company || { name: v.company_name || v.empresa || v.operator || 'Viação' },
@@ -580,14 +594,7 @@
 
     try {
       const json = await buscarViagensComRetry(apiUrl, 2);
-
-      console.log('🔎 RESPOSTA BRUTA:', json);
-      console.log('🔎 É ARRAY?', Array.isArray(json));
-      console.log('🔎 TEM .data?', !!json?.data);
-
       const dados = extrairArray(json);
-      console.log('🔎 ITENS ENCONTRADOS:', dados.length);
-      if (dados[0]) console.log('🔎 PRIMEIRO ITEM:', dados[0]);
 
       if (!dados.length) throw new Error('Nenhuma viagem retornada');
 
@@ -648,56 +655,100 @@
     }).join('');
   }
 
+  // ==========================================
+  // FLUXO DE COMPRA (passageiros -> poltrona -> checkout -> PIX)
+  // ==========================================
   let viagemSel = null, passageiros = [], precoUnit = 0, assentosSelecionados = [];
   let checkoutState = { total: 0, totalOriginal: 0, payload: '', txid: '', empresa: '', poltrona: '', route: '', data: '', horario: '', terminalEmb: '', terminalDes: '' };
 
+  const MAX_PASSAGEIROS = 6;
+
   function selecionarViagem(index) {
     viagemSel = viagensOriginais[index];
-    passageiros = []; assentosSelecionados = [];
+    passageiros = [];
+    assentosSelecionados = [];
     precoUnit = (parseFloat(viagemSel.price) || 0) * 0.5;
-    document.getElementById('lista-passageiros').innerHTML = '';
-    adicionarPassageiro();
+
+    passageiros.push({ nome: '', cpf: '', dataNascimento: '', email: '', whatsapp: '' });
+
+    redesenharPassageiros();
     document.getElementById('modal-passageiros').style.display = 'flex';
+  }
+
+  function criarBoxPassageiro(p, i) {
+    const div = document.createElement('div');
+    div.className = 'passageiro-box';
+    div.innerHTML = `
+      <p style="font-weight:600;margin:0 0 8px;">Passageiro ${i + 1}</p>
+      ${i > 0 ? `<button class="btn-remover-passageiro" onclick="removerPassageiro(${i})" aria-label="Remover passageiro ${i + 1}">✕ Remover</button>` : ''}
+      <input type="text" placeholder="Nome completo" autocomplete="name" enterkeyhint="next"
+        value="${p.nome || ''}" oninput="atualizarPassageiro(${i},'nome',this.value)">
+      <input type="text" placeholder="CPF" inputmode="numeric" enterkeyhint="next" maxlength="14"
+        value="${p.cpf || ''}" oninput="this.value=mascaraCPF(this.value);atualizarPassageiro(${i},'cpf',this.value)">
+      <input type="text" placeholder="Data de nascimento" inputmode="numeric" enterkeyhint="next" maxlength="10"
+        value="${p.dataNascimento || ''}" oninput="this.value=mascaraData(this.value);atualizarPassageiro(${i},'dataNascimento',this.value)">
+      <input type="email" placeholder="E-mail" inputmode="email" autocomplete="email" enterkeyhint="next"
+        value="${p.email || ''}" oninput="atualizarPassageiro(${i},'email',this.value)">
+      <input type="tel" placeholder="WhatsApp" inputmode="tel" autocomplete="tel" enterkeyhint="done" maxlength="15"
+        value="${p.whatsapp || ''}" oninput="this.value=mascaraWhats(this.value);atualizarPassageiro(${i},'whatsapp',this.value)">
+    `;
+    return div;
+  }
+
+  function redesenharPassageiros() {
+    const container = document.getElementById('lista-passageiros');
+    container.innerHTML = '';
+    passageiros.forEach((p, i) => container.appendChild(criarBoxPassageiro(p, i)));
+
+    const btnAdd = document.querySelector('#modal-passageiros button[onclick="adicionarPassageiro()"]');
+    if (btnAdd) {
+      const cheio = passageiros.length >= MAX_PASSAGEIROS;
+      btnAdd.disabled = cheio;
+      btnAdd.style.opacity = cheio ? '0.5' : '1';
+      btnAdd.style.cursor = cheio ? 'not-allowed' : 'pointer';
+      btnAdd.textContent = cheio
+        ? `Limite de ${MAX_PASSAGEIROS} passageiros atingido`
+        : '+ Adicionar passageiro';
+    }
+
     atualizarTotal();
   }
 
   function adicionarPassageiro() {
-    const container = document.getElementById('lista-passageiros');
-    const index = passageiros.length;
+    if (passageiros.length >= MAX_PASSAGEIROS) return;
     passageiros.push({ nome: '', cpf: '', dataNascimento: '', email: '', whatsapp: '' });
-    const div = document.createElement('div');
-    div.className = 'passageiro-box';
-    div.innerHTML = `<p style="font-weight:600;margin:0 0 8px;">Passageiro ${index + 1}</p>${index > 0 ? `<button class="btn-remover-passageiro" onclick="removerPassageiro(${index})">✕ Remover</button>` : ''}
-      <input type="text" placeholder="Nome completo" oninput="atualizarPassageiro(${index},'nome',this.value)">
-      <input type="text" placeholder="CPF" maxlength="14" oninput="this.value=mascaraCPF(this.value);atualizarPassageiro(${index},'cpf',this.value)">
-      <input type="text" placeholder="Data Nasc" maxlength="10" oninput="this.value=mascaraData(this.value);atualizarPassageiro(${index},'dataNascimento',this.value)">
-      <input type="email" placeholder="E-mail" oninput="atualizarPassageiro(${index},'email',this.value)">
-      <input type="tel" placeholder="WhatsApp" oninput="this.value=mascaraWhats(this.value);atualizarPassageiro(${index},'whatsapp',this.value)">`;
-    container.appendChild(div);
-    atualizarTotal();
+    redesenharPassageiros();
+
+    const boxes = document.querySelectorAll('#lista-passageiros .passageiro-box');
+    const ultimo = boxes[boxes.length - 1];
+    if (ultimo) ultimo.querySelector('input')?.focus();
   }
 
   function removerPassageiro(index) {
     if (passageiros.length <= 1) return;
     passageiros.splice(index, 1);
     assentosSelecionados = [];
-    document.getElementById('lista-passageiros').innerHTML = '';
-    passageiros.forEach((p, i) => adicionarPassageiro());
-    atualizarTotal();
+    redesenharPassageiros();
   }
 
   function atualizarPassageiro(i, campo, valor) { passageiros[i][campo] = valor; }
 
   function atualizarTotal() {
     const totalFinal = precoUnit * passageiros.length;
-    document.getElementById('valor-total').innerHTML = `<span style="text-decoration:line-through;color:#999;font-size:14px;margin-right:8px;">R$ ${(totalFinal * 2).toFixed(2).replace('.', ',')}</span>R$ ${totalFinal.toFixed(2).replace('.', ',')}<span class="desconto-badge">-50%</span>`;
+    document.getElementById('valor-total').innerHTML =
+      `<span style="text-decoration:line-through;color:#999;font-size:14px;margin-right:8px;">R$ ${(totalFinal * 2).toFixed(2).replace('.', ',')}</span>R$ ${totalFinal.toFixed(2).replace('.', ',')}<span class="desconto-badge">-50%</span>`;
   }
 
-  function fecharModalPassageiros() { document.getElementById('modal-passageiros').style.display = 'none'; }
+  function fecharModalPassageiros() {
+    document.getElementById('modal-passageiros').style.display = 'none';
+  }
 
   function confirmarPassageiros() {
     for (let i = 0; i < passageiros.length; i++) {
-      if (!passageiros[i].nome || !passageiros[i].cpf || !passageiros[i].whatsapp) { alert(`Preencha os dados do passageiro ${i + 1}.`); return; }
+      if (!passageiros[i].nome || !passageiros[i].cpf || !passageiros[i].whatsapp) {
+        alert(`Preencha os dados do passageiro ${i + 1}.`);
+        return;
+      }
     }
     fecharModalPassageiros();
     abrirModalPoltrona(viagemSel);

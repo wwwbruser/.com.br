@@ -20,6 +20,8 @@
   label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;margin-top:12px}
   input{width:100%;padding:11px 14px;border:1px solid #ddd;border-radius:8px;font-family:'Poppins';font-size:14px}
   input:focus{outline:none;border-color:var(--brand)}
+  input.invalid{border-color:#d81b60;background:#fff5f7}
+  input.valid{border-color:#40b552;background:#f5fdf6}
   button{padding:11px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-family:'Poppins';font-size:14px}
   .btn-primary{background:var(--brand);color:#fff}
   .btn-secondary{background:#fff;color:var(--brand);border:2px solid var(--brand)}
@@ -46,11 +48,20 @@
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#2e7d32;color:#fff;padding:14px 28px;border-radius:8px;font-weight:500;z-index:9999;opacity:0;transition:.3s;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .warning{background:#fff3cd;color:#7a5c00;padding:14px 18px;border-radius:8px;font-size:13px;margin-bottom:20px;border-left:4px solid #ffa000}
+  .info-box{background:#e3f2fd;color:#0277bd;padding:14px 18px;border-radius:8px;font-size:13px;margin-top:12px;border-left:4px solid #0277bd}
+  .error-box{background:#ffebee;color:#c62828;padding:14px 18px;border-radius:8px;font-size:13px;margin-top:12px;border-left:4px solid #c62828}
+  .success-box{background:#e8f5e9;color:#2e7d32;padding:14px 18px;border-radius:8px;font-size:13px;margin-top:12px;border-left:4px solid #2e7d32}
   .toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
   .toolbar .spacer{flex:1}
   .online-badge{display:inline-block;width:8px;height:8px;border-radius:50%;background:#40b552;margin-right:6px;animation:pulse 1.5s infinite}
   .offline-badge{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ccc;margin-right:6px}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .key-status{font-size:12px;margin-top:6px;font-weight:600}
+  .key-status.ok{color:#2e7d32}
+  .key-status.err{color:#c62828}
+  .key-status.warn{color:#e65100}
+  pre.preview{background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:8px;font-size:11px;overflow-x:auto;font-family:'Courier New',monospace;line-height:1.5;white-space:pre-wrap;word-break:break-all;margin-top:12px}
+  .tipo-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:#e3f2fd;color:#0277bd;margin-left:8px}
 </style>
 </head>
 <body>
@@ -69,21 +80,35 @@
     ⚠️ <strong>Atenção:</strong> esse Firebase é compartilhado com o projeto do Mercado Livre. Os dados do Buser ficam isolados nos paths <code>buser_*</code> — não se misturam com os pedidos do ML.
   </div>
 
+  <!-- ============================================================ -->
+  <!-- CARD: CONFIG PIX                                              -->
+  <!-- ============================================================ -->
   <div class="card">
     <h2>🔑 Configuração da chave PIX</h2>
     <p style="font-size:13px;color:var(--grey-med);margin:0 0 16px;">Salva no Firebase em <code>buser_pix_cfg</code>. Vale para todos os dispositivos.</p>
+
     <label>Chave PIX *</label>
-    <input id="cfg-key" type="text" placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória">
+    <input id="cfg-key" type="text" placeholder="CPF, CNPJ, e-mail, telefone (+5511999999999) ou chave aleatória (UUID)">
+    <div id="key-status" class="key-status"></div>
+
     <label>Nome do recebedor</label>
     <input id="cfg-name" type="text" placeholder="Ex: JOAO SILVA" maxlength="25">
+
     <label>Cidade</label>
     <input id="cfg-city" type="text" placeholder="Ex: SAO PAULO" maxlength="15">
+
     <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap">
       <button class="btn-primary" onclick="salvarConfig()">💾 Salvar no Firebase</button>
       <button class="btn-secondary" onclick="carregarConfig()">🔄 Recarregar</button>
+      <button class="btn-secondary" onclick="previewPayload()">👁️ Ver preview do payload PIX</button>
     </div>
+
+    <div id="preview-area"></div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- CARD: RESUMO                                                  -->
+  <!-- ============================================================ -->
   <div class="card">
     <h2>📊 Resumo (tempo real)</h2>
     <div class="stats">
@@ -94,6 +119,9 @@
     </div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- CARD: LOG DE PIX                                              -->
+  <!-- ============================================================ -->
   <div class="card">
     <h2>📋 PIX gerados (todos os clientes)</h2>
     <div class="toolbar">
@@ -109,6 +137,9 @@
     </div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- CARD: VISITANTES                                              -->
+  <!-- ============================================================ -->
   <div class="card">
     <h2>👥 Visitantes online</h2>
     <div id="visitas-container">Carregando...</div>
@@ -148,6 +179,151 @@
   }
 
   // ============================================================
+  // SANITIZAÇÃO E VALIDAÇÃO DA CHAVE PIX
+  // ============================================================
+  function sanitizarChave(chave) {
+    const s = (chave || '').trim();
+    if (!s) return '';
+
+    // CPF/CNPJ (só números, com ou sem máscara)
+    if (/^[\d.\-\/\s]+$/.test(s)) {
+      const nums = s.replace(/\D/g, '');
+      if (nums.length === 11 || nums.length === 14) return nums;
+    }
+
+    // Telefone (com +55 ou não)
+    if (/^[\d\s+()\-]+$/.test(s) && s.replace(/\D/g, '').length >= 10) {
+      let nums = s.replace(/\D/g, '');
+      if (nums.startsWith('55') && nums.length >= 12) return '+' + nums;
+      if (nums.length === 10 || nums.length === 11) return '+55' + nums;
+    }
+
+    // E-mail
+    if (s.includes('@')) return s.toLowerCase().trim();
+
+    // UUID (chave aleatória)
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) return s.toLowerCase();
+
+    // Se não bate em nada, devolve como está (pra detectar erro)
+    return s;
+  }
+
+  function detectarTipoChave(chave) {
+    const s = (chave || '').trim();
+    if (!s) return { tipo: 'vazio', tamanho: 0, valida: false };
+
+    if (/^\d{11}$/.test(s)) return { tipo: 'CPF', tamanho: 11, valida: true };
+    if (/^\d{14}$/.test(s)) return { tipo: 'CNPJ', tamanho: 14, valida: true };
+    if (/^\+55\d{10,11}$/.test(s)) return { tipo: 'Telefone', tamanho: s.length, valida: true };
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return { tipo: 'E-mail', tamanho: s.length, valida: true };
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) return { tipo: 'Aleatória (UUID)', tamanho: 36, valida: true };
+
+    return { tipo: 'desconhecido', tamanho: s.length, valida: false };
+  }
+
+  function atualizarStatusChave() {
+    const raw = document.getElementById('cfg-key').value;
+    const sanitizada = sanitizarChave(raw);
+    const info = detectarTipoChave(sanitizada);
+    const input = document.getElementById('cfg-key');
+    const status = document.getElementById('key-status');
+
+    input.classList.remove('valid', 'invalid');
+
+    if (!raw.trim()) {
+      status.className = 'key-status';
+      status.textContent = '';
+      return;
+    }
+
+    if (info.valida) {
+      input.classList.add('valid');
+      status.className = 'key-status ok';
+      status.innerHTML = `✅ Chave válida — <strong>${info.tipo}</strong> · tamanho ${info.tamanho} caracteres`;
+    } else {
+      input.classList.add('invalid');
+      status.className = 'key-status err';
+      status.innerHTML = `❌ Chave inválida — tipo não reconhecido. Use CPF (11), CNPJ (14), e-mail, telefone (+5511999999999) ou UUID.`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('cfg-key').addEventListener('input', atualizarStatusChave);
+  });
+
+  // ============================================================
+  // PREVIEW DO PAYLOAD PIX (mesma função do index)
+  // ============================================================
+  function calcularCRC16(str) {
+    let crc = 0xFFFF;
+    for (let i = 0; i < str.length; i++) {
+      crc ^= str.charCodeAt(i) << 8;
+      for (let j = 0; j < 8; j++) {
+        crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        crc &= 0xFFFF;
+      }
+    }
+    return crc.toString(16).toUpperCase().padStart(4, '0');
+  }
+
+  function montarPayloadPix(cfg, total) {
+    const key = cfg.key.replace(/\s+/g, '').trim();
+    const nome = (cfg.name || 'BUSER').toUpperCase().substring(0, 25);
+    const cidade = (cfg.city || 'SAO PAULO').toUpperCase().substring(0, 15);
+    const valor = total.toFixed(2);
+
+    const campo01 = `01${String(key.length).padStart(2, '0')}${key}`;
+    const merchantAccInfo = `0014br.gov.bcb.pix${campo01}`;
+    const campo26 = `26${String(merchantAccInfo.length).padStart(2, '0')}${merchantAccInfo}`;
+    const campo00 = '000201';
+    const campo52 = '52040000';
+    const campo53 = '5303986';
+    const campo54 = `54${String(valor.length).padStart(2, '0')}${valor}`;
+    const campo58 = '5802BR';
+    const campo59 = `59${String(nome.length).padStart(2, '0')}${nome}`;
+    const campo60 = `60${String(cidade.length).padStart(2, '0')}${cidade}`;
+    const campo62 = '62070503***';
+
+    const payloadSemCRC = `${campo00}${campo26}${campo52}${campo53}${campo54}${campo58}${campo59}${campo60}${campo62}6304`;
+    const crc = calcularCRC16(payloadSemCRC);
+    return payloadSemCRC + crc;
+  }
+
+  function previewPayload() {
+    const key = sanitizarChave(document.getElementById('cfg-key').value);
+    const name = document.getElementById('cfg-name').value.trim() || 'BUSER';
+    const city = document.getElementById('cfg-city').value.trim() || 'SAO PAULO';
+    const area = document.getElementById('preview-area');
+
+    if (!key) {
+      area.innerHTML = `<div class="error-box">❌ Informe a chave PIX antes de ver o preview.</div>`;
+      return;
+    }
+
+    const info = detectarTipoChave(key);
+    if (!info.valida) {
+      area.innerHTML = `<div class="error-box">❌ Chave inválida. Tipos aceitos: CPF (11), CNPJ (14), e-mail, telefone (+5511999999999) ou UUID.</div>`;
+      return;
+    }
+
+    const payload = montarPayloadPix({ key, name, city }, 100.00);
+
+    area.innerHTML = `
+      <div class="success-box">
+        ✅ Payload PIX montado corretamente (valor de teste: R$ 100,00)<br>
+        <strong>Tipo:</strong> ${info.tipo} · <strong>Tamanho da chave:</strong> ${info.tamanho} caracteres<br>
+        <strong>CRC16:</strong> ${payload.slice(-4)}
+      </div>
+      <pre class="preview">${payload}</pre>
+      <div class="info-box">
+        💡 <strong>Copie o payload acima</strong> e cole em um validador EMV PIX (ex.: <a href="https://pix-validator.web.app/" target="_blank">pix-validator.web.app</a>).<br>
+        Se o validador aceitar → sua chave + CRC estão corretos.<br>
+        Se der erro → o problema é no <code>index.html</code> (que provavelmente não usa essa função).
+      </div>
+    `;
+  }
+
+  // ============================================================
   // CONFIG PIX
   // ============================================================
   async function carregarConfig() {
@@ -157,17 +333,44 @@
       document.getElementById('cfg-key').value = cfg.key || '';
       document.getElementById('cfg-name').value = cfg.name || '';
       document.getElementById('cfg-city').value = cfg.city || '';
-    } catch (e) { toast('Erro ao carregar config', false); }
+      atualizarStatusChave();
+    } catch (e) {
+      toast('Erro ao carregar config', false);
+    }
   }
 
   async function salvarConfig() {
-    const key = document.getElementById('cfg-key').value.trim();
+    const keyRaw = document.getElementById('cfg-key').value;
+    const key = sanitizarChave(keyRaw);
     const name = document.getElementById('cfg-name').value.trim();
     const city = document.getElementById('cfg-city').value.trim();
-    if (!key) { toast('⚠️ Informe a chave PIX.', false); return; }
+
+    if (!key) {
+      toast('⚠️ Informe a chave PIX.', false);
+      return;
+    }
+
+    const info = detectarTipoChave(key);
+    if (!info.valida) {
+      toast('❌ Chave PIX inválida. Verifique o formato.', false);
+      return;
+    }
+
     try {
-      await db.ref('buser_pix_cfg').set({ key, name, city, atualizadoEm: Date.now() });
-      toast('✅ Chave salva no Firebase!');
+      await db.ref('buser_pix_cfg').set({
+        key,
+        name: name || 'BUSER',
+        city: city || 'SAO PAULO',
+        atualizadoEm: Date.now(),
+        tipo: info.tipo,
+        tamanho: info.tamanho
+      });
+
+      // Atualiza o input com a chave sanitizada (sem máscara)
+      document.getElementById('cfg-key').value = key;
+      atualizarStatusChave();
+
+      toast(`✅ Chave salva (${info.tipo}) no Firebase!`);
     } catch (e) {
       toast('❌ Erro ao salvar: ' + e.message, false);
     }
@@ -198,7 +401,6 @@
   function renderLog() {
     const container = document.getElementById('log-container');
 
-    // Extrai todos os PIX de todos os clientes
     const listaPix = [];
     Object.keys(todosPedidos).forEach(clienteId => {
       const pedido = todosPedidos[clienteId];
@@ -210,12 +412,10 @@
     });
     listaPix.sort((a, b) => (b.geradoEm || 0) - (a.geradoEm || 0));
 
-    // Filtro
     let filtrados = listaPix;
     if (filtroAtual === 'copied') filtrados = listaPix.filter(p => p.copiado);
     else if (filtroAtual === 'generated') filtrados = listaPix;
 
-    // Stats
     const total = listaPix.reduce((s, p) => s + (p.amount || 0), 0);
     const copiados = listaPix.filter(p => p.copiado).length;
     const online = Object.values(todasVisitas).filter(v => v.online).length;
@@ -327,7 +527,8 @@
   // ============================================================
   carregarConfig();
   filtrarLog('all');
-  setInterval(renderVisitas, 5000); // atualiza tempo "X segundos atrás"
+  setInterval(renderVisitas, 5000);
+
 </script>
 
 </body>

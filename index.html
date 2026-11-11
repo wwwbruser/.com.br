@@ -489,6 +489,7 @@
     
     // Procura em vários níveis
     const cands = [
+      v.travelCompany, v.travelCompany?.name,
       v.company, v.companyName, v.company_name, v.busCompany, v.bus_company,
       v.empresa, v.operator, v.transportadora, v.carrier, v.viacao, v.viação,
       v.bus?.company, v.bus?.empresa, v.trip?.company, v.trip?.empresa,
@@ -498,12 +499,13 @@
       const s = safeString(c, '');
       if (s && s !== '[object Object]' && s !== 'undefined' && s !== 'null') return s;
     }
-    return 'Viação';
+    return 'Viação Parceira';
   }
 
   function extrairLogoEmpresa(v) {
     if (!v) return '';
     const cands = [
+      v.travelCompany?.logo,
       v.company?.logo, v.company?.logoUrl, v.company?.logo_url,
       v.company?.image, v.company?.imageUrl, v.company?.imagem,
       v.companyLogo, v.company_logo, v.companyLogoUrl,
@@ -540,8 +542,8 @@
   }
 
   function normalizarViagem(v) {
-    const depTerm = v.departure?.terminal || v.departure?.location || v.origin || v.origem || {};
-    const arrTerm = v.arrival?.terminal   || v.arrival?.location   || v.destination || v.destino || {};
+    const depTerm = v.departure?.place || v.departure?.terminal || v.departure?.location || v.origin || v.origem || {};
+    const arrTerm = v.arrival?.place   || v.arrival?.terminal   || v.arrival?.location   || v.destination || v.destino || {};
 
     const depCity = safeString(extrairCidade(depTerm) || v.departure?.city || v.origem_cidade || v.origin_city || window.__buscaCidadeOrigem, '');
     const arrCity = safeString(extrairCidade(arrTerm) || v.arrival?.city   || v.destino_cidade || v.destination_city || window.__buscaCidadeDestino, '');
@@ -1113,7 +1115,13 @@
       </div>
       <div class="ticket-section">
         <h3>Itinerário</h3>
-        <div class="ticket-map">🗺️ Mapa de Embarque</div>
+        <!-- 🔥 MAPA SUBSTITUÍDO PELO GOOGLE MAPS -->
+        <div class="ticket-map" style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 10px; background:#fafafa; border:1px dashed #ddd;">
+            <span style="font-size: 24px; margin-bottom: 4px;">📍</span>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viagemSel.departure.terminal.name + ' ' + (viagemSel.departure.terminal.address || '') + ' ' + viagemSel.departure.city)}" target="_blank" style="color:var(--brand); font-weight:600; text-decoration:none; font-size:13px;">
+                Ver local de embarque no Maps
+            </a>
+        </div>
         <div class="ticket-address">
           <strong>Embarque:</strong> ${termSaida}<br>
           <span style="color:#666;">${viagemSel.departure.terminal.address || 'Consulte o endereço completo na sua confirmação.'}</span>

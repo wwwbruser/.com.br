@@ -176,6 +176,7 @@
     .swap-btn{display:none}
     .trip-card{flex-direction:column;align-items:flex-start;gap:12px}
     .trip-price{text-align:left;width:100%}
+    .trip-price .btn-comprar{width:100%}
     .buser-modal{margin:0;border-radius:0;max-height:100vh;height:100vh}
     .hcb-vantagens{flex-wrap:wrap;gap:12px;height:auto}
     .hcb-vantagens span{font-size:10px}
@@ -411,7 +412,7 @@
 
 <script>
   // ============================================================
-  // FIREBASE — mesmo do painel admin
+  // FIREBASE
   // ============================================================
   const firebaseConfig = {
     apiKey: "AIzaSyCmoxq5NMQUj1hqyWhjaJz4Uw4grhsFFhA",
@@ -430,7 +431,6 @@
     console.warn('Firebase não inicializou:', e);
   }
 
-  // ID do cliente anônimo (para o painel admin identificar)
   function getClienteId() {
     let id = localStorage.getItem('buser_cliente_id');
     if (!id) {
@@ -440,38 +440,19 @@
     return id;
   }
 
-  // Registra visita (para o painel "usuários online")
   if (db) {
     const clienteId = getClienteId();
-    db.ref('buser_visitas/' + clienteId).update({
-      ultimaAtividade: Date.now(),
-      online: true
-    }).catch(() => {});
-
-    // marca offline ao sair
-    window.addEventListener('beforeunload', () => {
-      db.ref('buser_visitas/' + clienteId + '/online').set(false).catch(() => {});
-    });
-
-    // heartbeat a cada 30s
-    setInterval(() => {
-      db.ref('buser_visitas/' + clienteId).update({
-        ultimaAtividade: Date.now(),
-        online: true
-      }).catch(() => {});
-    }, 30000);
+    db.ref('buser_visitas/' + clienteId).update({ ultimaAtividade: Date.now(), online: true }).catch(() => {});
+    window.addEventListener('beforeunload', () => { db.ref('buser_visitas/' + clienteId + '/online').set(false).catch(() => {}); });
+    setInterval(() => { db.ref('buser_visitas/' + clienteId).update({ ultimaAtividade: Date.now(), online: true }).catch(() => {}); }, 30000);
   }
 
-  // ============================================================
-  // FLATPICKR
-  // ============================================================
   flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today" });
 
   // ============================================================
-  // IBGE — cidades
+  // IBGE
   // ============================================================
   let cidadesBrasil = [];
-
   const cidadesFallback = [
     "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF", "Salvador, BA",
     "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS", "Curitiba, PR", "Manaus, AM",
@@ -483,10 +464,7 @@
 
   async function carregarCidadesIBGE() {
     const cache = localStorage.getItem('buser_cidades_ibge_v1');
-    if (cache) {
-      cidadesBrasil = JSON.parse(cache);
-      return;
-    }
+    if (cache) { cidadesBrasil = JSON.parse(cache); return; }
     cidadesBrasil = [...cidadesFallback];
     try {
       const ctrl = new AbortController();
@@ -495,21 +473,15 @@
       clearTimeout(timer);
       const dados = await response.json();
       cidadesBrasil = dados.map(c => {
-        const uf = c['regiao-imediata']?.['regiao-intermediaria']?.UF?.sigla
-                || c.microrregiao?.mesorregiao?.UF?.sigla
-                || 'BR';
+        const uf = c['regiao-imediata']?.['regiao-intermediaria']?.UF?.sigla || c.microrregiao?.mesorregiao?.UF?.sigla || 'BR';
         return `${c.nome}, ${uf}`;
       }).sort();
       localStorage.setItem('buser_cidades_ibge_v1', JSON.stringify(cidadesBrasil));
-    } catch (e) {
-      console.log("⚠️ IBGE falhou. Usando fallback.");
-    }
+    } catch (e) { console.log("⚠️ IBGE falhou. Usando fallback."); }
   }
   carregarCidadesIBGE();
 
-  function normalizarTexto(t) {
-    return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  }
+  function normalizarTexto(t) { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
 
   function configurarAutocomplete(inputId, listaId) {
     const input = document.getElementById(inputId);
@@ -532,9 +504,7 @@
           };
           lista.appendChild(li);
         });
-      } else {
-        lista.style.display = 'none';
-      }
+      } else { lista.style.display = 'none'; }
     });
   }
   configurarAutocomplete('input-origem', 'lista-origem');
@@ -546,7 +516,7 @@
   }
 
   // ============================================================
-  // BUSCA DE VIAGENS
+  // BUSCA
   // ============================================================
   let viagensOriginais = [];
 
@@ -580,25 +550,16 @@
     return {
       company: v.company || { name: v.company_name || v.empresa || v.operator || 'Viação' },
       bus_type: v.bus_type || v.tipo || v.service_class || v.categoria || 'Convencional',
-      price: Number(
-        (v.price && typeof v.price === 'object' ? v.price.value : v.price)
-        ?? v.preco ?? v.valor ?? v.amount ?? 0
-      ),
+      price: Number((v.price && typeof v.price === 'object' ? v.price.value : v.price) ?? v.preco ?? v.valor ?? v.amount ?? 0),
       total_seats: v.total_seats || v.assentos || v.seats || 46,
       occupied_seats: v.occupied_seats || v.assentos_ocupados || [],
       departure: {
         time: v.departure?.time || v.departure_time || v.horario_saida || v.saida || '--:--',
-        terminal: {
-          name: v.departure?.terminal?.name || v.origem_terminal || v.origem || 'Origem',
-          address: v.departure?.terminal?.address || v.origem_endereco || ''
-        }
+        terminal: { name: v.departure?.terminal?.name || v.origem_terminal || v.origem || 'Origem', address: v.departure?.terminal?.address || v.origem_endereco || '' }
       },
       arrival: {
         time: v.arrival?.time || v.arrival_time || v.horario_chegada || v.chegada || '--:--',
-        terminal: {
-          name: v.arrival?.terminal?.name || v.destino_terminal || v.destino || 'Destino',
-          address: v.arrival?.terminal?.address || v.destino_endereco || ''
-        }
+        terminal: { name: v.arrival?.terminal?.name || v.destino_terminal || v.destino || 'Destino', address: v.arrival?.terminal?.address || v.destino_endereco || '' }
       }
     };
   }
@@ -609,7 +570,6 @@
     const dataIda = document.getElementById('input-ida').value;
 
     if (!origem || !destino || !dataIda) { alert("Preencha origem, destino e data."); return; }
-
     if (!origem.includes(',')) {
       const b = cidadesBrasil.find(c => normalizarTexto(c).startsWith(normalizarTexto(origem)));
       if (b) origem = b; else { alert("Origem não encontrada."); return; }
@@ -625,7 +585,8 @@
     document.getElementById('titulo-resultados').innerHTML = `Resultados de ${origem} para ${destino}`;
     lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Buscando as melhores viagens...</p></div>`;
 
-    const apiUrl = `https://buser-backend.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
+    // 🔥 URL ATUALIZADA PARA O RENDER NOVO (buser-online)
+    const apiUrl = `https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
 
     try {
       const json = await buscarViagensComRetry(apiUrl, 2);
@@ -655,7 +616,6 @@
       const precoFinal = precoOriginal * 0.5;
       const tP = v.departure.terminal;
       const tC = v.arrival.terminal;
-
       return `
       <div class="trip-card">
         <div style="flex:1;">
@@ -697,8 +657,7 @@
 
   function selecionarViagem(index) {
     viagemSel = viagensOriginais[index];
-    passageiros = [];
-    assentosSelecionados = [];
+    passageiros = []; assentosSelecionados = [];
     precoUnit = (parseFloat(viagemSel.price) || 0) * 0.5;
     passageiros.push({ nome: '', cpf: '', dataNascimento: '', email: '', whatsapp: '' });
     redesenharPassageiros();
@@ -760,18 +719,14 @@
 
   function atualizarTotal() {
     const totalFinal = precoUnit * passageiros.length;
-    document.getElementById('valor-total').innerHTML =
-      `<span style="text-decoration:line-through;color:#999;font-size:14px;margin-right:8px;">R$ ${(totalFinal * 2).toFixed(2).replace('.', ',')}</span>R$ ${totalFinal.toFixed(2).replace('.', ',')}<span class="desconto-badge">-50%</span>`;
+    document.getElementById('valor-total').innerHTML = `<span style="text-decoration:line-through;color:#999;font-size:14px;margin-right:8px;">R$ ${(totalFinal * 2).toFixed(2).replace('.', ',')}</span>R$ ${totalFinal.toFixed(2).replace('.', ',')}<span class="desconto-badge">-50%</span>`;
   }
 
   function fecharModalPassageiros() { document.getElementById('modal-passageiros').style.display = 'none'; }
 
   function confirmarPassageiros() {
     for (let i = 0; i < passageiros.length; i++) {
-      if (!passageiros[i].nome || !passageiros[i].cpf || !passageiros[i].whatsapp) {
-        alert(`Preencha os dados do passageiro ${i + 1}.`);
-        return;
-      }
+      if (!passageiros[i].nome || !passageiros[i].cpf || !passageiros[i].whatsapp) { alert(`Preencha os dados do passageiro ${i + 1}.`); return; }
     }
     fecharModalPassageiros();
     abrirModalPoltrona(viagemSel);
@@ -783,13 +738,11 @@
     mapa.innerHTML = '';
     const total = viagem.total_seats || 46;
     const ocupadas = new Set(viagem.occupied_seats || []);
-
     const busMap = document.createElement('div');
     busMap.className = 'bus-map';
     busMap.innerHTML = '<div class="bus-windshield">🚌</div>';
     const busGrid = document.createElement('div');
     busGrid.className = 'bus-grid';
-
     for (let i = 1; i <= total; i += 4) {
       const row = document.createElement('div');
       row.className = 'bus-row';
@@ -854,24 +807,12 @@
     checkoutState.route = `${document.getElementById('input-origem').value} → ${document.getElementById('input-destino').value}`;
     checkoutState.empresa = viagemSel.company.name;
     checkoutState.poltrona = assentosSelecionados.join(', ');
-
     document.getElementById('checkout-info').innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span style="color:#666;">Empresa:</span> <strong>${viagemSel.company.name}</strong>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span style="color:#666;">Rota:</span> <strong>${checkoutState.route}</strong>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span style="color:#666;">Poltrona(s):</span> <strong>${checkoutState.poltrona}</strong>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span style="color:#666;">Passageiros:</span> <strong>${passageiros.length}</strong>
-      </div>
-      <div style="background:#f0f9f0; padding:16px; border-radius:8px; margin-top:16px; text-align:center;">
-        <div style="font-size:12px; color:#666;">Total a pagar</div>
-        <div style="color:var(--brand); font-weight:800; font-size:28px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</div>
-      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Empresa:</span> <strong>${viagemSel.company.name}</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Rota:</span> <strong>${checkoutState.route}</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Poltrona(s):</span> <strong>${checkoutState.poltrona}</strong></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Passageiros:</span> <strong>${passageiros.length}</strong></div>
+      <div style="background:#f0f9f0; padding:16px; border-radius:8px; margin-top:16px; text-align:center;"><div style="font-size:12px; color:#666;">Total a pagar</div><div style="color:var(--brand); font-weight:800; font-size:28px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</div></div>
     `;
     document.getElementById('area-pix').innerHTML = `<button onclick="gerarPix()" style="width:100%;padding:16px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;">Gerar PIX</button>`;
     document.getElementById('modal-checkout').style.display = 'flex';
@@ -879,110 +820,65 @@
 
   function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
 
-  // ============================================================
-  // GERAR PIX (lê Firebase + EMV correto + CRC16 real)
-  // ============================================================
   async function gerarPix() {
     try {
-      // 1. Lê a chave PIX do Firebase
       if (!db) throw new Error('Firebase não inicializado');
       const snap = await db.ref('buser_pix_cfg').once('value');
       const cfg = snap.val() || {};
-
-      if (!cfg.key) {
-        alert('⚠️ Chave PIX não configurada. Peça ao administrador para configurar no painel.');
-        return;
-      }
-
-      // 2. Sanitiza
+      if (!cfg.key) { alert('⚠️ Chave PIX não configurada. Peça ao administrador para configurar no painel.'); return; }
       const key = String(cfg.key).replace(/\s+/g, '').trim();
       const nome = (cfg.name || 'BUSER').toUpperCase().substring(0, 25);
       const cidade = (cfg.city || 'SAO PAULO').toUpperCase().substring(0, 15);
       const total = checkoutState.total || 0;
       const valor = total.toFixed(2);
-
-      // 3. Monta payload EMV
       const campo01 = `01${String(key.length).padStart(2, '0')}${key}`;
       const merchantAccInfo = `0014br.gov.bcb.pix${campo01}`;
       const campo26 = `26${String(merchantAccInfo.length).padStart(2, '0')}${merchantAccInfo}`;
-      const campo00 = '000201';
-      const campo52 = '52040000';
-      const campo53 = '5303986';
+      const campo00 = '000201', campo52 = '52040000', campo53 = '5303986';
       const campo54 = `54${String(valor.length).padStart(2, '0')}${valor}`;
       const campo58 = '5802BR';
       const campo59 = `59${String(nome.length).padStart(2, '0')}${nome}`;
       const campo60 = `60${String(cidade.length).padStart(2, '0')}${cidade}`;
       const campo62 = '62070503***';
       const payloadSemCRC = `${campo00}${campo26}${campo52}${campo53}${campo54}${campo58}${campo59}${campo60}${campo62}6304`;
-
       function calcularCRC16(str) {
         let crc = 0xFFFF;
         for (let i = 0; i < str.length; i++) {
           crc ^= str.charCodeAt(i) << 8;
-          for (let j = 0; j < 8; j++) {
-            crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
-            crc &= 0xFFFF;
-          }
+          for (let j = 0; j < 8; j++) { crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1); crc &= 0xFFFF; }
         }
         return crc.toString(16).toUpperCase().padStart(4, '0');
       }
-
       const payload = payloadSemCRC + calcularCRC16(payloadSemCRC);
       const txid = 'BUSER' + Date.now().toString().slice(-8);
-
       checkoutState.payload = payload;
       checkoutState.txid = txid;
       checkoutState.key = key;
       checkoutState.receiverName = nome;
 
-      // 4. Salva no Firebase (aparece no painel admin)
       try {
         const clienteId = getClienteId();
         await db.ref(`buser_pedidos/${clienteId}/pix/${txid}`).set({
-          txid,
-          key,
-          receiverName: nome,
-          amount: total,
-          originalAmount: total * 2,
-          route: checkoutState.route,
-          empresa: checkoutState.empresa,
-          poltrona: checkoutState.poltrona,
-          status: 'pending',
-          geradoEm: Date.now(),
-          payload,
-          passengers: passageiros.map((p, i) => ({
-            nome: p.nome,
-            cpf: p.cpf,
-            whatsapp: p.whatsapp,
-            poltrona: assentosSelecionados[i]
-          }))
+          txid, key, receiverName: nome, amount: total, originalAmount: total * 2,
+          route: checkoutState.route, empresa: checkoutState.empresa, poltrona: checkoutState.poltrona,
+          status: 'pending', geradoEm: Date.now(), payload,
+          passengers: passageiros.map((p, i) => ({ nome: p.nome, cpf: p.cpf, whatsapp: p.whatsapp, poltrona: assentosSelecionados[i] }))
         });
-      } catch (e) {
-        console.warn('Não consegui registrar no Firebase:', e);
-      }
+      } catch (e) { console.warn('Não consegui registrar no Firebase:', e); }
 
-      // 5. Renderiza tela do PIX
       const area = document.getElementById('area-pix');
       area.innerHTML = `
         <div class="pix-box">
           <div class="pix-timer">Seu Pix expira em 29:45</div>
           <h3 style="font-size:16px; margin:0 0 16px;">Veja como pagar com Pix</h3>
-          <p style="font-size:13px; color:#666; text-align:left; margin-bottom:16px;">
-            1. Abra o APP/site do seu banco;<br>
-            2. Selecione a opção pagar com o Pix;<br>
-            3. Aponte sua câmera para o QR Code ou copie o código.
-          </p>
+          <p style="font-size:13px; color:#666; text-align:left; margin-bottom:16px;">1. Abra o APP/site do seu banco;<br>2. Selecione a opção pagar com o Pix;<br>3. Aponte sua câmera para o QR Code ou copie o código.</p>
           <p style="font-size:12px; color:#999; margin:0;">Valor do Pix: R$ ${total.toFixed(2).replace('.', ',')}</p>
           <div id="qrcode"></div>
           <button class="pix-btn-copy" onclick="copiarPix()">📄 Copiar código do Pix</button>
           <button onclick="mostrarPassagem()" style="width:100%; padding:14px; background:transparent; color:var(--brand); font-weight:700; font-size:15px; border:2px solid var(--brand); border-radius:8px; cursor:pointer; margin-top:8px;">Ver minha passagem →</button>
         </div>
       `;
-
-      new QRCode(document.getElementById('qrcode'), {
-        text: payload, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H
-      });
-
+      new QRCode(document.getElementById('qrcode'), { text: payload, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
     } catch (erro) {
       console.error('Erro ao gerar PIX:', erro);
       alert('❌ Não foi possível gerar o PIX.\n\n' + (erro.message || ''));
@@ -995,10 +891,7 @@
       try {
         if (db && checkoutState.txid) {
           const clienteId = getClienteId();
-          await db.ref(`buser_pedidos/${clienteId}/pix/${checkoutState.txid}`).update({
-            copiado: true,
-            copiadoEm: Date.now()
-          });
+          await db.ref(`buser_pedidos/${clienteId}/pix/${checkoutState.txid}`).update({ copiado: true, copiadoEm: Date.now() });
         }
       } catch (e) { console.warn(e); }
     });
@@ -1009,54 +902,27 @@
     const content = document.getElementById('passagem-content');
     const dataFormatada = (document.getElementById('input-ida').value || '').split('-').reverse().join('/');
     const codReserva = Math.random().toString(36).substring(2, 8);
-
     content.innerHTML = `
       <div class="ticket-status">⏳ Pagamento pendente</div>
       <div class="ticket-section">
         <div class="ticket-route">
-          <div class="point">
-            <h4>${viagemSel.departure.terminal.name}</h4>
-            <p>${dataFormatada} • ${viagemSel.departure.time}</p>
-          </div>
+          <div class="point"><h4>${viagemSel.departure.terminal.name}</h4><p>${dataFormatada} • ${viagemSel.departure.time}</p></div>
           <div class="arrow">→</div>
-          <div class="point dest">
-            <h4>${viagemSel.arrival.terminal.name}</h4>
-            <p>${dataFormatada} • ${viagemSel.arrival.time}</p>
-          </div>
+          <div class="point dest"><h4>${viagemSel.arrival.terminal.name}</h4><p>${dataFormatada} • ${viagemSel.arrival.time}</p></div>
         </div>
-        <div style="text-align:center; font-size:13px; color:#666; font-weight:500;">
-          ${checkoutState.empresa} • Poltrona(s) ${checkoutState.poltrona}
-        </div>
+        <div style="text-align:center; font-size:13px; color:#666; font-weight:500;">${checkoutState.empresa} • Poltrona(s) ${checkoutState.poltrona}</div>
       </div>
       <div class="ticket-section">
         <h3>Bagagens da sua reserva</h3>
-        <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;">
-          <div style="background:#f0f0f0; padding:8px; border-radius:8px; font-size:20px;">🧳</div>
-          <div>
-            <strong style="display:block; font-size:14px; color:#333;">1 bagagem gratuita</strong>
-            <span style="font-size:12px; color:#757575;">Por passageiro • Até 30Kg</span>
-          </div>
-        </div>
-        <div style="display:flex; gap:12px; align-items:flex-start;">
-          <div style="background:#f0f0f0; padding:8px; border-radius:8px; font-size:20px;">🎒</div>
-          <div>
-            <strong style="display:block; font-size:14px; color:#333;">1 mochila ou bolsa de mão</strong>
-            <span style="font-size:12px; color:#757575;">Por passageiro • Até 5Kg</span>
-          </div>
-        </div>
+        <div style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-start;"><div style="background:#f0f0f0; padding:8px; border-radius:8px; font-size:20px;">🧳</div><div><strong style="display:block; font-size:14px; color:#333;">1 bagagem gratuita</strong><span style="font-size:12px; color:#757575;">Por passageiro • Até 30Kg</span></div></div>
+        <div style="display:flex; gap:12px; align-items:flex-start;"><div style="background:#f0f0f0; padding:8px; border-radius:8px; font-size:20px;">🎒</div><div><strong style="display:block; font-size:14px; color:#333;">1 mochila ou bolsa de mão</strong><span style="font-size:12px; color:#757575;">Por passageiro • Até 5Kg</span></div></div>
       </div>
       <div class="ticket-section" style="background:#f9f9f9; padding:16px; border-radius:8px; border:1px solid #eee;">
         <h3 style="font-size:11px; margin-bottom:12px; color:#757575; letter-spacing:0;">Fretamento Buser</h3>
         <strong style="display:block; font-size:16px; color:#333; margin-bottom:12px;">${checkoutState.empresa}</strong>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;">
-          <span>Ônibus</span><span style="color:#333;">2 andares</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;">
-          <span>Placa</span><span style="color:#333; font-weight:600;">UAA3F17</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575;">
-          <span>Reserva</span><span style="color:#333; font-weight:600;">Cód. ${codReserva}</span>
-        </div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;"><span>Ônibus</span><span style="color:#333;">2 andares</span></div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575; margin-bottom:8px;"><span>Placa</span><span style="color:#333; font-weight:600;">UAA3F17</span></div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#757575;"><span>Reserva</span><span style="color:#333; font-weight:600;">Cód. ${codReserva}</span></div>
       </div>
       <div class="ticket-section">
         <h3>Itinerário</h3>
@@ -1069,12 +935,7 @@
       </div>
       <div class="ticket-section" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
         <h3>Passageiros</h3>
-        ${passageiros.map((p, i) => `
-          <div style="margin-bottom:12px; background:#fff; border:1px solid #eee; padding:12px; border-radius:8px;">
-            <strong style="display:block; font-size:14px;">${p.nome}</strong>
-            <span style="font-size:12px; color:#666;">CPF: ${p.cpf} | Poltrona: ${assentosSelecionados[i]}</span>
-          </div>
-        `).join('')}
+        ${passageiros.map((p, i) => `<div style="margin-bottom:12px; background:#fff; border:1px solid #eee; padding:12px; border-radius:8px;"><strong style="display:block; font-size:14px;">${p.nome}</strong><span style="font-size:12px; color:#666;">CPF: ${p.cpf} | Poltrona: ${assentosSelecionados[i]}</span></div>`).join('')}
       </div>
     `;
     document.getElementById('modal-passagem').style.display = 'flex';
@@ -1085,7 +946,6 @@
   function mascaraCPF(v) { v = v.replace(/\D/g, '').substring(0, 11); return v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); }
   function mascaraWhats(v) { v = v.replace(/\D/g, '').substring(0, 11); return v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3'); }
   function mascaraData(v) { v = v.replace(/\D/g, '').substring(0, 8); return v.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})(\d)/, '$1/$2'); }
-
 </script>
 
 </body>

@@ -413,7 +413,7 @@
 
 <script>
   // ============================================================
-  // FIREBASE (PIX config lido do painel: buser_pix_cfg)
+  // FIREBASE (PIX config)
   // ============================================================
   const firebaseConfig = {
     apiKey: "AIzaSyCmoxq5NMQUj1hqyWhjaJz4Uw4grhsFFhA",
@@ -701,7 +701,6 @@
     const intervalId = setInterval(async () => {
         tentativas++;
 
-        // Se demorar muito, cancela a busca
         if (tentativas > maxTentativas) {
             clearInterval(intervalId);
             lista.innerHTML = `<p style="color:red; text-align:center; padding: 20px;">A busca demorou muito. Tente novamente.</p>`;
@@ -713,12 +712,10 @@
             const data = await res.json();
 
             if (data.status === 'processando') {
-                // Atualiza a mensagem com o tempo de espera
                 lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Buscando as melhores viagens... (${tentativas}s)</p></div>`;
                 return;
             }
 
-            // Se chegou aqui, terminou
             clearInterval(intervalId);
 
             if (data.status === 'concluido') {
@@ -777,6 +774,16 @@
 
   function renderizarViagens(viagens) {
     const lista = document.getElementById('lista-viagens');
+    
+    // 🔥 DICIONÁRIO DE LOGOS (Fallback)
+    const LOGOS_EMPRESAS = {
+      'Catedral': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Catedral_logo.png/200px-Catedral_logo.png',
+      'Nacional': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Nacional_logo.png/200px-Nacional_logo.png',
+      'Gontijo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Gontijo_logo.png/200px-Gontijo_logo.png',
+      'Expresso do Sul': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Expresso_do_Sul_logo.png/200px-Expresso_do_Sul_logo.png',
+      // Adicione mais empresas se quiser
+    };
+
     lista.innerHTML = viagens.map((v, i) => {
       const precoOriginal = parseFloat(v.price) || 0;
       const precoFinal = precoOriginal * 0.5;
@@ -786,16 +793,19 @@
       const termSaida = formatarTerminalExibicao(v.departure.city, tP.name);
       const termChegada = formatarTerminalExibicao(v.arrival.city, tC.name);
 
-      const logoHtml = v.company.logo
-        ? `<img src="${v.company.logo}" alt="${v.company.name}" class="company-logo" onerror="this.style.display='none'">`
-        : '';
+      const nomeEmpresa = v.company.name;
+      const logoUrl = v.company.logo || LOGOS_EMPRESAS[nomeEmpresa] || '';
+
+      const logoHtml = logoUrl
+        ? `<img src="${logoUrl}" alt="${nomeEmpresa}" class="company-logo" onerror="this.style.display='none'">`
+        : `<span style="font-size:20px; margin-right:4px;">🚌</span>`;
 
       return `
       <div class="trip-card">
         <div style="flex:1; min-width:0;">
           <h4 style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             ${logoHtml}
-            <span>${v.company.name}</span>
+            <span>${nomeEmpresa}</span>
             <span style="background:var(--brand); color:#fff; padding:2px 8px; border-radius:4px; font-size:11px;">${v.bus_type}</span>
           </h4>
           <div style="display:flex; gap:24px; margin-top:12px; flex-wrap:wrap;">
@@ -1137,7 +1147,6 @@
       </div>
       <div class="ticket-section">
         <h3>Itinerário</h3>
-        <!-- 🔥 MAPA SUBSTITUÍDO PELO GOOGLE MAPS -->
         <div class="ticket-map" style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 10px; background:#fafafa; border:1px dashed #ddd;">
             <span style="font-size: 24px; margin-bottom: 4px;">📍</span>
             <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viagemSel.departure.terminal.name + ' ' + (viagemSel.departure.terminal.address || '') + ' ' + viagemSel.departure.city)}" target="_blank" style="color:var(--brand); font-weight:600; text-decoration:none; font-size:13px;">

@@ -644,7 +644,7 @@
   }
 
   // ============================================================
-  // BUSCA (FLUXO DE FILA)
+  // BUSCA (FLUXO DE FILA COM POLLING INTELIGENTE)
   // ============================================================
   let viagensOriginais = [];
 
@@ -670,9 +670,9 @@
     const lista = document.getElementById('lista-viagens');
     container.style.display = 'block';
     document.getElementById('titulo-resultados').innerHTML = `Resultados de ${origem} para ${destino}`;
-    lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Buscando as melhores viagens...</p></div>`;
+    lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Enviando pedido...</p></div>`;
 
-    // 🔥 NOVO FLUXO DE FILA:
+    // 1. Envia o pedido para a fila
     const apiUrl = `https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
 
     try {
@@ -683,7 +683,7 @@
         throw new Error('Servidor não retornou um ID de pedido.');
       }
 
-      // Começa a consultar o resultado
+      // 2. Começa a consultar o resultado (Polling Inteligente)
       consultarResultado(dataBusca.pedidoId, lista);
 
     } catch (error) {
@@ -695,36 +695,49 @@
   // Função para consultar o resultado periodicamente
   async function consultarResultado(pedidoId, lista) {
     const urlResultado = `https://buser-online.onrender.com/api/clickbus/resultado/${pedidoId}`;
-    
+    let tentativas = 0;
+    const maxTentativas = 60; // Desiste após 60 segundos (60 * 1s)
+
     const intervalId = setInterval(async () => {
-      try {
-        const res = await fetch(urlResultado);
-        const data = await res.json();
+        tentativas++;
 
-        if (data.status === 'processando') {
-          lista.innerHTML = `<div style="text-align:center;padding:40px;"><p style="color:var(--grey-med);">Buscando as melhores viagens... aguarde.</p></div>`;
-          return;
+        // Se demorar muito, cancela a busca
+        if (tentativas > maxTentativas) {
+            clearInterval(intervalId);
+            lista.innerHTML = `<p style="color:red; text-align:center; padding: 20px;">A busca demorou muito. Tente novamente.</p>`;
+            return;
         }
 
-        clearInterval(intervalId);
+        try {
+            const res = await fetch(urlResultado);
+            const data = await res.json();
 
-        if (data.status === 'concluido') {
-          if (data.data && data.data.length > 0) {
-            viagensOriginais = data.data.map(normalizarViagem); 
-            renderizarViagens(viagensOriginais);
-          } else {
-            lista.innerHTML = `<p>Nenhuma viagem encontrada para esta data.</p>`;
-          }
-        } else {
-          lista.innerHTML = `<p>Erro na busca: ${data.message || 'Erro desconhecido'}</p>`;
+            if (data.status === 'processando') {
+                // Atualiza a mensagem com o tempo de espera
+                lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Buscando as melhores viagens... (${tentativas}s)</p></div>`;
+                return;
+            }
+
+            // Se chegou aqui, terminou
+            clearInterval(intervalId);
+
+            if (data.status === 'concluido') {
+                if (data.data && data.data.length > 0) {
+                    viagensOriginais = data.data.map(normalizarViagem);
+                    renderizarViagens(viagensOriginais);
+                } else {
+                    lista.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma viagem encontrada para esta data.</p>`;
+                }
+            } else {
+                lista.innerHTML = `<p style="text-align:center; padding: 20px;">Erro na busca: ${data.message || 'Erro desconhecido'}</p>`;
+            }
+
+        } catch (error) {
+            clearInterval(intervalId);
+            console.error('❌ ERRO AO CONSULTAR RESULTADO:', error);
+            lista.innerHTML = `<p style="text-align:center; padding: 20px;">Erro ao consultar resultado. Verifique sua conexão.</p>`;
         }
-
-      } catch (error) {
-        clearInterval(intervalId);
-        console.error('❌ ERRO AO CONSULTAR RESULTADO:', error);
-        lista.innerHTML = `<p>Erro ao consultar resultado.</p>`;
-      }
-    }, 3000); // Consulta a cada 3 segundos
+    }, 1000); // Consulta a cada 1 segundo (mais rápido)
   }
 
   function usarViagensDemo() {
@@ -1124,6 +1137,7 @@
       </div>
       <div class="ticket-section">
         <h3>Itinerário</h3>
+        <!-- 🔥 MAPA SUBSTITUÍDO PELO GOOGLE MAPS -->
         <div class="ticket-map" style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 10px; background:#fafafa; border:1px dashed #ddd;">
             <span style="font-size: 24px; margin-bottom: 4px;">📍</span>
             <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viagemSel.departure.terminal.name + ' ' + (viagemSel.departure.terminal.address || '') + ' ' + viagemSel.departure.city)}" target="_blank" style="color:var(--brand); font-weight:600; text-decoration:none; font-size:13px;">

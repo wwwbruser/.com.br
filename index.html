@@ -775,13 +775,11 @@
   function renderizarViagens(viagens) {
     const lista = document.getElementById('lista-viagens');
     
-    // 🔥 DICIONÁRIO DE LOGOS (Fallback)
     const LOGOS_EMPRESAS = {
       'Catedral': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Catedral_logo.png/200px-Catedral_logo.png',
       'Nacional': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Nacional_logo.png/200px-Nacional_logo.png',
       'Gontijo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Gontijo_logo.png/200px-Gontijo_logo.png',
       'Expresso do Sul': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Expresso_do_Sul_logo.png/200px-Expresso_do_Sul_logo.png',
-      // Adicione mais empresas se quiser
     };
 
     lista.innerHTML = viagens.map((v, i) => {

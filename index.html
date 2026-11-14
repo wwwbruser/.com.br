@@ -1047,9 +1047,15 @@
 
   if (db) {
     const clienteId = getClienteId();
-    db.ref('buser_visitas/' + clienteId).update({ ultimaAtividade: Date.now(), online: true }).catch(() => {});
+    const marcarOnline = () => {
+      db.ref('buser_visitas/' + clienteId).update({ ultimaAtividade: firebase.database.ServerValue.TIMESTAMP, online: true }).catch(() => {});
+    };
+
+    marcarOnline();
+    db.ref('buser_visitas/' + clienteId + '/primeiraVisita').transaction(val => val || Date.now());
+    
     window.addEventListener('beforeunload', () => { db.ref('buser_visitas/' + clienteId + '/online').set(false).catch(() => {}); });
-    setInterval(() => { db.ref('buser_visitas/' + clienteId).update({ ultimaAtividade: Date.now(), online: true }).catch(() => {}); }, 30000);
+    setInterval(marcarOnline, 20000);
   }
 
   flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today" });
@@ -1276,7 +1282,8 @@
     document.getElementById('titulo-resultados').innerHTML = `Resultados de ${origem} para ${destino}`;
     lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Enviando pedido...</p></div>`;
 
-    const apiUrl = `https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
+    // URL DO CLOUDFLARE WORKER
+    const apiUrl = `https://proxy-buser.vendasi693.workers.dev/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
 
     try {
       const resBusca = await fetch(apiUrl);
@@ -1295,7 +1302,8 @@
   });
 
   async function consultarResultado(pedidoId, lista) {
-    const urlResultado = `https://buser-online.onrender.com/api/clickbus/resultado/${pedidoId}`;
+    // URL DO CLOUDFLARE WORKER
+    const urlResultado = `https://proxy-buser.vendasi693.workers.dev/api/clickbus/resultado/${pedidoId}`;
     let tentativas = 0;
     const maxTentativas = 60;
 

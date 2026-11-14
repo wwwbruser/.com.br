@@ -62,8 +62,11 @@ input,select{font-family:inherit;outline:none}
 .nav-item i{font-style:normal;font-size:18px;width:22px;text-align:center}
 .nav-item:hover{background:var(--hover-bg);color:var(--text-main)}
 .nav-item.active{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;box-shadow:0 4px 12px -4px rgba(241,16,117,.4)}
-.nav-item .nav-badge{margin-left:auto;background:var(--hover-bg);color:var(--text-main);padding:2px 8px;border-radius:var(--r-full);font-size:11px;font-weight:700}
 .nav-item.active .nav-badge{background:rgba(255,255,255,.25);color:#fff}
+.nav-item .nav-badge{margin-left:auto;background:var(--hover-bg);color:var(--text-main);padding:2px 8px;border-radius:var(--r-full);font-size:11px;font-weight:700}
+.nav-item.danger{color:var(--red); margin-top: 20px;}
+.nav-item.danger:hover{background: #ffe0e5;}
+.nav-item.danger.active{background: linear-gradient(135deg, var(--red) 0%, #8b0045 100%); color: #fff;}
 
 /* MAIN */
 .admin-main{flex:1;padding:32px;overflow-x:hidden}
@@ -215,6 +218,9 @@ tr:hover td{background:var(--hover-bg)}
       <button class="nav-item" data-section="visitas" onclick="irParaSecao('visitas')"><i>📈</i> Visitas <span class="nav-badge" id="nav-badge-visitas">0</span></button>
       <button class="nav-item" data-section="pix-config" onclick="irParaSecao('pix-config')"><i>💳</i> Config. PIX</button>
       <button class="nav-item" data-section="config" onclick="irParaSecao('config')"><i>⚙️</i> Configurações</button>
+      
+      <!-- NOVO BOTÃO NO MENU -->
+      <button class="nav-item danger" data-section="limpar" onclick="irParaSecao('limpar')"><i>🚨</i> Limpar Dados</button>
     </aside>
 
     <main class="admin-main">
@@ -361,7 +367,7 @@ tr:hover td{background:var(--hover-bg)}
         <div class="section-header">
           <div><h1>Tráfego e Visitas</h1><p>Quem está no site agora</p></div>
           <button class="btn-cancel" onclick="limparHistoricoVisitas()" style="padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
-            🗑️ Limpar Histórico de Visitas
+            🗑️ Limpar Apenas Visitas
           </button>
         </div>
         <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
@@ -436,9 +442,8 @@ tr:hover td{background:var(--hover-bg)}
       <!-- CONFIGURAÇÕES -->
       <section class="section" id="section-config">
         <div class="section-header">
-          <div><h1>Configurações</h1><p>Gerencie sua conta admin e dados do sistema</p></div>
+          <div><h1>Configurações</h1><p>Gerencie sua conta admin</p></div>
         </div>
-        
         <div class="card" style="max-width:500px">
           <h2>🔐 Alterar Senha do Admin</h2>
           <div class="pix-form" style="grid-template-columns:1fr">
@@ -453,18 +458,32 @@ tr:hover td{background:var(--hover-bg)}
           </div>
           <button class="btn-primary" style="margin-top:20px" onclick="alterarSenha()">Salvar Nova Senha</button>
         </div>
+      </section>
 
-        <!-- ZONA DE PERIGO -->
-        <div class="card" style="max-width:500px; border-color: #d81b60; background: #fff0f3;">
-          <h2 style="color: #d81b60;">⚠️ Zona de Perigo</h2>
-          <p style="font-size: 13px; color: #666; margin-bottom: 16px;">
-            Ao clicar no botão abaixo, você vai <b>apagar permanentemente</b> todos os pedidos (gerados, pagos e cancelados) e todas as visitas. O caixa e os gráficos serão zerados. <br><br>Essa ação não pode ser desfeita!
-          </p>
-          <button class="btn-primary" style="background: linear-gradient(135deg, #d81b60 0%, #8b0045 100%); box-shadow: 0 8px 24px -4px rgba(216,27,96,.4); width: 100%;" onclick="limparTUDO()">
-            🗑️ Limpar TODOS os Dados (Pedidos + Visitas)
-          </button>
+      <!-- NOVA ABA: LIMPAR DADOS -->
+      <section class="section" id="section-limpar">
+        <div class="section-header">
+          <div><h1 style="color:var(--red)">🚨 Zona de Perigo</h1><p>Ações destrutivas irreversíveis</p></div>
         </div>
+        
+        <div class="card" style="max-width:600px; border: 2px solid var(--red); background: #fff0f3;">
+          <h2 style="color: var(--red);">Cuidado ao usar estas opções!</h2>
+          <p style="font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.6;">
+            Aqui você pode limpar os dados do sistema para começar um novo teste ou zerar o caixa. Escolha com cuidado:
+          </p>
+          
+          <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px dashed #ccc;">
+            <h3 style="font-size: 16px; margin-bottom: 8px;">Apenas Histórico de Visitas</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Apaga os registros de quem entrou no site. Os pedidos e o caixa continuam intactos.</p>
+            <button class="btn-primary" style="background: var(--yellow); box-shadow: none; color: #fff;" onclick="limparHistoricoVisitas()">🗑️ Limpar Apenas Visitas</button>
+          </div>
 
+          <div>
+            <h3 style="font-size: 16px; margin-bottom: 8px; color: var(--red);">Apagar TUDO (Pedidos + Visitas)</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Apaga TODOS os pedidos (pagos, pendentes e cancelados), a base de clientes e as visitas. <b>O painel vai voltar a ficar zerado.</b></p>
+            <button class="btn-primary" style="background: var(--red); box-shadow: 0 8px 24px -4px rgba(216,27,96,.4);" onclick="limparTUDO()">🗑️ Limpar TODOS os Dados</button>
+          </div>
+        </div>
       </section>
 
     </main>

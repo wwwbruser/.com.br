@@ -537,7 +537,6 @@ async function iniciarPainel() {
   ouvirVisitas();
   inicializarGraficos();
   
-  // Pedir permissão de notificação
   if ("Notification" in window && Notification.permission !== "granted") {
     Notification.requestPermission();
   }
@@ -568,7 +567,7 @@ function ouvirPedidos() {
       tocarNotificacao(); 
       mostrarToast('Novo pedido recebido!', 'success'); 
       if (Notification.permission === "granted") {
-        new Notification("🚀 Nova Venda Buser!", { body: "Um PIX foi gerado. Verifique o painel.", icon: "https://bcdn.com.br/_nuxt3/avatar.fWv4A4-_.webp" });
+        new Notification("🚀 Nova Venda Buser!", { body: "Um PIX foi gerado. Verifique o painel." });
       }
     }
     primeiraCarga = false;
@@ -586,8 +585,7 @@ function atualizarStats() {
   document.getElementById('stat-pendentes').textContent = pendentes.length;
   document.getElementById('nav-badge-pedidos').textContent = total;
 
-  // Ticket Médio e Passageiros
-  const ticketMedio = total > 0 ? (faturamento / pagos.length) : 0;
+  const ticketMedio = pagos.length > 0 ? (faturamento / pagos.length) : 0;
   document.getElementById('stat-ticket-medio').textContent = formatarReais(ticketMedio);
   
   let totalPassageiros = 0;
@@ -739,18 +737,25 @@ function renderizarClientes() {
   }).join('');
 }
 
-// VISITAS
+// VISITAS (CORRIGIDO)
 function ouvirVisitas() {
   db.ref('buser_visitas').on('value', snap => {
     visitasCache = [];
     snap.forEach(child => {
       const v = child.val() || {};
-      visitasCache.push({ id: child.key, online: !!v.online, ultimaAtividade: v.ultimaAtividade || 0, primeiraVisita: v.primeiraVisita || v.ultimaAtividade || 0 });
+      if (!v.ultimaAtividade) return; 
+      
+      visitasCache.push({ 
+        id: child.key, 
+        online: !!v.online, 
+        ultimaAtividade: v.ultimaAtividade, 
+        primeiraVisita: v.primeiraVisita || v.ultimaAtividade 
+      });
     });
     
     const agora = Date.now();
-    const LIMITE = 2 * 60 * 1000;
-    const online = visitasCache.filter(v => agora - v.ultimaAtividade < LIMITE).length;
+    const LIMITE = 1 * 60 * 1000; // 1 minuto
+    const online = visitasCache.filter(v => (agora - v.ultimaAtividade) < LIMITE).length;
     
     document.getElementById('stat-online').textContent = online;
     document.getElementById('stat-visitas-online').textContent = online;
@@ -767,7 +772,7 @@ function ouvirVisitas() {
 
 function renderizarVisitas() {
   const agora = Date.now();
-  const LIMITE = 2 * 60 * 1000;
+  const LIMITE = 1 * 60 * 1000; // 1 minuto
   const ordenadas = [...visitasCache].sort((a, b) => b.ultimaAtividade - a.ultimaAtividade);
   const tbody = document.getElementById('lista-visitas');
   
@@ -806,7 +811,6 @@ function inicializarGraficos() {
 function atualizarGraficos() {
   if (!chartLinha || !chartPizza) return;
 
-  // Atualiza Linha
   const labels = [], data = [];
   const pagos = pedidosCache.filter(p => p.status === 'paid' && p.geradoEm);
   for (let i = 6; i >= 0; i--) {
@@ -820,14 +824,12 @@ function atualizarGraficos() {
   chartLinha.data.datasets[0].data = data;
   chartLinha.update();
 
-  // Atualiza Pizza
   const qtPagos = pedidosCache.filter(p => p.status === 'paid').length;
   const qtPend = pedidosCache.filter(p => p.status === 'pending').length;
   const qtCanc = pedidosCache.filter(p => p.status === 'cancelled').length;
   chartPizza.data.datasets[0].data = [qtPagos, qtPend, qtCanc];
   chartPizza.update();
 
-  // Atualiza Top Rotas
   const rotas = {};
   pedidosCache.filter(p => p.status === 'paid').forEach(p => {
     rotas[p.route] = (rotas[p.route] || 0) + 1;

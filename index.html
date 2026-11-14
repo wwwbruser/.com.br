@@ -1285,9 +1285,8 @@
     const lista = document.getElementById('lista-viagens');
     container.style.display = 'block';
     document.getElementById('titulo-resultados').innerHTML = `Resultados de ${origem} para ${destino}`;
-    lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Enviando pedido...</p></div>`;
+    lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Buscando as melhores viagens...</p></div>`;
 
-    // URL DIRETA DO RENDER (SEM CLOUDFLARE)
     const apiUrl = `https://buser-online.onrender.com/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
 
     try {
@@ -1302,12 +1301,17 @@
 
     } catch (error) {
       console.error('❌ ERRO NA BUSCA:', error);
-      lista.innerHTML = `<div style="text-align:center;padding:24px;background:#fff7fa;border-radius:16px;border:1px solid #ffccd5;"><p style="color:#d81b60;font-weight:700;">Sem viagens no momento.</p><p style="font-size:12px;color:#888;margin:4px 0 12px;">${error.message || 'Erro desconhecido'}</p><button onclick="usarViagensDemo()" style="margin-top:12px;padding:12px 20px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">🎮 Ver Demonstração</button></div>`;
+      // MENSAGEM LIMPA SE NÃO TIVER PASSAGEM OU SE O SERVIDOR FALHAR
+      lista.innerHTML = `
+        <div style="text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px solid #eee;">
+          <div style="font-size:48px;margin-bottom:16px;">🚌</div>
+          <h3 style="color:var(--grey-dark);margin-bottom:8px;">Nenhuma passagem encontrada</h3>
+          <p style="font-size:14px;color:var(--grey-med);">Não encontramos viagens para essa rota e data. Tente buscar por outra data ou cidade.</p>
+        </div>`;
     }
   });
 
   async function consultarResultado(pedidoId, lista) {
-    // URL DIRETA DO RENDER (SEM CLOUDFLARE)
     const urlResultado = `https://buser-online.onrender.com/api/clickbus/resultado/${pedidoId}`;
     let tentativas = 0;
     const maxTentativas = 60;
@@ -1324,7 +1328,6 @@
         try {
             const res = await fetch(urlResultado);
             
-            // PROTEÇÃO ANTI-HTML
             if (!res.ok) throw new Error(`Servidor respondeu com status ${res.status}`);
             const contentType = res.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
@@ -1345,7 +1348,13 @@
                     viagensOriginais = data.data.map(normalizarViagem);
                     renderizarViagens(viagensOriginais);
                 } else {
-                    lista.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma viagem encontrada para esta data.</p>`;
+                    // MENSAGEM LIMPA SE A API RETORNAR VAZIO
+                    lista.innerHTML = `
+                      <div style="text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px solid #eee;">
+                        <div style="font-size:48px;margin-bottom:16px;">🚌</div>
+                        <h3 style="color:var(--grey-dark);margin-bottom:8px;">Nenhuma passagem encontrada</h3>
+                        <p style="font-size:14px;color:var(--grey-med);">Não encontramos viagens para essa rota e data. Tente buscar por outra data ou cidade.</p>
+                      </div>`;
                 }
             } else {
                 lista.innerHTML = `<p style="text-align:center; padding: 20px;">Erro na busca: ${data.message || 'Erro desconhecido'}</p>`;
@@ -1354,44 +1363,15 @@
         } catch (error) {
             clearInterval(intervalId);
             console.error('❌ ERRO AO CONSULTAR RESULTADO:', error);
-            lista.innerHTML = `<div style="text-align:center;padding:24px;"><p style="color:#d81b60;font-weight:700;">Servidor indisponível.</p><p style="font-size:12px;color:#888;">O Render pode estar dormindo. Aguarde 1 minuto e tente novamente.</p><button onclick="usarViagensDemo()" style="margin-top:12px;padding:12px 20px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">🎮 Ver Demonstração</button></div>`;
+            // MENSAGEM LIMPA SE O SERVIDOR CAIR NO MEIO DA BUSCA
+            lista.innerHTML = `
+              <div style="text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px solid #eee;">
+                <div style="font-size:48px;margin-bottom:16px;">⏳</div>
+                <h3 style="color:var(--grey-dark);margin-bottom:8px;">Estamos buscando as passagens</h3>
+                <p style="font-size:14px;color:var(--grey-med);">O servidor demorou para responder. Tente novamente em alguns instantes.</p>
+              </div>`;
         }
     }, 1000);
-  }
-
-  function usarViagensDemo() {
-    viagensOriginais = [
-      {
-        company: { name: 'Catedral', logo: '' },
-        bus_type: 'Executivo',
-        departure: {
-          time: '08:00', city: 'São Paulo',
-          terminal: { name: 'Rodoviária do Tietê', address: 'Av. Cruzeiro do Sul, 1800 - Santana', city: 'São Paulo' }
-        },
-        arrival: {
-          time: '14:15', city: 'Salvador',
-          terminal: { name: 'Terminal Rodoviário de Salvador', address: 'Av. Antônio Carlos Magalhães, 4362', city: 'Salvador' }
-        },
-        price: 250.00, total_seats: 46,
-        occupied_seats: [2, 5, 8, 12, 15, 22, 28, 33, 40]
-      },
-      {
-        company: { name: 'Nacional', logo: '' },
-        bus_type: 'Convencional',
-        departure: {
-          time: '14:00', city: 'São Paulo',
-          terminal: { name: 'Rodoviária do Tietê', address: 'Av. Cruzeiro do Sul, 1800 - Santana', city: 'São Paulo' }
-        },
-        arrival: {
-          time: '19:45', city: 'Salvador',
-          terminal: { name: 'Terminal Rodoviário de Salvador', address: 'Av. Antônio Carlos Magalhães, 4362', city: 'Salvador' }
-        },
-        price: 288.87, total_seats: 32,
-        occupied_seats: [3, 7, 11, 19, 25]
-      }
-    ];
-    renderizarViagens(viagensOriginais);
-    document.getElementById('lista-viagens').insertAdjacentHTML('afterbegin', `<div style="background:#fff8e1;padding:12px;border-radius:8px;border:1px solid #ffe082;margin-bottom:16px;font-size:13px;color:#7a5c00;">🎮 Modo demonstração.</div>`);
   }
 
   function renderizarViagens(viagens) {

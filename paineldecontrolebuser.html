@@ -360,6 +360,9 @@ tr:hover td{background:var(--hover-bg)}
       <section class="section" id="section-visitas">
         <div class="section-header">
           <div><h1>Tráfego e Visitas</h1><p>Quem está no site agora</p></div>
+          <button class="btn-cancel" onclick="limparHistoricoVisitas()" style="padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
+            🗑️ Limpar Histórico
+          </button>
         </div>
         <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
           <div class="stat-card blue">
@@ -651,10 +654,16 @@ async function encontrarReferenciaPedido(txid) {
   return ref;
 }
 async function confirmarPagamento(txid) {
-  if (!confirm('Confirmar pagamento do pedido ' + txid + '?')) return;
+  if (!confirm('Liberar a passagem / Confirmar pagamento do pedido ' + txid + '?')) return;
   const ref = await encontrarReferenciaPedido(txid);
-  if (ref) { await ref.update({ status: 'paid', pagoEm: Date.now() }); mostrarToast('Confirmado!', 'success'); }
+  if (ref) { 
+    await ref.update({ status: 'paid', pagoEm: Date.now() }); 
+    mostrarToast('Passagem Liberada com sucesso!', 'success');
+    // Se o modal estiver aberto, recarrega ele
+    if(document.getElementById('modal-pedido').classList.contains('active')) verPedido(txid);
+  }
 }
+
 function verPedido(txid) {
   const p = pedidosCache.find(x => x.txid === txid);
   if (!p) return;
@@ -673,6 +682,12 @@ function verPedido(txid) {
     </div>`;
   }).join('');
 
+  // Adiciona o botão verde de liberar passagem se estiver pendente
+  let btnLiberar = '';
+  if (p.status === 'pending') {
+    btnLiberar = `<button class="btn-primary" style="background:var(--green); box-shadow:none; flex:1;" onclick="confirmarPagamento('${p.txid}')">✅ Liberar Passagem</button>`;
+  }
+
   document.getElementById('modal-pedido-body').innerHTML = `
     <div class="detail-row"><span>Status</span><strong><span class="status-badge ${statusClass}">${statusLabel}</span></strong></div>
     <div class="detail-row"><span>Rota</span><strong>${p.route}</strong></div>
@@ -682,13 +697,25 @@ function verPedido(txid) {
       <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">Passageiros</div>
       ${passageirosHtml}
     </div>
-    <div style="margin-top:24px;text-align:right; border-top: 1px solid var(--border-color); padding-top: 16px;" class="no-print">
-      <button class="btn-primary" onclick="window.print()" style="padding:10px 20px;font-size:13px">🖨️ Imprimir Voucher</button>
+    <div style="margin-top:24px; display:flex; gap:12px; border-top: 1px solid var(--border-color); padding-top: 16px;" class="no-print">
+      ${btnLiberar}
+      <button class="btn-primary" onclick="window.print()" style="padding:10px 20px;font-size:13px; flex:1;">🖨️ Imprimir Voucher</button>
     </div>
   `;
   document.getElementById('modal-pedido').classList.add('active');
 }
 function fecharModalPedido() { document.getElementById('modal-pedido').classList.remove('active'); }
+
+// LIMPAR HISTÓRICO DE VISITAS
+async function limparHistoricoVisitas() {
+  if (!confirm('⚠️ Tem certeza que deseja apagar TODO o histórico de visitantes?\n\nQuem estiver no site agora vai aparecer novamente em alguns segundos.')) return;
+  try {
+    await db.ref('buser_visitas').remove();
+    mostrarToast('Histórico limpo com sucesso!', 'success');
+  } catch(e) {
+    mostrarToast('Erro ao limpar histórico', 'error');
+  }
+}
 
 // CLIENTES (CRM)
 function processarClientes() {

@@ -361,7 +361,7 @@ tr:hover td{background:var(--hover-bg)}
         <div class="section-header">
           <div><h1>Tráfego e Visitas</h1><p>Quem está no site agora</p></div>
           <button class="btn-cancel" onclick="limparHistoricoVisitas()" style="padding: 10px 16px; display: flex; align-items: center; gap: 8px;">
-            🗑️ Limpar Histórico
+            🗑️ Limpar Histórico de Visitas
           </button>
         </div>
         <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
@@ -436,8 +436,9 @@ tr:hover td{background:var(--hover-bg)}
       <!-- CONFIGURAÇÕES -->
       <section class="section" id="section-config">
         <div class="section-header">
-          <div><h1>Configurações</h1><p>Gerencie sua conta admin</p></div>
+          <div><h1>Configurações</h1><p>Gerencie sua conta admin e dados do sistema</p></div>
         </div>
+        
         <div class="card" style="max-width:500px">
           <h2>🔐 Alterar Senha do Admin</h2>
           <div class="pix-form" style="grid-template-columns:1fr">
@@ -452,6 +453,18 @@ tr:hover td{background:var(--hover-bg)}
           </div>
           <button class="btn-primary" style="margin-top:20px" onclick="alterarSenha()">Salvar Nova Senha</button>
         </div>
+
+        <!-- ZONA DE PERIGO -->
+        <div class="card" style="max-width:500px; border-color: #d81b60; background: #fff0f3;">
+          <h2 style="color: #d81b60;">⚠️ Zona de Perigo</h2>
+          <p style="font-size: 13px; color: #666; margin-bottom: 16px;">
+            Ao clicar no botão abaixo, você vai <b>apagar permanentemente</b> todos os pedidos (gerados, pagos e cancelados) e todas as visitas. O caixa e os gráficos serão zerados. <br><br>Essa ação não pode ser desfeita!
+          </p>
+          <button class="btn-primary" style="background: linear-gradient(135deg, #d81b60 0%, #8b0045 100%); box-shadow: 0 8px 24px -4px rgba(216,27,96,.4); width: 100%;" onclick="limparTUDO()">
+            🗑️ Limpar TODOS os Dados (Pedidos + Visitas)
+          </button>
+        </div>
+
       </section>
 
     </main>
@@ -711,9 +724,33 @@ async function limparHistoricoVisitas() {
   if (!confirm('⚠️ Tem certeza que deseja apagar TODO o histórico de visitantes?\n\nQuem estiver no site agora vai aparecer novamente em alguns segundos.')) return;
   try {
     await db.ref('buser_visitas').remove();
-    mostrarToast('Histórico limpo com sucesso!', 'success');
+    mostrarToast('Histórico de visitas limpo!', 'success');
   } catch(e) {
     mostrarToast('Erro ao limpar histórico', 'error');
+  }
+}
+
+// LIMPAR TUDO (PEDIDOS + VISITAS)
+async function limparTUDO() {
+  const primeiraConfirmacao = confirm('🚨 ATENÇÃO: Você está prestes a apagar TODOS os pedidos e TODAS as visitas.\n\nIsso vai zerar o seu faturamento e o caixa. Deseja continuar?');
+  if (!primeiraConfirmacao) return;
+
+  const segundaConfirmacao = prompt('Para confirmar a exclusão DEFINITIVA de tudo, digite a palavra: APAGAR');
+  if (segundaConfirmacao !== 'APAGAR') {
+    alert('Exclusão cancelada. Nada foi apagado.');
+    return;
+  }
+
+  try {
+    // Apaga Pedidos
+    await db.ref('buser_pedidos').remove();
+    // Apaga Visitas
+    await db.ref('buser_visitas').remove();
+    
+    mostrarToast('TODOS os dados foram apagados com sucesso!', 'success');
+  } catch(e) {
+    console.error(e);
+    mostrarToast('Erro ao tentar apagar os dados', 'error');
   }
 }
 
@@ -764,7 +801,7 @@ function renderizarClientes() {
   }).join('');
 }
 
-// VISITAS (CORRIGIDO)
+// VISITAS
 function ouvirVisitas() {
   db.ref('buser_visitas').on('value', snap => {
     visitasCache = [];

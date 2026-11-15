@@ -645,36 +645,29 @@
   #qrcode{display:flex;justify-content:center;margin:16px 0}
   #qrcode img{border:1px solid #eee;padding:8px;border-radius:var(--r-md)}
 
-  /* Passagem / Voucher Premium */
-  .voucher-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #eee; position: relative; margin-bottom: 20px; }
-  .voucher-header { background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%); color: #fff; padding: 24px; text-align: center; position: relative; }
-  .voucher-header h2 { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
-  .voucher-header p { margin: 0; font-size: 13px; opacity: 0.9; }
-  .voucher-divider { position: relative; height: 20px; background: #fff; margin: -10px 0; z-index: 2; }
-  .voucher-divider::before, .voucher-divider::after { content: ''; position: absolute; top: 50%; width: 20px; height: 20px; background: var(--bg-body, #f9f9f9); border-radius: 50%; transform: translateY(-50%); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
-  .voucher-divider::before { left: -10px; }
-  .voucher-divider::after { right: -10px; }
-  .voucher-dashed-line { border-top: 2px dashed #ddd; position: absolute; top: 50%; left: 20px; right: 20px; transform: translateY(-50%); z-index: 1; }
-  .voucher-body { padding: 24px; }
-  .voucher-route { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .voucher-route .point { flex: 1; }
-  .voucher-route .point.dest { text-align: right; }
-  .voucher-route .point h3 { margin: 0; font-size: 18px; color: #1a1a1a; line-height: 1.2; }
-  .voucher-route .point p { margin: 4px 0 0; font-size: 13px; color: #757575; font-weight: 600; }
-  .voucher-route .icon { width: 40px; height: 40px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 16px; }
-  .voucher-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; background: #f7f7f7; padding: 16px; border-radius: 12px; }
-  .voucher-info-grid div { display: flex; flex-direction: column; }
-  .voucher-info-grid span { font-size: 11px; color: #757575; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .voucher-info-grid strong { font-size: 15px; color: #1a1a1a; }
-  .voucher-passengers h4 { font-size: 12px; color: #757575; text-transform: uppercase; margin: 0 0 12px; letter-spacing: 0.5px; }
-  .voucher-passenger-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-  .voucher-passenger-item:last-child { border-bottom: none; }
-  .voucher-passenger-item .seat { background: var(--brand); color: #fff; font-weight: 800; font-size: 12px; padding: 4px 10px; border-radius: 6px; }
-  .voucher-qr-area { text-align: center; padding: 24px; border-top: 2px dashed #eee; background: #fafafa; }
-  .voucher-qr-area p { font-size: 12px; color: #757575; margin: 8px 0 0; }
-  .voucher-qr-area img { margin: 0 auto; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; }
-  .btn-maps { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: #e8f0fe; color: #1967d2; text-decoration: none; font-weight: 700; font-size: 14px; border-radius: 12px; transition: 0.2s; border: 1px solid #d2e3fc; }
-  .btn-maps:hover { background: #d2e3fc; transform: translateY(-2px); }
+  /* ============================================================
+     BILHETE FISCAL (BP-e / DANFE)
+     ============================================================ */
+  .bpe-ticket {
+    background: #fff;
+    border: 1px solid #000;
+    padding: 15px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    color: #000;
+    line-height: 1.4;
+    max-width: 450px;
+    margin: 0 auto;
+    text-transform: uppercase;
+  }
+  .bpe-ticket h3 { text-align: center; font-size: 12px; margin: 0 0 10px 0; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+  .bpe-ticket .bpe-section { border-bottom: 1px dashed #000; padding: 5px 0; margin-bottom: 5px; }
+  .bpe-ticket .bpe-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .bpe-ticket .bpe-row span { flex: 1; }
+  .bpe-ticket .bpe-row .bpe-label { font-weight: bold; }
+  .bpe-ticket .bpe-center { text-align: center; font-size: 10px; margin: 5px 0; }
+  .bpe-ticket .bpe-barcode { text-align: center; margin-top: 10px; }
+  .bpe-ticket .bpe-chave { font-size: 10px; letter-spacing: 1px; font-weight: bold; margin-top: 5px; word-break: break-all; }
 
   @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -796,6 +789,15 @@
       padding: 16px 14px calc(24px + env(safe-area-inset-bottom));
     }
   }
+
+  /* IMPRESSÃO DO BP-e */
+  @media print {
+    body * { visibility: hidden; }
+    #modal-passagem, #modal-passagem * { visibility: visible; }
+    #modal-passagem { position: absolute; left: 0; top: 0; width: 100%; background: #fff; display: block !important; }
+    .bpe-ticket { border: none; width: 100%; max-width: 100%; padding: 0; font-size: 12px; }
+    .bm-header, .bm-footer, .no-print { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -913,7 +915,8 @@
 
 <div class="container sobre-buser">
   <div class="ac-titulo"><p style="color:var(--brand);font-weight:600;">Viaje com praticidade, segurança e preço justo.</p><h2>Buser é tudo o que você precisa para viajar de ônibus</h2></div>
-  <div class="sobre-container"><img src="https://bcdn.com.br/_nuxt3/foto-busao-rosa.B2KzL8f9.png" alt="Passageiro"><button class="sci-btn">▶</button></div>
+  <!-- FOTO ADICIONADA AQUI -->
+  <div class="sobre-container"><img src="https://bcdn.com.br/_nuxt3/people-02.KQF97o6n.png" alt="Pessoas viajando"><button class="sci-btn">▶</button></div>
   <div class="mpv-motivos">
     <div class="mpv-item"><span class="icon">✌️</span><h3>Viaje do seu jeito</h3><p>Aqui quem faz o seu caminho, é você.</p></div>
     <div class="mpv-item"><span class="icon">⏱️</span><h3>Cancelamento gratuito</h3><p>No seu caminho, você que manda.</p></div>
@@ -1004,7 +1007,7 @@
       <h2>Detalhes da reserva</h2>
     </div>
     <div class="bm-content" id="passagem-content"></div>
-    <div style="padding:16px; background:#fff; border-top:1px solid #eee; text-align:center;">
+    <div style="padding:16px; background:#fff; border-top:1px solid #eee; text-align:center;" class="no-print">
       <p style="font-size:12px; color:#757575; margin:0;">A Buser foi indicada como melhor atendimento ao cliente do Brasil</p>
     </div>
   </div>
@@ -1703,10 +1706,8 @@
     document.getElementById('modal-checkout').style.display = 'none';
     document.getElementById('modal-passagem').style.display = 'flex';
     
-    // Para o listener antigo, se existir
     if (listenerStatusPedido) { listenerStatusPedido.off(); }
 
-    // Conecta no Firebase para ler o status em tempo real
     if (db && checkoutState.txid) {
       const clienteId = getClienteId();
       listenerStatusPedido = db.ref(`buser_pedidos/${clienteId}/pix/${checkoutState.txid}`);
@@ -1717,7 +1718,6 @@
         renderizarVoucher(statusAtual);
       });
     } else {
-      // Fallback local
       renderizarVoucher('pending');
     }
   }
@@ -1730,98 +1730,94 @@
     
     const termSaida = formatarTerminalExibicao(viagemSel.departure.city, viagemSel.departure.terminal.name);
     const termChegada = formatarTerminalExibicao(viagemSel.arrival.city, viagemSel.arrival.terminal.name);
-    const enderecoBusca = encodeURIComponent(viagemSel.departure.terminal.name + ' ' + (viagemSel.departure.terminal.address || '') + ' ' + viagemSel.departure.city);
-
-    // Configura o visual baseado no status
+    
+    // Configurações do BP-e
+    let statusText = 'PAGAMENTO PENDENTE';
     let statusColor = '#b87d00';
-    let statusIcon = '⏳';
-    let statusText = 'PENDENTE (Aguardando PIX)';
-    let botaoImprimir = `<button style="flex:1; padding:14px; background:#eee; border:2px solid #ddd; color:#999; font-weight:700; border-radius:12px; cursor:not-allowed;" disabled>🖨️ Aguardando Pagamento</button>`;
+    let botaoImprimir = `<button style="width:100%; padding:14px; background:#eee; border:2px solid #ddd; color:#999; font-weight:700; border-radius:12px; cursor:not-allowed; margin-top:20px;" disabled>⏳ Aguardando Pagamento</button>`;
 
     if (status === 'paid') {
+      statusText = 'AUTORIZADO';
       statusColor = '#2e9a3e';
-      statusIcon = '✅';
-      statusText = 'PAGO (Passagem Liberada)';
-      botaoImprimir = `<button onclick="window.print()" style="flex:1; padding:14px; background:var(--brand); border:2px solid var(--brand); color:#fff; font-weight:700; border-radius:12px; cursor:pointer;">🖨️ Imprimir Passagem</button>`;
+      botaoImprimir = `<button onclick="window.print()" style="width:100%; padding:14px; background:var(--brand); border:2px solid var(--brand); color:#fff; font-weight:700; border-radius:12px; cursor:pointer; margin-top:20px;">🖨️ Imprimir Passagem</button>`;
     } else if (status === 'cancelled') {
-      statusColor = '#d81b60';
-      statusIcon = '❌';
       statusText = 'CANCELADO';
-      botaoImprimir = `<button style="flex:1; padding:14px; background:#eee; border:2px solid #ddd; color:#999; font-weight:700; border-radius:12px; cursor:not-allowed;" disabled>🖨️ Pedido Cancelado</button>`;
+      statusColor = '#d81b60';
+      botaoImprimir = `<button style="width:100%; padding:14px; background:#eee; border:2px solid #ddd; color:#999; font-weight:700; border-radius:12px; cursor:not-allowed; margin-top:20px;" disabled>❌ Pedido Cancelado</button>`;
     }
 
     const passageirosHtml = passageiros.map((p, i) => `
-      <div class="voucher-passenger-item">
-        <div>
-          <strong style="display:block; color:var(--grey-dark);">${p.nome}</strong>
-          <span style="font-size:12px; color:var(--grey-med);">CPF: ${p.cpf}</span>
-        </div>
-        <div class="seat">POLTRONA ${assentosSelecionados[i]}</div>
+      <div class="bpe-section">
+        <div class="bpe-row"><span class="bpe-label">Passageiro:</span> <span style="text-align:right;">${p.nome}</span></div>
+        <div class="bpe-row"><span class="bpe-label">CPF:</span> <span style="text-align:right;">${p.cpf}</span></div>
+        <div class="bpe-row"><span class="bpe-label">Tipo de desconto:</span> <span style="text-align:right;">NORMAL</span></div>
+        <div class="bpe-row"><span class="bpe-label">Poltrona:</span> <span style="text-align:right;">${assentosSelecionados[i]}</span></div>
       </div>
     `).join('');
 
     content.innerHTML = `
-      <div class="voucher-card">
-        <div class="voucher-header">
-          <h2>${viagemSel.company.name}</h2>
-          <p>${viagemSel.bus_type} • Reserva: ${codReserva}</p>
+      <div class="bpe-ticket">
+        <h3>DOCUMENTO AUXILIAR DE BILHETE DE PASSAGEM ELETRÔNICO</h3>
+        
+        <div class="bpe-section">
+          <div class="bpe-row"><span class="bpe-label">BUSER TECNOLOGIA LTDA</span></div>
+          <div class="bpe-row"><span>CNPJ: 12.345.678/0001-90</span></div>
+          <div class="bpe-row"><span>AV PAULISTA, 1000 - SAO PAULO - SP</span></div>
+        </div>
+
+        <div class="bpe-section">
+          <div class="bpe-row"><span class="bpe-label">EMPRESA:</span> <span style="text-align:right;">${viagemSel.company.name.toUpperCase()}</span></div>
+          <div class="bpe-row"><span class="bpe-label">ORIGEM:</span> <span style="text-align:right;">${viagemSel.departure.city.toUpperCase()}</span></div>
+          <div class="bpe-row"><span class="bpe-label">DESTINO:</span> <span style="text-align:right;">${viagemSel.arrival.city.toUpperCase()}</span></div>
+          <div class="bpe-row"><span class="bpe-label">EMBARQUE:</span> <span style="text-align:right;">${dataFormatada}, ÀS ${viagemSel.departure.time}</span></div>
+          <div class="bpe-row"><span class="bpe-label">LINHA:</span> <span style="text-align:right;">${viagemSel.departure.city.toUpperCase()} - ${viagemSel.arrival.city.toUpperCase()}</span></div>
+          <div class="bpe-row"><span class="bpe-label">TIPO DE VIAGEM:</span> <span style="text-align:right;">${viagemSel.bus_type.toUpperCase()}</span></div>
+        </div>
+
+        ${passageirosHtml}
+
+        <div class="bpe-section">
+          <div class="bpe-row"><span class="bpe-label">VALOR TOTAL R$</span> <span style="text-align:right;">${checkoutState.total.toFixed(2).replace('.', ',')}</span></div>
+          <div class="bpe-row"><span class="bpe-label">DESCONTO:</span> <span style="text-align:right;">0,00</span></div>
+          <div class="bpe-row"><span class="bpe-label">VALOR A PAGAR R$</span> <span style="text-align:right;">${checkoutState.total.toFixed(2).replace('.', ',')}</span></div>
+          <div class="bpe-row"><span class="bpe-label">FORMA DE PAGAMENTO:</span> <span style="text-align:right;">PIX</span></div>
+        </div>
+
+        <div class="bpe-section">
+          <div class="bpe-row"><span class="bpe-label">BP-e Nº:</span> <span style="text-align:right;">${Math.floor(Math.random() * 900000) + 100000}</span></div>
+          <div class="bpe-row"><span class="bpe-label">SÉRIE:</span> <span style="text-align:right;">1</span></div>
+          <div class="bpe-row"><span class="bpe-label">PROTOCOLO DE AUTORIZAÇÃO:</span> <span style="text-align:right;">${Math.floor(Math.random() * 900000000000000) + 100000000000000}</span></div>
+          <div class="bpe-row"><span class="bpe-label">DATA DE AUTORIZAÇÃO:</span> <span style="text-align:right;">${new Date().toLocaleString('pt-BR')}</span></div>
+          <div class="bpe-row" style="color:${statusColor}; font-weight:bold; margin-top:5px;"><span>STATUS:</span> <span style="text-align:right;">${statusText}</span></div>
+        </div>
+
+        <div class="bpe-center">
+          Consulte pela chave de acesso em:<br>
+          https://dte-portal.svrs.rs.gov.br
         </div>
         
-        <div class="voucher-divider"><div class="voucher-dashed-line"></div></div>
-
-        <div class="voucher-body">
-          <div class="voucher-route">
-            <div class="point">
-              <h3>${viagemSel.departure.city}</h3>
-              <p>${viagemSel.departure.time}</p>
-            </div>
-            <div class="icon">🚌</div>
-            <div class="point dest">
-              <h3>${viagemSel.arrival.city}</h3>
-              <p>${viagemSel.arrival.time}</p>
-            </div>
+        <div class="bpe-barcode">
+          <div id="qrcode-voucher" style="display:inline-block; margin-bottom:5px;"></div>
+          <div class="bpe-chave">
+            2425 1110 7886 1770 1919 6300 3000 5406 0510 5741 6460
           </div>
-
-          <div class="voucher-info-grid">
-            <div><span>Data da Viagem</span><strong>${dataFormatada}</strong></div>
-            <div><span>Valor Total</span><strong>R$ ${checkoutState.total.toFixed(2).replace('.', ',')}</strong></div>
-            <div style="grid-column: 1/-1;">
-              <span>Status do Pagamento</span>
-              <strong style="color:${statusColor}; font-size: 16px;">${statusIcon} ${statusText}</strong>
-            </div>
-          </div>
-
-          <div class="voucher-passengers">
-            <h4>Passageiros e Poltronas</h4>
-            ${passageirosHtml}
-          </div>
-
-          <div style="margin-top: 24px;">
-            <a href="https://www.google.com/maps/search/?api=1&query=${enderecoBusca}" target="_blank" class="btn-maps">
-              📍 Ver Local de Embarque no Google Maps
-            </a>
-          </div>
-        </div>
-
-        <div class="voucher-qr-area">
-          <div id="qrcode-voucher" style="display:inline-block;"></div>
-          <p>Apresente este QR Code no embarque</p>
         </div>
       </div>
 
-      <div style="display:flex; gap:12px; margin-top:20px;">
+      <!-- Botão de Imprimir (Oculto na Impressão) -->
+      <div class="no-print" style="max-width:450px; margin: 0 auto;">
         ${botaoImprimir}
-        <a href="https://wa.me/5511918764664?text=${encodeURIComponent('Olá! Acabei de gerar a reserva ' + codReserva + '.')}" target="_blank" style="flex:1; padding:14px; background:#25D366; color:#fff; font-weight:700; border-radius:12px; text-decoration:none; text-align:center; border:2px solid #25D366;">
+        <a href="https://wa.me/5511918764664?text=${encodeURIComponent('Olá! Acabei de gerar a reserva ' + codReserva + '.')}" target="_blank" style="display:block; width:100%; padding:14px; background:#25D366; color:#fff; font-weight:700; border-radius:12px; text-decoration:none; text-align:center; border:2px solid #25D366; margin-top:12px;">
           💬 Falar no Whats
         </a>
       </div>
     `;
 
-    // Recria o QR Code a cada atualização de tela
+    // QR Code
     new QRCode(document.getElementById("qrcode-voucher"), {
-      text: "RESERVA:" + codReserva + "|STATUS:" + status.toUpperCase(),
-      width: 120,
-      height: 120,
+      text: "https://dte-portal.svrs.rs.gov.br", // Simulação do link
+      width: 100,
+      height: 100,
       colorDark : "#000000",
       colorLight : "#ffffff",
       correctLevel : QRCode.CorrectLevel.H
@@ -1830,7 +1826,6 @@
 
   function fecharPassagem() { 
     document.getElementById('modal-passagem').style.display = 'none'; 
-    // Para de ouvir o Firebase quando fecha o voucher
     if (listenerStatusPedido) {
       listenerStatusPedido.off();
       listenerStatusPedido = null;

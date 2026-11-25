@@ -1472,7 +1472,7 @@
 
   function adicionarPassageiro() {
     const id = Date.now() + Math.random();
-    passageiros.push({ id, nome: '', cpf: '' });
+    passageiros.push({ id, nome: '', cpf: '', email: '', telefone: '' });
     const div = document.createElement('div');
     div.className = 'passageiro-box';
     div.id = `passageiro-${id}`;
@@ -1482,6 +1482,10 @@
       <input type="text" placeholder="Nome do passageiro" oninput="atualizarPassageiro(${id}, 'nome', this.value)">
       <label style="font-size:12px; font-weight:600; color:var(--grey-med); display:block; margin-bottom:4px; margin-top:8px;">CPF</label>
       <input type="text" placeholder="000.000.000-00" oninput="atualizarPassageiro(${id}, 'cpf', this.value)">
+      <label style="font-size:12px; font-weight:600; color:var(--grey-med); display:block; margin-bottom:4px; margin-top:8px;">E-mail</label>
+      <input type="email" placeholder="seu@email.com" oninput="atualizarPassageiro(${id}, 'email', this.value)">
+      <label style="font-size:12px; font-weight:600; color:var(--grey-med); display:block; margin-bottom:4px; margin-top:8px;">Telefone / WhatsApp</label>
+      <input type="tel" placeholder="(11) 99999-9999" oninput="atualizarPassageiro(${id}, 'telefone', this.value)">
     `;
     document.getElementById('lista-passageiros').appendChild(div);
   }
@@ -1505,7 +1509,10 @@
   function confirmarPassageiros() {
     if (passageiros.length === 0) { alert("Adicione pelo menos um passageiro."); return; }
     for (const p of passageiros) {
-      if (!p.nome.trim() || !p.cpf.trim()) { alert("Preencha o nome e CPF de todos os passageiros."); return; }
+      if (!p.nome.trim() || !p.cpf.trim() || !p.email.trim() || !p.telefone.trim()) { 
+          alert("Preencha todos os campos (Nome, CPF, E-mail e Telefone) de todos os passageiros."); 
+          return; 
+      }
     }
     fecharModalPassageiros();
     abrirModalPoltrona();
@@ -1649,6 +1656,28 @@
     });
 
     window.pixCodeAtual = pixCode;
+
+    // ==========================================
+    // SALVAR DADOS NO FIREBASE (LEADS)
+    // ==========================================
+    if (db) {
+        const pedido = {
+            dataHora: firebase.database.ServerValue.TIMESTAMP,
+            origem: viagemSelecionada.departure.city,
+            destino: viagemSelecionada.arrival.city,
+            empresa: viagemSelecionada.company.name,
+            horarioSaida: viagemSelecionada.departure.time,
+            horarioChegada: viagemSelecionada.arrival.time,
+            valorTotal: total,
+            poltronas: poltronasSelecionadas,
+            passageiros: passageiros,
+            status: 'aguardando_pagamento'
+        };
+        
+        db.ref('vendas_simuladas').push(pedido)
+          .then(() => console.log("✅ Lead salvo no Firebase com sucesso!"))
+          .catch(err => console.error("❌ Erro ao salvar lead no Firebase:", err));
+    }
   }
 
   function copiarPix() {

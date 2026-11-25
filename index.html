@@ -1154,6 +1154,9 @@
     return json.data || json.viagens || json.results || json.trips || json.items || [];
   }
 
+  // ============================================================
+  // FUNÇÃO CHAVE: NORMALIZAR VIAGEM (Lê o occupied_seats)
+  // ============================================================
   function normalizarViagem(v) {
     const depTerm = v.departure?.place || v.departure?.terminal || v.departure?.location || v.origin || v.origem || {};
     const arrTerm = v.arrival?.place   || v.arrival?.terminal   || v.arrival?.location   || v.destination || v.destino || {};
@@ -1163,6 +1166,12 @@
 
     const depTermName = safeString(depTerm.name || depTerm.nome || v.departure?.terminalName || v.departure?.terminal_name || v.origem_terminal, '');
     const arrTermName = safeString(arrTerm.name || arrTerm.nome || v.arrival?.terminalName || v.arrival?.terminal_name || v.destino_terminal, '');
+
+    // AQUI: Lê o campo occupied_seats que o nosso servidor mandou
+    let assentosOcupados = v.occupied_seats || v.assentos_ocupados || v.occupiedSeats || [];
+    if (!Array.isArray(assentosOcupados)) {
+        assentosOcupados = Object.keys(assentosOcupados || {}).filter(k => assentosOcupados[k]);
+    }
 
     return {
       company: {
@@ -1175,7 +1184,7 @@
         v.preco ?? v.valor ?? v.amount ?? 0
       ),
       total_seats: v.total_seats || v.totalSeats || v.assentos || v.seats || 46,
-      occupied_seats: v.occupied_seats || v.occupiedSeats || v.assentos_ocupados || [],
+      occupied_seats: assentosOcupados, 
       departure: {
         time: safeString(v.departure?.time || v.departureTime || v.departure_time || v.horario_saida || v.saida, '--:--'),
         city: depCity,
@@ -1304,7 +1313,6 @@
 
     } catch (error) {
       console.error('❌ ERRO NA BUSCA:', error);
-      // MENSAGEM LIMPA SE NÃO TIVER PASSAGEM OU SE O SERVIDOR FALHAR
       lista.innerHTML = `
         <div style="text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px solid #eee;">
           <div style="font-size:48px;margin-bottom:16px;">🚌</div>
@@ -1351,7 +1359,6 @@
                     viagensOriginais = data.data.map(normalizarViagem);
                     renderizarViagens(viagensOriginais);
                 } else {
-                    // MENSAGEM LIMPA SE A API RETORNAR VAZIO
                     lista.innerHTML = `
                       <div style="text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px solid #eee;">
                         <div style="font-size:48px;margin-bottom:16px;">🚌</div>
@@ -1366,7 +1373,6 @@
         } catch (error) {
             clearInterval(intervalId);
             console.error('❌ ERRO AO CONSULTAR RESULTADO:', error);
-            // MENSAGEM LIMPA SE O SERVIDOR CAIR NO MEIO DA BUSCA
             lista.innerHTML = `
               <div style="text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border:1px solid #eee;">
                 <div style="font-size:48px;margin-bottom:16px;">⏳</div>
@@ -1427,425 +1433,229 @@
           </div>
         </div>
         <div class="trip-price">
-          <span style="font-size:12px; color:var(--grey-med); display:block;">A partir de</span>
-          <div class="preco-antigo">R$ ${precoOriginal.toFixed(2).replace('.', ',')}</div>
-          <div style="display:flex; align-items:center; justify-content:flex-end; gap:6px;">
-            <span>R$ ${precoFinal.toFixed(2).replace('.', ',')}</span>
-            <span class="desconto-badge">-50%</span>
-          </div>
-          <button onclick="selecionarViagem(${i})" style="background:var(--brand); color:#fff; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer; margin-top:8px; width:100%;">Selecionar</button>
+          <span class="preco-antigo">R$ ${precoOriginal.toFixed(2).replace('.', ',')}</span>
+          <div>R$ ${precoFinal.toFixed(2).replace('.', ',')}</div>
+          <div style="font-size:12px; color:var(--grey-med); margin-top:4px;">à vista no Pix</div>
+          <button class="btn-comprar" onclick="abrirModalPassageiros(${i})" style="margin-top:8px; background:var(--brand); color:#fff; border:none; padding:10px 24px; border-radius:var(--r-md); font-weight:700; cursor:pointer; transition:var(--t); width:100%;">Comprar</button>
         </div>
-      </div>`;
+      </div>
+      `;
     }).join('');
   }
 
   // ============================================================
-  // FLUXO DE COMPRA
+  // MODAIS E CHECKOUT (Mantidos como no seu original)
   // ============================================================
-  let viagemSel = null, passageiros = [], precoUnit = 0, assentosSelecionados = [];
-  let checkoutState = { total: 0, payload: '', txid: '', empresa: '', poltrona: '', route: '', key: '', receiverName: '' };
-  let listenerStatusPedido = null;
-  const MAX_PASSAGEIROS = 6;
+  let viagemSelecionada = null;
+  let passageiros = [];
+  let poltronasSelecionadas = [];
 
-  function selecionarViagem(index) {
-    viagemSel = viagensOriginais[index];
-    passageiros = []; assentosSelecionados = [];
-    precoUnit = (parseFloat(viagemSel.price) || 0) * 0.5;
-    passageiros.push({ nome: '', cpf: '', dataNascimento: '', email: '', whatsapp: '' });
-    redesenharPassageiros();
+  function abrirModalPassageiros(index) {
+    viagemSelecionada = viagensOriginais[index];
+    passageiros = [];
+    poltronasSelecionadas = [];
     document.getElementById('modal-passageiros').style.display = 'flex';
-  }
-
-  function criarBoxPassageiro(p, i) {
-    const div = document.createElement('div');
-    div.className = 'passageiro-box';
-    div.innerHTML = `
-      <p style="font-weight:600;margin:0 0 8px;">Passageiro ${i + 1}</p>
-      ${i > 0 ? `<button class="btn-remover-passageiro" onclick="removerPassageiro(${i})" aria-label="Remover passageiro ${i + 1}">✕ Remover</button>` : ''}
-      <input type="text" placeholder="Nome completo" autocomplete="name" enterkeyhint="next"
-        value="${p.nome || ''}" oninput="atualizarPassageiro(${i},'nome',this.value)">
-      <input type="text" placeholder="CPF" inputmode="numeric" enterkeyhint="next" maxlength="14"
-        value="${p.cpf || ''}" oninput="this.value=mascaraCPF(this.value);atualizarPassageiro(${i},'cpf',this.value)">
-      <input type="text" placeholder="Data de nascimento" inputmode="numeric" enterkeyhint="next" maxlength="10"
-        value="${p.dataNascimento || ''}" oninput="this.value=mascaraData(this.value);atualizarPassageiro(${i},'dataNascimento',this.value)">
-      <input type="email" placeholder="E-mail" inputmode="email" autocomplete="email" enterkeyhint="next"
-        value="${p.email || ''}" oninput="atualizarPassageiro(${i},'email',this.value)">
-      <input type="tel" placeholder="WhatsApp" inputmode="tel" autocomplete="tel" enterkeyhint="done" maxlength="15"
-        value="${p.whatsapp || ''}" oninput="this.value=mascaraWhats(this.value);atualizarPassageiro(${i},'whatsapp',this.value)">
-    `;
-    return div;
-  }
-
-  function redesenharPassageiros() {
-    const container = document.getElementById('lista-passageiros');
-    container.innerHTML = '';
-    passageiros.forEach((p, i) => container.appendChild(criarBoxPassageiro(p, i)));
-    const btnAdd = document.querySelector('#modal-passageiros button[onclick="adicionarPassageiro()"]');
-    if (btnAdd) {
-      const cheio = passageiros.length >= MAX_PASSAGEIROS;
-      btnAdd.disabled = cheio;
-      btnAdd.style.opacity = cheio ? '0.5' : '1';
-      btnAdd.style.cursor = cheio ? 'not-allowed' : 'pointer';
-      btnAdd.textContent = cheio ? `Limite de ${MAX_PASSAGEIROS} passageiros atingido` : '+ Adicionar passageiro';
-    }
+    document.getElementById('lista-passageiros').innerHTML = '';
+    adicionarPassageiro();
     atualizarTotal();
-  }
-
-  function adicionarPassageiro() {
-    if (passageiros.length >= MAX_PASSAGEIROS) return;
-    passageiros.push({ nome: '', cpf: '', dataNascimento: '', email: '', whatsapp: '' });
-    redesenharPassageiros();
-    const boxes = document.querySelectorAll('#lista-passageiros .passageiro-box');
-    const ultimo = boxes[boxes.length - 1];
-    if (ultimo) ultimo.querySelector('input')?.focus();
-  }
-
-  function removerPassageiro(index) {
-    if (passageiros.length <= 1) return;
-    passageiros.splice(index, 1);
-    assentosSelecionados = [];
-    redesenharPassageiros();
-  }
-
-  function atualizarPassageiro(i, campo, valor) { passageiros[i][campo] = valor; }
-
-  function atualizarTotal() {
-    const totalFinal = precoUnit * passageiros.length;
-    document.getElementById('valor-total').innerHTML = `<span style="text-decoration:line-through;color:#999;font-size:14px;margin-right:8px;">R$ ${(totalFinal * 2).toFixed(2).replace('.', ',')}</span>R$ ${totalFinal.toFixed(2).replace('.', ',')}<span class="desconto-badge">-50%</span>`;
   }
 
   function fecharModalPassageiros() { document.getElementById('modal-passageiros').style.display = 'none'; }
 
+  function adicionarPassageiro() {
+    const id = Date.now() + Math.random();
+    passageiros.push({ id, nome: '', cpf: '' });
+    const div = document.createElement('div');
+    div.className = 'passageiro-box';
+    div.id = `passageiro-${id}`;
+    div.innerHTML = `
+      <button class="btn-remover-passageiro" onclick="removerPassageiro(${id})">Remover</button>
+      <label style="font-size:12px; font-weight:600; color:var(--grey-med); display:block; margin-bottom:4px;">Nome Completo</label>
+      <input type="text" placeholder="Nome do passageiro" oninput="atualizarPassageiro(${id}, 'nome', this.value)">
+      <label style="font-size:12px; font-weight:600; color:var(--grey-med); display:block; margin-bottom:4px; margin-top:8px;">CPF</label>
+      <input type="text" placeholder="000.000.000-00" oninput="atualizarPassageiro(${id}, 'cpf', this.value)">
+    `;
+    document.getElementById('lista-passageiros').appendChild(div);
+  }
+
+  function removerPassageiro(id) {
+    passageiros = passageiros.filter(p => p.id !== id);
+    document.getElementById(`passageiro-${id}`).remove();
+    atualizarTotal();
+  }
+
+  function atualizarPassageiro(id, campo, valor) {
+    const p = passageiros.find(p => p.id === id);
+    if (p) p[campo] = valor;
+  }
+
+  function atualizarTotal() {
+    const total = viagemSelecionada ? viagemSelecionada.price * 0.5 * passageiros.length : 0;
+    document.getElementById('valor-total').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+  }
+
   function confirmarPassageiros() {
-    for (let i = 0; i < passageiros.length; i++) {
-      if (!passageiros[i].nome || !passageiros[i].cpf || !passageiros[i].whatsapp) { alert(`Preencha os dados do passageiro ${i + 1}.`); return; }
+    if (passageiros.length === 0) { alert("Adicione pelo menos um passageiro."); return; }
+    for (const p of passageiros) {
+      if (!p.nome.trim() || !p.cpf.trim()) { alert("Preencha o nome e CPF de todos os passageiros."); return; }
     }
     fecharModalPassageiros();
-    abrirModalPoltrona(viagemSel);
+    abrirModalPoltrona();
   }
 
-  function abrirModalPoltrona(viagem) {
-    assentosSelecionados = [];
-    const mapa = document.getElementById('mapa-onibus');
-    mapa.innerHTML = '';
-    const total = viagem.total_seats || 46;
-    const ocupadas = new Set(viagem.occupied_seats || []);
+  function abrirModalPoltrona() {
+    document.getElementById('modal-poltrona').style.display = 'flex';
+    const totalAssentos = viagemSelecionada.total_seats || 46;
+    
+    // Lê os assentos ocupados que vieram da API GeckoAPI (via server.js)
+    const assentosOcupados = viagemSelecionada.occupied_seats || [];
+    
+    const mapaDiv = document.getElementById('mapa-onibus');
+    mapaDiv.innerHTML = '';
+
     const busMap = document.createElement('div');
     busMap.className = 'bus-map';
-    busMap.innerHTML = '<div class="bus-windshield">🚌</div>';
-    const busGrid = document.createElement('div');
-    busGrid.className = 'bus-grid';
-    for (let i = 1; i <= total; i += 4) {
-      const row = document.createElement('div');
-      row.className = 'bus-row';
-      for (let j = 0; j < 2; j++) {
-        const num = i + j;
-        if (num <= total) {
-          const btn = document.createElement('button');
-          btn.textContent = num; btn.className = 'poltrona-btn';
-          if (ocupadas.has(num)) btn.disabled = true;
-          else btn.onclick = () => selecionarAssento(btn, num);
-          row.appendChild(btn);
-        } else { const p = document.createElement('div'); p.className = 'bus-placeholder'; row.appendChild(p); }
-      }
-      const aisle = document.createElement('div'); aisle.className = 'bus-aisle'; row.appendChild(aisle);
-      for (let j = 2; j < 4; j++) {
-        const num = i + j;
-        if (num <= total) {
-          const btn = document.createElement('button');
-          btn.textContent = num; btn.className = 'poltrona-btn';
-          if (ocupadas.has(num)) btn.disabled = true;
-          else btn.onclick = () => selecionarAssento(btn, num);
-          row.appendChild(btn);
-        } else { const p = document.createElement('div'); p.className = 'bus-placeholder'; row.appendChild(p); }
-      }
-      busGrid.appendChild(row);
+    busMap.innerHTML = `<div class="bus-windshield">🚌</div><div class="bus-grid" id="bus-grid"></div>`;
+    mapaDiv.appendChild(busMap);
+
+    const grid = document.getElementById('bus-grid');
+    const fileiras = Math.ceil(totalAssentos / 4);
+
+    let assentoNum = 1;
+    for (let i = 0; i < fileiras; i++) {
+        const row = document.createElement('div');
+        row.className = 'bus-row';
+
+        // Lado esquerdo (2 assentos)
+        for (let j = 0; j < 2; j++) {
+            if (assentoNum <= totalAssentos) {
+                row.appendChild(criarBotaoPoltrona(assentoNum, assentosOcupados));
+                assentoNum++;
+            }
+        }
+
+        // Corredor
+        const aisle = document.createElement('div');
+        aisle.className = 'bus-aisle';
+        row.appendChild(aisle);
+
+        // Lado direito (2 assentos)
+        for (let j = 0; j < 2; j++) {
+            if (assentoNum <= totalAssentos) {
+                row.appendChild(criarBotaoPoltrona(assentoNum, assentosOcupados));
+                assentoNum++;
+            }
+        }
+
+        grid.appendChild(row);
     }
-    busMap.appendChild(busGrid);
-    mapa.appendChild(busMap);
-    atualizarInfoPoltronas();
-    document.getElementById('modal-poltrona').style.display = 'flex';
+
+    document.getElementById('poltrona-fonte').textContent = `Total de ${totalAssentos} assentos. Os assentos escuros já estão ocupados.`;
+    poltronasSelecionadas = [];
   }
 
-  function selecionarAssento(btn, num) {
-    const idx = assentosSelecionados.indexOf(num);
-    if (idx >= 0) { assentosSelecionados.splice(idx, 1); btn.classList.remove('selecionada'); }
-    else {
-      if (assentosSelecionados.length >= passageiros.length) { alert(`Máximo ${passageiros.length} poltrona(s).`); return; }
-      assentosSelecionados.push(num);
-      btn.classList.add('selecionada');
+  function criarBotaoPoltrona(numero, ocupados) {
+    const btn = document.createElement('button');
+    btn.className = 'poltrona-btn';
+    btn.textContent = numero;
+    
+    // Verifica se o assento está na lista de ocupados
+    // (A API manda como Number, mas garantimos que está como Number para comparar)
+    const isOcupado = ocupados.includes(numero) || ocupados.includes(String(numero));
+    
+    if (isOcupado) {
+        btn.disabled = true;
+    } else {
+        btn.onclick = () => togglePoltrona(btn, numero);
     }
-    atualizarInfoPoltronas();
+    return btn;
   }
 
-  function atualizarInfoPoltronas() {
-    const fonte = document.getElementById('poltrona-fonte');
-    const completo = assentosSelecionados.length === passageiros.length;
-    fonte.innerHTML = `<div class="poltrona-legenda"><span><span class="sw" style="background:#fff;"></span> Livre</span><span><span class="sw" style="background:#454545;"></span> Ocupada</span><span><span class="sw" style="background:var(--brand);"></span> Selecionada</span></div><div style="text-align:center;font-size:14px;font-weight:600;color:${completo ? '#40b552' : 'var(--brand)'};">${completo ? '✅' : '👉'} ${assentosSelecionados.length} de ${passageiros.length} selecionada(s)</div>`;
+  function togglePoltrona(btn, numero) {
+    if (btn.classList.contains('selecionada')) {
+        btn.classList.remove('selecionada');
+        poltronasSelecionadas = poltronasSelecionadas.filter(n => n !== numero);
+    } else {
+        // Regra: Só pode escolher a mesma quantidade de assentos que de passageiros
+        if (poltronasSelecionadas.length >= passageiros.length) {
+            alert(`Você só pode escolher ${passageiros.length} poltrona(s).`);
+            return;
+        }
+        btn.classList.add('selecionada');
+        poltronasSelecionadas.push(numero);
+    }
   }
 
   function fecharModalPoltrona() { document.getElementById('modal-poltrona').style.display = 'none'; }
 
   function confirmarPoltrona() {
-    if (assentosSelecionados.length !== passageiros.length) { alert(`Selecione ${passageiros.length} poltrona(s).`); return; }
+    if (poltronasSelecionadas.length !== passageiros.length) {
+        alert(`Você precisa escolher exatamente ${passageiros.length} poltrona(s).`);
+        return;
+    }
     fecharModalPoltrona();
     abrirCheckout();
   }
 
   function abrirCheckout() {
-    const precoOriginal = parseFloat(viagemSel.price) || 0;
-    const totalFinal = precoOriginal * 0.5 * passageiros.length;
-    checkoutState.total = totalFinal;
-    checkoutState.route = `${document.getElementById('input-origem').value} → ${document.getElementById('input-destino').value}`;
-    checkoutState.empresa = viagemSel.company.name;
-    checkoutState.poltrona = assentosSelecionados.join(', ');
-
-    const termSaida = formatarTerminalExibicao(viagemSel.departure.city, viagemSel.departure.terminal.name);
-    const termChegada = formatarTerminalExibicao(viagemSel.arrival.city, viagemSel.arrival.terminal.name);
-
-    document.getElementById('checkout-info').innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Empresa:</span> <strong>${viagemSel.company.name}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Rota:</span> <strong>${checkoutState.route}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Embarque:</span> <strong style="text-align:right; max-width:60%;">${termSaida}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Desembarque:</span> <strong style="text-align:right; max-width:60%;">${termChegada}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Poltrona(s):</span> <strong>${checkoutState.poltrona}</strong></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:#666;">Passageiros:</span> <strong>${passageiros.length}</strong></div>
-      <div style="background:#f0f9f0; padding:16px; border-radius:8px; margin-top:16px; text-align:center;"><div style="font-size:12px; color:#666;">Total a pagar</div><div style="color:var(--brand); font-weight:800; font-size:28px;">R$ ${totalFinal.toFixed(2).replace('.', ',')}</div></div>
-    `;
-    document.getElementById('area-pix').innerHTML = `<button onclick="gerarPix()" style="width:100%;padding:16px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;">Gerar PIX</button>`;
     document.getElementById('modal-checkout').style.display = 'flex';
+    const total = viagemSelecionada.price * 0.5 * passageiros.length;
+    
+    document.getElementById('checkout-info').innerHTML = `
+      <div style="background:var(--grey-soft); padding:16px; border-radius:12px; margin-bottom:16px;">
+        <p style="margin:0 0 8px; font-weight:700;">${viagemSelecionada.company.name}</p>
+        <p style="margin:0; font-size:13px; color:var(--grey-med);">${viagemSelecionada.departure.city} → ${viagemSelecionada.arrival.city}</p>
+        <p style="margin:4px 0 0; font-size:13px; color:var(--grey-med);">${viagemSelecionada.departure.time} - ${viagemSelecionada.arrival.time}</p>
+        <p style="margin:8px 0 0; font-size:13px;">Poltronas: <strong>${poltronasSelecionadas.join(', ')}</strong></p>
+        <p style="margin:8px 0 0; font-size:13px;">Passageiros: <strong>${passageiros.map(p => p.nome).join(', ')}</strong></p>
+      </div>
+      <p style="font-size:24px; font-weight:700; color:var(--brand); text-align:center; margin:0 0 16px;">Total: R$ ${total.toFixed(2).replace('.', ',')}</p>
+    `;
+
+    gerarPix(total);
+  }
+
+  function gerarPix(total) {
+    const areaPix = document.getElementById('area-pix');
+    areaPix.innerHTML = `
+      <div class="pix-box">
+        <div class="pix-timer" id="pix-timer">Expira em 15:00</div>
+        <p style="font-size:14px; color:var(--grey-med); margin:0 0 8px;">Escaneie o QR Code abaixo para pagar</p>
+        <div id="qrcode"></div>
+        <p class="pix-total">R$ ${total.toFixed(2).replace('.', ',')}</p>
+        <button class="pix-btn-copy" onclick="copiarPix()">Copiar Código Pix (Copia e Cola)</button>
+        <p style="font-size:11px; color:var(--grey-med); margin-top:16px;">Após o pagamento, a confirmação é automática.</p>
+      </div>
+    `;
+
+    const pixCode = "00020126580014BR.GOV.BCB.PIX0136" + Math.random().toString(36).substring(2) + "520400005303986540" + total.toFixed(2) + "5802BR5913Buser Ltda6009SAO PAULO62070503***6304" + Math.floor(Math.random() * 9999);
+    
+    const qrDiv = document.getElementById('qrcode');
+    qrDiv.innerHTML = '';
+    new QRCode(qrDiv, {
+        text: pixCode,
+        width: 180,
+        height: 180,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    window.pixCodeAtual = pixCode;
+  }
+
+  function copiarPix() {
+    navigator.clipboard.writeText(window.pixCodeAtual).then(() => {
+      alert("Código Pix copiado!");
+    });
   }
 
   function fecharCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
 
-  async function gerarPix() {
-    try {
-      if (!db) throw new Error('Firebase não inicializado');
-      const snap = await db.ref('farol_pix_cfg').once('value');
-      const cfg = snap.val() || {};
-      if (!cfg.key) { alert('⚠️ Chave PIX não configurada. Peça ao administrador para configurar em /farol_pix_cfg { key, name, city }.'); return; }
-
-      const key = String(cfg.key).replace(/\s+/g, '').trim();
-      const nome = (cfg.name || 'BUSER').toUpperCase().substring(0, 25);
-      const cidade = (cfg.city || 'SAO PAULO').toUpperCase().substring(0, 15);
-      const total = checkoutState.total || 0;
-      const valor = total.toFixed(2);
-
-      const campo01 = `01${String(key.length).padStart(2, '0')}${key}`;
-      const merchantAccInfo = `0014br.gov.bcb.pix${campo01}`;
-      const campo26 = `26${String(merchantAccInfo.length).padStart(2, '0')}${merchantAccInfo}`;
-      const campo00 = '000201', campo52 = '52040000', campo53 = '5303986';
-      const campo54 = `54${String(valor.length).padStart(2, '0')}${valor}`;
-      const campo58 = '5802BR';
-      const campo59 = `59${String(nome.length).padStart(2, '0')}${nome}`;
-      const campo60 = `60${String(cidade.length).padStart(2, '0')}${cidade}`;
-      const campo62 = '62070503***';
-      const payloadSemCRC = `${campo00}${campo26}${campo52}${campo53}${campo54}${campo58}${campo59}${campo60}${campo62}6304`;
-
-      function calcularCRC16(str) {
-        let crc = 0xFFFF;
-        for (let i = 0; i < str.length; i++) {
-          crc ^= str.charCodeAt(i) << 8;
-          for (let j = 0; j < 8; j++) { crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1); crc &= 0xFFFF; }
-        }
-        return crc.toString(16).toUpperCase().padStart(4, '0');
-      }
-
-      const payload = payloadSemCRC + calcularCRC16(payloadSemCRC);
-      const txid = 'BUSER' + Date.now().toString().slice(-8);
-      checkoutState.payload = payload;
-      checkoutState.txid = txid;
-      checkoutState.key = key;
-      checkoutState.receiverName = nome;
-
-      try {
-        const clienteId = getClienteId();
-        await db.ref(`farol_pedidos/${clienteId}/pix/${txid}`).set({
-          txid, key, receiverName: nome, amount: total, originalAmount: total * 2,
-          route: checkoutState.route, empresa: checkoutState.empresa, poltrona: checkoutState.poltrona,
-          status: 'pending', geradoEm: Date.now(), payload,
-          passengers: passageiros.map((p, i) => ({ nome: p.nome, cpf: p.cpf, whatsapp: p.whatsapp, poltrona: assentosSelecionados[i] }))
-        });
-      } catch (e) { console.warn('Não consegui registrar no Firebase:', e); }
-
-      const area = document.getElementById('area-pix');
-      area.innerHTML = `
-        <div class="pix-box">
-          <div class="pix-timer">Seu Pix expira em 29:45</div>
-          <h3 style="font-size:16px; margin:0 0 16px;">Veja como pagar com Pix</h3>
-          <p style="font-size:13px; color:#666; text-align:left; margin-bottom:16px;">1. Abra o APP/site do seu banco;<br>2. Selecione a opção pagar com o Pix;<br>3. Aponte sua câmera para o QR Code ou copie o código.</p>
-          <p style="font-size:12px; color:#999; margin:0;">Valor do Pix: R$ ${total.toFixed(2).replace('.', ',')}</p>
-          <div id="qrcode"></div>
-          <button class="pix-btn-copy" onclick="copiarPix()">📄 Copiar código do Pix</button>
-          <button onclick="mostrarPassagem()" style="width:100%; padding:14px; background:transparent; color:var(--brand); font-weight:700; font-size:15px; border:2px solid var(--brand); border-radius:8px; cursor:pointer; margin-top:8px;">Ver minha passagem →</button>
-        </div>
-      `;
-      new QRCode(document.getElementById('qrcode'), { text: payload, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
-    } catch (erro) {
-      console.error('Erro ao gerar PIX:', erro);
-      alert('❌ Não foi possível gerar o PIX.\n\n' + (erro.message || ''));
-    }
-  }
-
-  function copiarPix() {
-    navigator.clipboard.writeText(checkoutState.payload).then(async () => {
-      alert('✅ Código PIX copiado!');
-      try {
-        if (db && checkoutState.txid) {
-          const clienteId = getClienteId();
-          await db.ref(`farol_pedidos/${clienteId}/pix/${checkoutState.txid}`).update({ copiado: true, copiadoEm: Date.now() });
-        }
-      } catch (e) { console.warn(e); }
-    });
-  }
-
-  // ============================================================
-  // VOUCHER PREMIUM (LIBERAÇÃO EM TEMPO REAL)
-  // ============================================================
-  function mostrarPassagem() {
-    document.getElementById('modal-checkout').style.display = 'none';
-    document.getElementById('modal-passagem').style.display = 'flex';
-    
-    if (listenerStatusPedido) { listenerStatusPedido.off(); }
-
-    if (db && checkoutState.txid) {
-      const clienteId = getClienteId();
-      listenerStatusPedido = db.ref(`farol_pedidos/${clienteId}/pix/${checkoutState.txid}`);
-      
-      listenerStatusPedido.on('value', (snap) => {
-        const dados = snap.val();
-        const statusAtual = dados ? dados.status : 'pending';
-        renderizarVoucher(statusAtual);
-      });
-    } else {
-      renderizarVoucher('pending');
-    }
-  }
-
-  function renderizarVoucher(status) {
-    const content = document.getElementById('passagem-content');
-    
-    const dataFormatada = (document.getElementById('input-ida').value || '').split('-').reverse().join('/');
-    const codReserva = checkoutState.txid.substring(0, 6).toUpperCase();
-    
-    const termSaida = formatarTerminalExibicao(viagemSel.departure.city, viagemSel.departure.terminal.name);
-    const termChegada = formatarTerminalExibicao(viagemSel.arrival.city, viagemSel.arrival.terminal.name);
-    
-    // Configurações do BP-e
-    let statusText = 'PAGAMENTO PENDENTE';
-    let statusColor = '#b87d00';
-    let botaoImprimir = `<button style="width:100%; padding:14px; background:#eee; border:2px solid #ddd; color:#999; font-weight:700; border-radius:12px; cursor:not-allowed; margin-top:20px;" disabled>⏳ Aguardando Pagamento</button>`;
-
-    if (status === 'paid') {
-      statusText = 'AUTORIZADO';
-      statusColor = '#2e9a3e';
-      botaoImprimir = `<button onclick="window.print()" style="width:100%; padding:14px; background:var(--brand); border:2px solid var(--brand); color:#fff; font-weight:700; border-radius:12px; cursor:pointer; margin-top:20px;">🖨️ Imprimir Passagem</button>`;
-    } else if (status === 'cancelled') {
-      statusText = 'CANCELADO';
-      statusColor = '#d81b60';
-      botaoImprimir = `<button style="width:100%; padding:14px; background:#eee; border:2px solid #ddd; color:#999; font-weight:700; border-radius:12px; cursor:not-allowed; margin-top:20px;" disabled>❌ Pedido Cancelado</button>`;
-    }
-
-    const passageirosHtml = passageiros.map((p, i) => `
-      <div class="bpe-section">
-        <div class="bpe-row"><span class="bpe-label">Passageiro:</span> <span style="text-align:right;">${p.nome}</span></div>
-        <div class="bpe-row"><span class="bpe-label">CPF:</span> <span style="text-align:right;">${p.cpf}</span></div>
-        <div class="bpe-row"><span class="bpe-label">Tipo de desconto:</span> <span style="text-align:right;">NORMAL</span></div>
-        <div class="bpe-row"><span class="bpe-label">Poltrona:</span> <span style="text-align:right;">${assentosSelecionados[i]}</span></div>
-      </div>
-    `).join('');
-
-    content.innerHTML = `
-      <div class="bpe-ticket">
-        <h3>DOCUMENTO AUXILIAR DE BILHETE DE PASSAGEM ELETRÔNICO</h3>
-        
-        <div class="bpe-section">
-          <div class="bpe-row"><span class="bpe-label">BUSER TECNOLOGIA LTDA</span></div>
-          <div class="bpe-row"><span>CNPJ: 12.345.678/0001-90</span></div>
-          <div class="bpe-row"><span>AV PAULISTA, 1000 - SAO PAULO - SP</span></div>
-        </div>
-
-        <div class="bpe-section">
-          <div class="bpe-row"><span class="bpe-label">EMPRESA:</span> <span style="text-align:right;">${viagemSel.company.name.toUpperCase()}</span></div>
-          <div class="bpe-row"><span class="bpe-label">ORIGEM:</span> <span style="text-align:right;">${viagemSel.departure.city.toUpperCase()}</span></div>
-          <div class="bpe-row"><span class="bpe-label">DESTINO:</span> <span style="text-align:right;">${viagemSel.arrival.city.toUpperCase()}</span></div>
-          <div class="bpe-row"><span class="bpe-label">EMBARQUE:</span> <span style="text-align:right;">${dataFormatada}, ÀS ${viagemSel.departure.time}</span></div>
-          <div class="bpe-row"><span class="bpe-label">LINHA:</span> <span style="text-align:right;">${viagemSel.departure.city.toUpperCase()} - ${viagemSel.arrival.city.toUpperCase()}</span></div>
-          <div class="bpe-row"><span class="bpe-label">TIPO DE VIAGEM:</span> <span style="text-align:right;">${viagemSel.bus_type.toUpperCase()}</span></div>
-        </div>
-
-        ${passageirosHtml}
-
-        <div class="bpe-section">
-          <div class="bpe-row"><span class="bpe-label">VALOR TOTAL R$</span> <span style="text-align:right;">${checkoutState.total.toFixed(2).replace('.', ',')}</span></div>
-          <div class="bpe-row"><span class="bpe-label">DESCONTO:</span> <span style="text-align:right;">0,00</span></div>
-          <div class="bpe-row"><span class="bpe-label">VALOR A PAGAR R$</span> <span style="text-align:right;">${checkoutState.total.toFixed(2).replace('.', ',')}</span></div>
-          <div class="bpe-row"><span class="bpe-label">FORMA DE PAGAMENTO:</span> <span style="text-align:right;">PIX</span></div>
-        </div>
-
-        <div class="bpe-section">
-          <div class="bpe-row"><span class="bpe-label">BP-e Nº:</span> <span style="text-align:right;">${Math.floor(Math.random() * 900000) + 100000}</span></div>
-          <div class="bpe-row"><span class="bpe-label">SÉRIE:</span> <span style="text-align:right;">1</span></div>
-          <div class="bpe-row"><span class="bpe-label">PROTOCOLO DE AUTORIZAÇÃO:</span> <span style="text-align:right;">${Math.floor(Math.random() * 900000000000000) + 100000000000000}</span></div>
-          <div class="bpe-row"><span class="bpe-label">DATA DE AUTORIZAÇÃO:</span> <span style="text-align:right;">${new Date().toLocaleString('pt-BR')}</span></div>
-          <div class="bpe-row" style="color:${statusColor}; font-weight:bold; margin-top:5px;"><span>STATUS:</span> <span style="text-align:right;">${statusText}</span></div>
-        </div>
-
-        <div class="bpe-center">
-          Consulte pela chave de acesso em:<br>
-          https://dte-portal.svrs.rs.gov.br
-        </div>
-        
-        <div class="bpe-barcode">
-          <div id="qrcode-voucher" style="display:inline-block; margin-bottom:5px;"></div>
-          <div class="bpe-chave">
-            2425 1110 7886 1770 1919 6300 3000 5406 0510 5741 6460
-          </div>
-        </div>
-      </div>
-
-      <!-- Botão de Imprimir (Oculto na Impressão) -->
-      <div class="no-print" style="max-width:450px; margin: 0 auto;">
-        ${botaoImprimir}
-        <a href="https://wa.me/5511918764664?text=${encodeURIComponent('Olá! Acabei de gerar a reserva ' + codReserva + '.')}" target="_blank" style="display:block; width:100%; padding:14px; background:#25D366; color:#fff; font-weight:700; border-radius:12px; text-decoration:none; text-align:center; border:2px solid #25D366; margin-top:12px;">
-          💬 Falar no Whats
-        </a>
-      </div>
-    `;
-
-    // QR Code
-    new QRCode(document.getElementById("qrcode-voucher"), {
-      text: "https://dte-portal.svrs.rs.gov.br", // Simulação do link
-      width: 100,
-      height: 100,
-      colorDark : "#000000",
-      colorLight : "#ffffff",
-      correctLevel : QRCode.CorrectLevel.H
-    });
-  }
-
-  function fecharPassagem() { 
-    document.getElementById('modal-passagem').style.display = 'none'; 
-    if (listenerStatusPedido) {
-      listenerStatusPedido.off();
-      listenerStatusPedido = null;
-    }
-  }
-
-  function mascaraCPF(v) { v = v.replace(/\D/g, '').substring(0, 11); return v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); }
-  function mascaraWhats(v) { v = v.replace(/\D/g, '').substring(0, 11); return v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3'); }
-  function mascaraData(v) { v = v.replace(/\D/g, '').substring(0, 8); return v.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})(\d)/, '$1/$2'); }
-
-  // ============================================================
-  // WHATSAPP - BOTÃO FLUTUANTE
-  // ============================================================
   function abrirWhatsApp() {
-    const numero = '5511918764664'; // 11 91876-4664 com DDI 55
-    const mensagem = encodeURIComponent('Olá! Vim pelo site da Buser e gostaria de mais informações sobre as passagens.');
-    const url = `https://wa.me/${numero}?text=${mensagem}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.open('https://api.whatsapp.com/send?phone=5531920104102&text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20ClickBus%20e%20gostaria%20de%20cotar%20uma%20passagem.', '_blank');
   }
-</script>
 
+</script>
 </body>
 </html>

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Black Friday 2026 com viagens de ônibus em oferta | Buser</title>
 
-<!-- FAVICON (O ÍCONE DA ABA DO NAVEGADOR) -->
 <link rel="icon" type="image/jpeg" href="https://upload.wikimedia.org/wikipedia/commons/b/b3/Buser.jpg">
 
 <link rel="preconnect" href="https://bcdn.com.br/" crossorigin>
@@ -205,7 +204,6 @@
   }
   .swap-btn:hover{transform:translate(-50%,-50%) rotate(180deg);box-shadow:var(--shadow-md);border-color:var(--brand)}
 
-  /* Botão de busca - pill com ícone SVG + texto */
   .searchbox-btn{
     background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);
     color:#fff;border:none;height:58px;
@@ -236,7 +234,6 @@
     text-shadow:0 1px 2px rgba(0,0,0,.25);font-weight:500;
   }
 
-  /* Autocomplete */
   .autocomplete-dropdown{
     position:absolute;top:100%;left:0;right:0;background:#fff;
     border:1px solid var(--grey-light);border-radius:var(--r-md);
@@ -1020,7 +1017,6 @@
   </div>
 </div>
 
-<!-- BOTÃO FLUTUANTE WHATSAPP -->
 <button class="whatsapp-float" onclick="abrirWhatsApp()" aria-label="Fale com a gente no WhatsApp">
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
@@ -1032,7 +1028,7 @@
 
 <script>
   // ============================================================
-  // FIREBASE (PIX config) - NOVO PROJETO tela-buser
+  // FIREBASE
   // ============================================================
   const firebaseConfig = {
     apiKey: "AIzaSyAJydedP--aj9JmwO07nvkBo4tbrRgA6Y",
@@ -1069,7 +1065,7 @@
 
     marcarOnline();
     db.ref('farol_visitas/' + clienteId + '/primeiraVisita').transaction(val => val || Date.now());
-    
+
     window.addEventListener('beforeunload', () => { db.ref('farol_visitas/' + clienteId + '/online').set(false).catch(() => {}); });
     setInterval(marcarOnline, 20000);
   }
@@ -1077,7 +1073,7 @@
   flatpickr("#input-ida", { locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", minDate: "today" });
 
   // ============================================================
-  // UTILITÁRIOS DE NORMALIZAÇÃO
+  // UTILITÁRIOS
   // ============================================================
   function normalizarTexto(t) {
     if (!t) return '';
@@ -1155,16 +1151,6 @@
     return `${cidadeLimpa} - ${terminalLimpo}`;
   }
 
-  function extrairArray(json) {
-    if (Array.isArray(json)) return json;
-    if (!json || typeof json !== 'object') return [];
-    if (json.data && Array.isArray(json.data.data)) return json.data.data;
-    return json.data || json.viagens || json.results || json.trips || json.items || [];
-  }
-
-  // ============================================================
-  // FUNÇÃO CHAVE: NORMALIZAR VIAGEM (Lê o occupied_seats)
-  // ============================================================
   function normalizarViagem(v) {
     const depTerm = v.departure?.place || v.departure?.terminal || v.departure?.location || v.origin || v.origem || {};
     const arrTerm = v.arrival?.place   || v.arrival?.terminal   || v.arrival?.location   || v.destination || v.destino || {};
@@ -1175,7 +1161,6 @@
     const depTermName = safeString(depTerm.name || depTerm.nome || v.departure?.terminalName || v.departure?.terminal_name || v.origem_terminal, '');
     const arrTermName = safeString(arrTerm.name || arrTerm.nome || v.arrival?.terminalName || v.arrival?.terminal_name || v.destino_terminal, '');
 
-    // AQUI: Lê o campo occupied_seats que o nosso servidor mandou
     let assentosOcupados = v.occupied_seats || v.assentos_ocupados || v.occupiedSeats || [];
     if (!Array.isArray(assentosOcupados)) {
         assentosOcupados = Object.keys(assentosOcupados || {}).filter(k => assentosOcupados[k]);
@@ -1192,7 +1177,7 @@
         v.preco ?? v.valor ?? v.amount ?? 0
       ),
       total_seats: v.total_seats || v.totalSeats || v.assentos || v.seats || 46,
-      occupied_seats: assentosOcupados, 
+      occupied_seats: assentosOcupados,
       departure: {
         time: safeString(v.departure?.time || v.departureTime || v.departure_time || v.horario_saida || v.saida, '--:--'),
         city: depCity,
@@ -1279,7 +1264,7 @@
   }
 
   // ============================================================
-  // BUSCA (FLUXO DE FILA COM POLLING INTELIGENTE)
+  // BUSCA
   // ============================================================
   let viagensOriginais = [];
 
@@ -1346,7 +1331,7 @@
 
         try {
             const res = await fetch(urlResultado);
-            
+
             if (!res.ok) throw new Error(`Servidor respondeu com status ${res.status}`);
             const contentType = res.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
@@ -1393,7 +1378,7 @@
 
   function renderizarViagens(viagens) {
     const lista = document.getElementById('lista-viagens');
-    
+
     const LOGOS_EMPRESAS = {
       'Catedral': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Catedral_logo.png/200px-Catedral_logo.png',
       'Nacional': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Nacional_logo.png/200px-Nacional_logo.png',
@@ -1509,9 +1494,9 @@
   function confirmarPassageiros() {
     if (passageiros.length === 0) { alert("Adicione pelo menos um passageiro."); return; }
     for (const p of passageiros) {
-      if (!p.nome.trim() || !p.cpf.trim() || !p.email.trim() || !p.telefone.trim()) { 
-          alert("Preencha todos os campos (Nome, CPF, E-mail e Telefone) de todos os passageiros."); 
-          return; 
+      if (!p.nome.trim() || !p.cpf.trim() || !p.email.trim() || !p.telefone.trim()) {
+          alert("Preencha todos os campos (Nome, CPF, E-mail e Telefone) de todos os passageiros.");
+          return;
       }
     }
     fecharModalPassageiros();
@@ -1521,10 +1506,8 @@
   function abrirModalPoltrona() {
     document.getElementById('modal-poltrona').style.display = 'flex';
     const totalAssentos = viagemSelecionada.total_seats || 46;
-    
-    // Lê os assentos ocupados que vieram da API GeckoAPI (via server.js)
     const assentosOcupados = viagemSelecionada.occupied_seats || [];
-    
+
     const mapaDiv = document.getElementById('mapa-onibus');
     mapaDiv.innerHTML = '';
 
@@ -1541,7 +1524,6 @@
         const row = document.createElement('div');
         row.className = 'bus-row';
 
-        // Lado esquerdo (2 assentos)
         for (let j = 0; j < 2; j++) {
             if (assentoNum <= totalAssentos) {
                 row.appendChild(criarBotaoPoltrona(assentoNum, assentosOcupados));
@@ -1549,12 +1531,10 @@
             }
         }
 
-        // Corredor
         const aisle = document.createElement('div');
         aisle.className = 'bus-aisle';
         row.appendChild(aisle);
 
-        // Lado direito (2 assentos)
         for (let j = 0; j < 2; j++) {
             if (assentoNum <= totalAssentos) {
                 row.appendChild(criarBotaoPoltrona(assentoNum, assentosOcupados));
@@ -1573,10 +1553,9 @@
     const btn = document.createElement('button');
     btn.className = 'poltrona-btn';
     btn.textContent = numero;
-    
-    // Verifica se o assento está na lista de ocupados
+
     const isOcupado = ocupados.includes(numero) || ocupados.includes(String(numero));
-    
+
     if (isOcupado) {
         btn.disabled = true;
     } else {
@@ -1590,7 +1569,6 @@
         btn.classList.remove('selecionada');
         poltronasSelecionadas = poltronasSelecionadas.filter(n => n !== numero);
     } else {
-        // Regra: Só pode escolher a mesma quantidade de assentos que de passageiros
         if (poltronasSelecionadas.length >= passageiros.length) {
             alert(`Você só pode escolher ${passageiros.length} poltrona(s).`);
             return;
@@ -1614,7 +1592,7 @@
   function abrirCheckout() {
     document.getElementById('modal-checkout').style.display = 'flex';
     const total = viagemSelecionada.price * 0.5 * passageiros.length;
-    
+
     document.getElementById('checkout-info').innerHTML = `
       <div style="background:var(--grey-soft); padding:16px; border-radius:12px; margin-bottom:16px;">
         <p style="margin:0 0 8px; font-weight:700;">${viagemSelecionada.company.name}</p>
@@ -1643,7 +1621,7 @@
     `;
 
     const pixCode = "00020126580014BR.GOV.BCB.PIX0136" + Math.random().toString(36).substring(2) + "520400005303986540" + total.toFixed(2) + "5802BR5913Buser Ltda6009SAO PAULO62070503***6304" + Math.floor(Math.random() * 9999);
-    
+
     const qrDiv = document.getElementById('qrcode');
     qrDiv.innerHTML = '';
     new QRCode(qrDiv, {
@@ -1658,25 +1636,29 @@
     window.pixCodeAtual = pixCode;
 
     // ==========================================
-    // SALVAR DADOS NO FIREBASE (LEADS)
+    // SALVAR PEDIDO NO FIREBASE → /farol_pedidos
     // ==========================================
     if (db) {
         const pedido = {
-            dataHora: firebase.database.ServerValue.TIMESTAMP,
-            origem: viagemSelecionada.departure.city,
-            destino: viagemSelecionada.arrival.city,
-            empresa: viagemSelecionada.company.name,
-            horarioSaida: viagemSelecionada.departure.time,
+            clienteId:      getClienteId(),
+            dataHora:       firebase.database.ServerValue.TIMESTAMP,
+            origem:         viagemSelecionada.departure.city,
+            destino:        viagemSelecionada.arrival.city,
+            empresa:        viagemSelecionada.company.name,
+            horarioSaida:   viagemSelecionada.departure.time,
             horarioChegada: viagemSelecionada.arrival.time,
-            valorTotal: total,
-            poltronas: poltronasSelecionadas,
-            passageiros: passageiros,
-            status: 'aguardando_pagamento'
+            valorTotal:     total,
+            poltronas:      poltronasSelecionadas,
+            passageiros:    passageiros,
+            pixCode:        pixCode,
+            status:         'aguardando_pagamento'
         };
-        
-        db.ref('vendas_simuladas').push(pedido)
-          .then(() => console.log("✅ Lead salvo no Firebase com sucesso!"))
-          .catch(err => console.error("❌ Erro ao salvar lead no Firebase:", err));
+
+        db.ref('farol_pedidos').push(pedido)
+          .then(ref => console.log('✅ Pedido salvo em /farol_pedidos →', ref.key))
+          .catch(err => console.error('❌ Falha /farol_pedidos:', err.code, err.message));
+    } else {
+        console.error('❌ Firebase (db) não inicializado. Pedido NÃO salvo.');
     }
   }
 
@@ -1691,7 +1673,6 @@
   function abrirWhatsApp() {
     window.open('https://api.whatsapp.com/send?phone=5531920104102&text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20ClickBus%20e%20gostaria%20de%20cotar%20uma%20passagem.', '_blank');
   }
-
 </script>
 </body>
 </html>
